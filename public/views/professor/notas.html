@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lançamento de Notas - Professor | SGE MED Angola</title>
+  <title>Notas dos Alunos - Professor | SGE MED Angola</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -69,7 +69,7 @@
             </a>
           </div>
           <div class="nav-item">
-            <a href="lancamento-notas.html" class="nav-link active" data-title="Lançar Notas">
+            <a href="lancamento-notas.html" class="nav-link" data-title="Lançar Notas">
               <span class="nav-link-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
               </span>
@@ -77,7 +77,7 @@
             </a>
           </div>
           <div class="nav-item">
-            <a href="notas.html" class="nav-link" data-title="Notas">
+            <a href="notas.html" class="nav-link active" data-title="Notas">
               <span class="nav-link-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
               </span>
@@ -148,7 +148,7 @@
           <button class="mobile-toggle">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <h1 class="header-title">Lançamento de Notas</h1>
+          <h1 class="header-title">Notas dos Alunos</h1>
         </div>
         <div class="header-right">
           <div class="header-user">
@@ -165,48 +165,96 @@
       <div class="page-content">
         <div id="flashMessage" class="alert" style="display: none;" role="alert"></div>
         
-        <!-- Lançar Notas -->
-        <div class="card">
+        <!-- Selecionar Avaliação -->
+        <div class="card mb-4">
           <div class="card-header">
-            <h5 class="card-title mb-0">Lançar Notas</h5>
+            <h5 class="card-title mb-0">Selecionar Avaliação</h5>
           </div>
           <div class="card-body">
-            <div class="row g-3 mb-3">
+            <div class="row g-3">
               <div class="col-md-6">
-                <label class="form-label">Selecionar Avaliação Pendente</label>
-                <select class="form-control form-select" id="selectAvaliacaoLancar">
+                <label class="form-label">Avaliação</label>
+                <select class="form-control form-select" id="selectAvaliacaoNotas">
                   <option value="">Selecione...</option>
                   <!-- Opções serão carregadas dinamicamente -->
                 </select>
               </div>
               <div class="col-md-6 d-flex align-items-end">
-                <button class="btn btn-primary" id="btnCarregarAlunos">Carregar Alunos</button>
+                <button class="btn btn-primary" id="btnCarregarNotas">Carregar Notas</button>
               </div>
             </div>
-            <div id="divLancarNotas" style="display: none;">
-              <div class="table-responsive">
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Nota</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabelaAlunosNotas">
-                    <!-- Alunos serão inseridos aqui -->
-                  </tbody>
-                </table>
+          </div>
+        </div>
+
+        <!-- Detalhes da Avaliação -->
+        <div class="card mb-4" id="cardDetalhesAvaliacao" style="display: none;">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Detalhes da Avaliação</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3"><strong>Título:</strong> <span id="detalheTitulo"></span></div>
+              <div class="col-md-3"><strong>Data:</strong> <span id="detalheData"></span></div>
+              <div class="col-md-3"><strong>Duração:</strong> <span id="detalheDuracao"></span></div>
+              <div class="col-md-3"><strong>Disciplina:</strong> <span id="detalheDisciplina"></span></div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-md-3"><strong>Turma:</strong> <span id="detalheTurma"></span></div>
+              <div class="col-md-3"><strong>Status:</strong> <span id="detalheStatus"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buscar Notas -->
+        <div class="card mb-4" id="cardBuscarNotas" style="display: none;">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Buscar Notas</h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <input type="text" class="form-control" id="buscaNome" placeholder="Buscar por nome do aluno">
               </div>
-              <div class="mt-3">
-                <button class="btn btn-success" id="btnLancarNotas">Lançar Notas</button>
+              <div class="col-md-3">
+                <select class="form-control form-select" id="filtroStatus">
+                  <option value="">Todos os Status</option>
+                  <option value="aprovado">Aprovado</option>
+                  <option value="reprovado">Reprovado</option>
+                </select>
               </div>
+              <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-outline-secondary" id="btnLimparBusca">Limpar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabela de Notas -->
+        <div class="card" id="cardTabelaNotas" style="display: none;">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Notas dos Alunos</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Nome do Aluno</th>
+                    <th>Nota</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelaNotasAlunos">
+                  <!-- Notas serão inseridas aqui -->
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
       
       <!-- Footer -->
-      <footer class="main-footer">
+      <footer class="main-footer mt-4">
         <p class="mb-0">Sistema de Escola Conectada &copy; 2026 - Ministério da Educação de Angola</p>
       </footer>
     </main>
@@ -222,9 +270,11 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       let avaliacoes = [
-        { id: 1, titulo: 'Teste 1º Trimestre', data: '2026-03-15', duracao: 90, disciplina: 'matematica', turma: '10A', status: 'pendente' },
+        { id: 1, titulo: 'Teste 1º Trimestre', data: '2026-03-15', duracao: 90, disciplina: 'matematica', turma: '10A', status: 'lançadas' },
         { id: 2, titulo: 'Prova Física', data: '2026-04-10', duracao: 120, disciplina: 'fisica', turma: '10B', status: 'lançadas' }
       ];
+
+      let notasAtuais = [];
 
       function showFlashMessage(message, type = 'success') {
         const flash = document.getElementById('flashMessage');
@@ -236,10 +286,10 @@
         }, 5000);
       }
 
-      function renderSelectAvaliacoesPendentes() {
-        const select = document.getElementById('selectAvaliacaoLancar');
+      function renderSelectAvaliacoesLancadas() {
+        const select = document.getElementById('selectAvaliacaoNotas');
         select.innerHTML = '<option value="">Selecione...</option>';
-        avaliacoes.filter(av => av.status === 'pendente').forEach(av => {
+        avaliacoes.filter(av => av.status === 'lançadas').forEach(av => {
           const option = document.createElement('option');
           option.value = av.id;
           option.textContent = `${av.titulo} - ${av.turma}`;
@@ -247,56 +297,95 @@
         });
       }
 
-      function getAlunosMock(turma) {
-        const alunosPorTurma = {
-          '10A': ['Ana Pereira', 'Pedro Santos', 'João Costa'],
-          '10B': ['Maria Silva', 'Luís Gomes', 'Rita Alves'],
-          '11A': ['Carlos Mendes', 'Sofia Ribeiro', 'Miguel Sousa']
+      function getNotasMock(avaliacao) {
+        const alunos = {
+          '10A': [
+            { nome: 'Ana Pereira', nota: 15 },
+            { nome: 'Pedro Santos', nota: 12 },
+            { nome: 'João Costa', nota: 18 }
+          ],
+          '10B': [
+            { nome: 'Maria Silva', nota: 14 },
+            { nome: 'Luís Gomes', nota: 8 },
+            { nome: 'Rita Alves', nota: 16 }
+          ]
         };
-        return alunosPorTurma[turma] || [];
+        return alunos[avaliacao.turma] || [];
       }
 
-      // Carregar Alunos para Lançar Notas
-      document.getElementById('btnCarregarAlunos').addEventListener('click', function () {
-        const avId = document.getElementById('selectAvaliacaoLancar').value;
+      function renderDetalhesAvaliacao(avaliacao) {
+        document.getElementById('detalheTitulo').textContent = avaliacao.titulo;
+        document.getElementById('detalheData').textContent = avaliacao.data;
+        document.getElementById('detalheDuracao').textContent = `${avaliacao.duracao} min`;
+        document.getElementById('detalheDisciplina').textContent = avaliacao.disciplina;
+        document.getElementById('detalheTurma').textContent = avaliacao.turma;
+        document.getElementById('detalheStatus').textContent = avaliacao.status;
+        document.getElementById('cardDetalhesAvaliacao').style.display = 'block';
+      }
+
+      function renderTabelaNotas(notas) {
+        const tbody = document.getElementById('tabelaNotasAlunos');
+        tbody.innerHTML = '';
+        notas.forEach(nota => {
+          const status = nota.nota >= 10 ? 'Aprovado' : 'Reprovado';
+          const badgeClass = nota.nota >= 10 ? 'bg-success' : 'bg-danger';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${nota.nome}</td>
+            <td>${nota.nota}</td>
+            <td><span class="badge ${badgeClass}">${status}</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function filtrarNotas() {
+        const buscaNome = document.getElementById('buscaNome').value.toLowerCase();
+        const filtroStatus = document.getElementById('filtroStatus').value;
+
+        let notasFiltradas = notasAtuais.filter(nota => {
+          const matchNome = !buscaNome || nota.nome.toLowerCase().includes(buscaNome);
+          const matchStatus = !filtroStatus || (filtroStatus === 'aprovado' ? nota.nota >= 10 : nota.nota < 10);
+          return matchNome && matchStatus;
+        });
+
+        renderTabelaNotas(notasFiltradas);
+      }
+
+      // Carregar Notas
+      document.getElementById('btnCarregarNotas').addEventListener('click', function () {
+        const avId = document.getElementById('selectAvaliacaoNotas').value;
         if (!avId) {
           showFlashMessage('Selecione uma avaliação.', 'warning');
           return;
         }
         const avaliacao = avaliacoes.find(av => av.id == avId);
-        const alunos = getAlunosMock(avaliacao.turma);
-        const tbody = document.getElementById('tabelaAlunosNotas');
-        tbody.innerHTML = '';
-        alunos.forEach(aluno => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${aluno}</td>
-            <td><input type="number" class="form-control nota-input" min="0" max="20" placeholder="0-20"></td>
-          `;
-          tbody.appendChild(tr);
-        });
-        document.getElementById('divLancarNotas').style.display = 'block';
-      });
-
-      // Lançar Notas
-      document.getElementById('btnLancarNotas').addEventListener('click', function () {
-        const avId = document.getElementById('selectAvaliacaoLancar').value;
-        const notas = Array.from(document.querySelectorAll('.nota-input')).map(inp => parseFloat(inp.value) || 0);
-        const avaliacao = avaliacoes.find(av => av.id == avId);
+        notasAtuais = getNotasMock(avaliacao);
 
         // Simulação API
         setTimeout(() => {
-          console.log('Lançando notas para avaliação:', avaliacao, 'Notas:', notas);
-          avaliacao.status = 'lançadas';
-          renderSelectAvaliacoesPendentes();
-          showFlashMessage('Notas lançadas com sucesso!');
-          document.getElementById('divLancarNotas').style.display = 'none';
-          document.getElementById('selectAvaliacaoLancar').value = '';
+          console.log('Carregando notas para avaliação:', avaliacao, 'Notas:', notasAtuais);
+          renderDetalhesAvaliacao(avaliacao);
+          renderTabelaNotas(notasAtuais);
+          document.getElementById('cardBuscarNotas').style.display = 'block';
+          document.getElementById('cardTabelaNotas').style.display = 'block';
+          showFlashMessage('Notas carregadas com sucesso!');
         }, 1000);
       });
 
+      // Busca em tempo real
+      document.getElementById('buscaNome').addEventListener('input', filtrarNotas);
+      document.getElementById('filtroStatus').addEventListener('change', filtrarNotas);
+
+      // Limpar Busca
+      document.getElementById('btnLimparBusca').addEventListener('click', function () {
+        document.getElementById('buscaNome').value = '';
+        document.getElementById('filtroStatus').value = '';
+        renderTabelaNotas(notasAtuais);
+      });
+
       // Inicializar
-      renderSelectAvaliacoesPendentes();
+      renderSelectAvaliacoesLancadas();
     });
   </script>
 </body>
