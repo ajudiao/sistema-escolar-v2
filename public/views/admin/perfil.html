@@ -77,6 +77,33 @@
       width: 16px;
       height: 16px;
     }
+    
+    .senha-forca {
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .senha-fraca {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    .senha-media {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    
+    .senha-forte {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
   </style>
 </head>
 
@@ -334,19 +361,19 @@
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label">Nome Completo</label>
-                      <input type="text" id="perfilNome" class="form-control" value="Administrador Geral" readonly>
+                      <input type="text" id="perfilNome" class="form-control" value="Administrador Geral" readonly autocomplete="name">
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Email Institucional</label>
-                      <input type="email" id="perfilEmail" class="form-control" value="admin@escola.med.ao">
+                      <input type="email" id="perfilEmail" class="form-control" value="admin@escola.med.ao" autocomplete="email">
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Telefone</label>
-                      <input type="tel" id="perfilTelefone" class="form-control" value="+244 923 000 001">
+                      <input type="tel" id="perfilTelefone" class="form-control" value="+244 923 000 001" autocomplete="tel">
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Cargo</label>
-                      <input type="text" id="perfilCargo" class="form-control" value="Administrador do Sistema" readonly>
+                      <input type="text" id="perfilCargo" class="form-control" value="Administrador do Sistema" readonly autocomplete="organization-title">
                     </div>
                   </div>
 
@@ -356,15 +383,16 @@
                   <div class="row g-3">
                     <div class="col-md-4">
                       <label class="form-label">Palavra-passe Actual</label>
-                      <input type="password" id="perfilSenhaAtual" class="form-control" placeholder="Digite a actual">
+                      <input type="password" id="perfilSenhaAtual" class="form-control" placeholder="Digite a actual" autocomplete="current-password">
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Nova Palavra-passe</label>
-                      <input type="password" id="perfilSenhaNova" class="form-control" placeholder="Digite a nova">
+                      <input type="password" id="perfilSenhaNova" class="form-control" placeholder="Digite a nova" autocomplete="new-password">
+                      <div id="senhaForca" class="senha-forca d-none"></div>
                     </div>
                     <div class="col-md-4">
                       <label class="form-label">Confirmar Nova</label>
-                      <input type="password" id="perfilSenhaConfirmar" class="form-control" placeholder="Confirme a nova">
+                      <input type="password" id="perfilSenhaConfirmar" class="form-control" placeholder="Confirme a nova" autocomplete="new-password">
                     </div>
                   </div>
 
@@ -429,11 +457,66 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Elementos para upload de foto
-      const photoUploadBtn = document.getElementById('photoUploadBtn');
-      const photoInput = document.getElementById('photoInput');
-      const profilePhoto = document.getElementById('profilePhoto');
-      const profileInitials = document.getElementById('profileInitials');
+      // Validação em tempo real para senhas
+      const senhaNovaInput = document.getElementById('perfilSenhaNova');
+      const senhaConfirmarInput = document.getElementById('perfilSenhaConfirmar');
+      
+      function validarForcaSenha(senha) {
+        let forca = 0;
+        if (senha.length >= 6) forca++;
+        if (senha.match(/[a-z]/)) forca++;
+        if (senha.match(/[A-Z]/)) forca++;
+        if (senha.match(/[0-9]/)) forca++;
+        if (senha.match(/[^a-zA-Z0-9]/)) forca++;
+        return forca;
+      }
+      
+      function atualizarIndicadorForca() {
+        const senha = senhaNovaInput.value;
+        const forca = validarForcaSenha(senha);
+        const indicador = document.getElementById('senhaForca');
+        
+        if (!indicador) return;
+        
+        indicador.className = 'senha-forca';
+        
+        if (senha.length === 0) {
+          indicador.classList.add('d-none');
+        } else {
+          indicador.classList.remove('d-none');
+          if (forca <= 2) {
+            indicador.classList.add('senha-fraca');
+            indicador.textContent = 'Fraca';
+          } else if (forca <= 3) {
+            indicador.classList.add('senha-media');
+            indicador.textContent = 'Média';
+          } else {
+            indicador.classList.add('senha-forte');
+            indicador.textContent = 'Forte';
+          }
+        }
+      }
+      
+      function validarConfirmacaoSenha() {
+        const senha = senhaNovaInput.value;
+        const confirmar = senhaConfirmarInput.value;
+        
+        if (confirmar && senha !== confirmar) {
+          senhaConfirmarInput.classList.add('is-invalid');
+          senhaConfirmarInput.classList.remove('is-valid');
+        } else if (confirmar && senha === confirmar) {
+          senhaConfirmarInput.classList.remove('is-invalid');
+          senhaConfirmarInput.classList.add('is-valid');
+        } else {
+          senhaConfirmarInput.classList.remove('is-invalid', 'is-valid');
+        }
+      }
+      
+      senhaNovaInput.addEventListener('input', function() {
+        atualizarIndicadorForca();
+        validarConfirmacaoSenha();
+      });
+      senhaConfirmarInput.addEventListener('input', validarConfirmacaoSenha);
 
       // Função para mostrar mensagens flash
       function showFlashMessage(message, type = 'success') {
@@ -511,6 +594,48 @@
         const senhaNova = document.getElementById('perfilSenhaNova').value;
         const senhaConfirmar = document.getElementById('perfilSenhaConfirmar').value;
 
+        // Validações
+        if (!email || !telefone) {
+          showFlashMessage('Por favor, preencha todos os campos obrigatórios.', 'danger');
+          return;
+        }
+
+        // Validação de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          showFlashMessage('Por favor, insira um email válido.', 'danger');
+          return;
+        }
+
+        // Validação de senha se campos foram preenchidos
+        if (senhaAtual || senhaNova || senhaConfirmar) {
+          if (!senhaAtual) {
+            showFlashMessage('Por favor, insira a palavra-passe atual.', 'danger');
+            return;
+          }
+          
+          if (!senhaNova) {
+            showFlashMessage('Por favor, insira a nova palavra-passe.', 'danger');
+            return;
+          }
+          
+          if (senhaNova.length < 6) {
+            showFlashMessage('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'danger');
+            return;
+          }
+          
+          if (senhaNova !== senhaConfirmar) {
+            showFlashMessage('A confirmação da palavra-passe não coincide.', 'danger');
+            return;
+          }
+
+          // Simulação de validação da senha atual
+          if (senhaAtual !== 'admin123') {
+            showFlashMessage('Palavra-passe atual incorrecta.', 'danger');
+            return;
+          }
+        }
+
         const data = {
           nome: nome,
           email: email,
@@ -521,10 +646,28 @@
           senha_confirmar: senhaConfirmar
         };
 
+        // Simulação de loading
+        const submitBtn = document.querySelector('#formPerfil button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+
         setTimeout(() => {
           console.log('[API] PUT /api/perfil', data);
-          console.log('Notificação: Alterações guardadas com sucesso!');
-        }, 1000);
+          
+          // Reset form se senha foi alterada
+          if (senhaNova) {
+            document.getElementById('perfilSenhaAtual').value = '';
+            document.getElementById('perfilSenhaNova').value = '';
+            document.getElementById('perfilSenhaConfirmar').value = '';
+          }
+          
+          // Reset button
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+          
+          showFlashMessage('Alterações guardadas com sucesso!');
+        }, 2000);
       });
     });
   </script>

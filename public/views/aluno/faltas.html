@@ -149,9 +149,24 @@
         </div>
         
         <!-- Faltas by Discipline -->
-        <div class="card mb-4">
-          <div class="card-header">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="card-title mb-0">Faltas por Disciplina - I Trimestre</h6>
+            <div class="d-flex gap-2">
+              <select id="faltasTrimestre" class="form-select form-select-sm">
+                <option value="1" selected>I Trimestre</option>
+                <option value="2">II Trimestre</option>
+                <option value="3">III Trimestre</option>
+              </select>
+              <button id="refreshFaltas" class="btn btn-sm btn-outline-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                  <path d="M21 3v5h-5"/>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                  <path d="M8 16H3v5"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
@@ -159,95 +174,18 @@
                 <thead>
                   <tr>
                     <th>Disciplina</th>
-                    <th class="text-center">Total</th>
+                    <th class="text-center">Faltas</th>
                     <th class="text-center">Limite</th>
                     <th class="text-center">Status</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Matematica</strong></td>
-                    <td class="text-center">2</td>
-                    <td class="text-center text-muted">10</td>
-                    <td class="text-center"><span class="badge badge-success">OK</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Fisica</strong></td>
-                    <td class="text-center">1</td>
-                    <td class="text-center text-muted">10</td>
-                    <td class="text-center"><span class="badge badge-success">OK</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Quimica</strong></td>
-                    <td class="text-center">0</td>
-                    <td class="text-center text-muted">10</td>
-                    <td class="text-center"><span class="badge badge-success">OK</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Biologia</strong></td>
-                    <td class="text-center">1</td>
-                    <td class="text-center text-muted">10</td>
-                    <td class="text-center"><span class="badge badge-success">OK</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Lingua Portuguesa</strong></td>
-                    <td class="text-center">1</td>
-                    <td class="text-center text-muted">10</td>
-                    <td class="text-center"><span class="badge badge-success">OK</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Lingua Inglesa</strong></td>
-                    <td class="text-center">0</td>
-                    <td class="text-center text-muted">10</td>
-                    <td class="text-center"><span class="badge badge-success">OK</span></td>
-                  </tr>
+                <tbody id="faltasTableBody">
+                  <!-- Dados serão carregados via JavaScript -->
                 </tbody>
               </table>
             </div>
           </div>
         </div>
-        
-        <!-- Detailed Absence List -->
-        <div class="card">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="card-title mb-0">Historico de Faltas</h6>
-            <select class="form-select form-select-sm" style="width: auto;">
-              <option value="">Todas as disciplinas</option>
-              <option value="matematica">Matematica</option>
-              <option value="fisica">Fisica</option>
-              <option value="biologia">Biologia</option>
-            </select>
-          </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Disciplina</th>
-                    <th>Professor</th>
-                    <th class="text-center">Tipo</th>
-                    <th>Observacao</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>15/11/2026</td>
-                    <td>Matematica</td>
-                    <td>Prof. Joao Ferreira</td>
-                    <td class="text-center"><span class="badge badge-danger">Falta</span></td>
-                    <td class="text-muted">-</td>
-                  </tr>
-                  <tr>
-                    <td>12/11/2026</td>
-                    <td>Fisica</td>
-                    <td>Prof. Joao Ferreira</td>
-                    <td class="text-center"><span class="badge badge-danger">Falta</span></td>
-                    <td class="text-muted">-</td>
-                  </tr>
-                  <tr>
-                    <td>08/11/2026</td>
-                    <td>Biologia</td>
                     <td>Prof. Carlos Mendes</td>
                     <td class="text-center"><span class="badge badge-warning">Falta</span></td>
                     <td class="text-muted">Consulta medica - Declaracao apresentada</td>
@@ -282,5 +220,130 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Dados simulados por trimestre
+      const faltasData = {
+        1: [
+          { disciplina: 'Matematica', faltas: 2, limite: 10, status: 'OK' },
+          { disciplina: 'Fisica', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Quimica', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Biologia', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Lingua Portuguesa', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Lingua Inglesa', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Educacao Fisica', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Filosofia', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Geografia', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Historia', faltas: 0, limite: 10, status: 'OK' }
+        ],
+        2: [
+          { disciplina: 'Matematica', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Fisica', faltas: 2, limite: 10, status: 'OK' },
+          { disciplina: 'Quimica', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Biologia', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Lingua Portuguesa', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Lingua Inglesa', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Educacao Fisica', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Filosofia', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Geografia', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Historia', faltas: 0, limite: 10, status: 'OK' }
+        ],
+        3: [
+          { disciplina: 'Matematica', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Fisica', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Quimica', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Biologia', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Lingua Portuguesa', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Lingua Inglesa', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Educacao Fisica', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Filosofia', faltas: 0, limite: 10, status: 'OK' },
+          { disciplina: 'Geografia', faltas: 1, limite: 10, status: 'OK' },
+          { disciplina: 'Historia', faltas: 0, limite: 10, status: 'OK' }
+        ]
+      };
+
+      // Função para mostrar notificações
+      function showNotification(message, type = 'success') {
+        const existingNotification = document.querySelector('.alert');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.page-content').insertBefore(notification, document.querySelector('.page-content').firstChild);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 5000);
+      }
+
+      // Função para carregar faltas
+      function loadFaltas(trimestre = 1) {
+        const tbody = document.getElementById('faltasTableBody');
+        tbody.innerHTML = '';
+
+        const data = faltasData[trimestre] || faltasData[1];
+        
+        console.log('[API] GET /api/aluno/faltas', { trimestre });
+
+        data.forEach(item => {
+          const statusClass = item.status === 'OK' ? 'badge-success' : 'badge-warning';
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><strong>${item.disciplina}</strong></td>
+            <td class="text-center">${item.faltas}</td>
+            <td class="text-center text-muted">${item.limite}</td>
+            <td class="text-center"><span class="badge ${statusClass}">${item.status}</span></td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        setTimeout(() => {
+          console.log('Faltas carregadas com sucesso!', data);
+          showNotification(`Faltas do ${trimestre === 1 ? 'I' : trimestre === 2 ? 'II' : 'III'} Trimestre carregadas!`, 'success');
+        }, 800);
+      }
+
+      // Event listeners
+      const trimestreSelect = document.getElementById('faltasTrimestre');
+      const refreshBtn = document.getElementById('refreshFaltas');
+
+      trimestreSelect.addEventListener('change', function() {
+        const trimestre = parseInt(this.value);
+        loadFaltas(trimestre);
+      });
+
+      refreshBtn.addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        
+        setTimeout(() => {
+          const trimestre = parseInt(trimestreSelect.value);
+          loadFaltas(trimestre);
+          this.disabled = false;
+          this.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+              <path d="M8 16H3v5"/>
+            </svg>
+          `;
+          showNotification('Dados actualizados com sucesso!', 'success');
+        }, 1500);
+      });
+
+      // Carregar dados iniciais
+      loadFaltas();
+    });
+  </script>
 </body>
 </html>

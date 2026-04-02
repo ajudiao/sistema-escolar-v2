@@ -183,22 +183,21 @@
           <div class="col-lg-6">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">Ultimas Notas</h6>
-                <a href="notas.html" class="btn btn-sm btn-outline-primary">Ver Todas</a>
+                <h6 class="card-title mb-0">Avaliações Recentes</h6>
+                <a href="avaliacoes.html" class="btn btn-sm btn-outline-primary">Ver Todas</a>
               </div>
               <div class="card-body">
                 <div class="table-responsive">
                   <table class="table table-hover mb-0">
                     <thead>
                       <tr>
-                        <th>Disciplina</th>
-                        <th class="text-center">MAC</th>
-                        <th class="text-center">NPP</th>
-                        <th class="text-center">NPT</th>
-                        <th class="text-center">MT</th>
+                        <th>Avaliação</th>
+                        <th class="text-center">Disciplina</th>
+                        <th class="text-center">Data</th>
+                        <th class="text-center">Nota</th>
                       </tr>
                     </thead>
-                    <tbody id="notasTableBody">
+                    <tbody id="avaliacoesTableBody">
                       <!-- Dados serão carregados via JavaScript -->
                     </tbody>
                   </table>
@@ -249,12 +248,12 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       // Dados simulados
-      const notasData = [
-        { disciplina: 'Matematica', mac: 15, npp: 14, npt: 16, mt: 15 },
-        { disciplina: 'Fisica', mac: 13, npp: 12, npt: 14, mt: 13 },
-        { disciplina: 'Quimica', mac: 14, npp: 15, npt: 13, mt: 14 },
-        { disciplina: 'Biologia', mac: 16, npp: 17, npt: 15, mt: 16 },
-        { disciplina: 'Lingua Portuguesa', mac: 12, npp: 11, npt: 13, mt: 12 }
+      const avaliacoesData = [
+        { titulo: 'Prova 1 - Funções', disciplina: 'Matematica', data: '15/11/2026', nota: 15 },
+        { titulo: 'Teste - Leis de Newton', disciplina: 'Fisica', data: '12/11/2026', nota: 13 },
+        { titulo: 'Trabalho - Sistema Digestivo', disciplina: 'Biologia', data: '10/11/2026', nota: 16 },
+        { titulo: 'Prova - Reações Químicas', disciplina: 'Quimica', data: '08/11/2026', nota: 14 },
+        { titulo: 'Teste - Literatura Portuguesa', disciplina: 'Lingua Portuguesa', data: '05/11/2026', nota: 12 }
       ];
 
       const faltasData = [
@@ -287,31 +286,33 @@
         }, 5000);
       }
 
-      // Função para carregar notas
-      function loadNotas(searchTerm = '') {
-        const tbody = document.getElementById('notasTableBody');
+      // Função para carregar avaliações
+      function loadAvaliacoes(searchTerm = '') {
+        const tbody = document.getElementById('avaliacoesTableBody');
         tbody.innerHTML = '';
 
         const filteredData = searchTerm 
-          ? notasData.filter(item => item.disciplina.toLowerCase().includes(searchTerm.toLowerCase()))
-          : notasData;
+          ? avaliacoesData.filter(item => 
+              item.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
+              item.disciplina.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+          : avaliacoesData;
 
-        console.log('[API] GET /api/aluno/notas', { trimestre: 1, search: searchTerm });
+        console.log('[API] GET /api/aluno/avaliacoes', { search: searchTerm });
 
         filteredData.forEach(item => {
           const row = document.createElement('tr');
           row.innerHTML = `
-            <td><strong>${item.disciplina}</strong></td>
-            <td class="text-center">${item.mac}</td>
-            <td class="text-center">${item.npp}</td>
-            <td class="text-center">${item.npt}</td>
-            <td class="text-center"><span class="badge badge-success">${item.mt}</span></td>
+            <td><strong>${item.titulo}</strong></td>
+            <td class="text-center">${item.disciplina}</td>
+            <td class="text-center">${item.data}</td>
+            <td class="text-center"><span class="badge badge-success">${item.nota}</span></td>
           `;
           tbody.appendChild(row);
         });
 
         setTimeout(() => {
-          console.log('Notas carregadas com sucesso!', filteredData);
+          console.log('Avaliações carregadas com sucesso!', filteredData);
         }, 500);
       }
 
@@ -420,7 +421,7 @@
         this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Actualizando...';
         
         setTimeout(() => {
-          loadNotas();
+          loadAvaliacoes();
           loadFaltas();
           this.disabled = false;
           this.innerHTML = `
@@ -437,7 +438,7 @@
       });
 
       // Carregar dados iniciais
-      loadNotas();
+      loadAvaliacoes();
       loadFaltas();
     });
   </script>
