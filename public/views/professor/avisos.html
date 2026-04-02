@@ -156,7 +156,7 @@
             <div class="row g-3 align-items-end">
               <div class="col-md-3">
                 <label class="form-label">Tipo</label>
-                <select class="form-control form-select">
+                <select class="form-control form-select" id="filtroTipo">
                   <option value="">Todos os tipos</option>
                   <option value="urgente">Urgente</option>
                   <option value="informativo">Informativo</option>
@@ -165,87 +165,87 @@
               </div>
               <div class="col-md-3">
                 <label class="form-label">Status</label>
-                <select class="form-control form-select">
+                <select class="form-control form-select" id="filtroStatus">
                   <option value="">Todos</option>
-                  <option value="nao_lido">Nao lidos</option>
+                  <option value="nao_lido">Não lidos</option>
                   <option value="lido">Lidos</option>
                 </select>
               </div>
               <div class="col-md-4">
                 <label class="form-label">Pesquisar</label>
-                <input type="text" class="form-control" placeholder="Buscar aviso...">
+                <input type="text" class="form-control" id="buscaAviso" placeholder="Buscar aviso...">
               </div>
               <div class="col-md-2">
-                <button class="btn btn-primary w-100">Filtrar</button>
+                <button class="btn btn-primary w-100" id="btnFiltrar">Filtrar</button>
               </div>
             </div>
           </div>
         </div>
         
         <!-- Avisos List -->
-        <div class="avisos-list">
+        <div class="avisos-list" id="avisosList">
           <!-- Aviso Urgente -->
-          <div class="aviso-card aviso-urgente aviso-nao-lido">
+          <div class="aviso-card aviso-urgente aviso-nao-lido" data-tipo="urgente" data-status="nao_lido" data-id="1">
             <div class="aviso-header">
               <div class="aviso-badges">
                 <span class="badge badge-danger">Urgente</span>
-                <span class="badge badge-warning">Nao Lido</span>
+                <span class="badge badge-warning">Não Lido</span>
               </div>
               <span class="aviso-data">15 Nov 2026, 09:30</span>
             </div>
-            <h5 class="aviso-titulo">Reuniao de Conselho Pedagogico</h5>
-            <p class="aviso-texto">Convocatoria para reuniao extraordinaria do Conselho Pedagogico, dia 18 de Novembro as 14h00, na Sala de Reunioes. Presenca obrigatoria de todos os professores. Pauta: Avaliacao do I Trimestre e preparacao das provas trimestrais.</p>
+            <h5 class="aviso-titulo">Reunião de Conselho Pedagógico</h5>
+            <p class="aviso-texto">Convocatória para reunião extraordinária do Conselho Pedagógico, dia 18 de Novembro às 14h00, na Sala de Reuniões. Presença obrigatória de todos os professores. Pauta: Avaliação do I Trimestre e preparação das provas trimestrais.</p>
             <div class="aviso-footer">
               <span class="aviso-autor">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Direcao da Escola
+                Direção da Escola
               </span>
-              <button class="btn btn-sm btn-outline-primary">Marcar como Lido</button>
+              <button class="btn btn-sm btn-outline-primary btn-marcar-lido" data-id="1">Marcar como Lido</button>
             </div>
           </div>
           
           <!-- Aviso Informativo -->
-          <div class="aviso-card aviso-informativo aviso-nao-lido">
+          <div class="aviso-card aviso-informativo aviso-nao-lido" data-tipo="informativo" data-status="nao_lido" data-id="2">
             <div class="aviso-header">
               <div class="aviso-badges">
                 <span class="badge badge-info">Informativo</span>
-                <span class="badge badge-warning">Nao Lido</span>
+                <span class="badge badge-warning">Não Lido</span>
               </div>
               <span class="aviso-data">14 Nov 2026, 16:45</span>
             </div>
-            <h5 class="aviso-titulo">Calendario de Provas Trimestrais</h5>
-            <p class="aviso-texto">Informamos que as provas do I Trimestre serao realizadas de 02 a 13 de Dezembro. Os professores devem submeter as propostas de prova ate 25 de Novembro. O calendario detalhado sera divulgado em breve.</p>
+            <h5 class="aviso-titulo">Calendário de Provas Trimestrais</h5>
+            <p class="aviso-texto">Informamos que as provas do I Trimestre serão realizadas de 02 a 13 de Dezembro. Os professores devem submeter as propostas de prova até 25 de Novembro. O calendário detalhado será divulgado em breve.</p>
             <div class="aviso-footer">
               <span class="aviso-autor">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Secretaria Academica
+                Secretaria Acadêmica
               </span>
-              <button class="btn btn-sm btn-outline-primary">Marcar como Lido</button>
+              <button class="btn btn-sm btn-outline-primary btn-marcar-lido" data-id="2">Marcar como Lido</button>
             </div>
           </div>
           
           <!-- Aviso Evento -->
-          <div class="aviso-card aviso-evento aviso-nao-lido">
+          <div class="aviso-card aviso-evento aviso-nao-lido" data-tipo="evento" data-status="nao_lido" data-id="3">
             <div class="aviso-header">
               <div class="aviso-badges">
                 <span class="badge badge-success">Evento</span>
-                <span class="badge badge-warning">Nao Lido</span>
+                <span class="badge badge-warning">Não Lido</span>
               </div>
               <span class="aviso-data">13 Nov 2026, 10:00</span>
             </div>
             <h5 class="aviso-titulo">Dia do Professor Angolano</h5>
-            <p class="aviso-texto">A Direcao da Escola convida todos os professores para a celebracao do Dia do Professor Angolano, dia 22 de Novembro. Havera uma cerimonia especial com entrega de certificados de reconhecimento e confraternizacao.</p>
+            <p class="aviso-texto">A Direção da Escola convida todos os professores para a celebração do Dia do Professor Angolano, dia 22 de Novembro. Haverá uma cerimônia especial com entrega de certificados de reconhecimento e confraternização.</p>
             <div class="aviso-footer">
               <span class="aviso-autor">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Direcao da Escola
+                Direção da Escola
               </span>
-              <button class="btn btn-sm btn-outline-primary">Marcar como Lido</button>
+              <button class="btn btn-sm btn-outline-primary btn-marcar-lido" data-id="3">Marcar como Lido</button>
             </div>
           </div>
           
           <!-- Aviso Lido -->
-          <div class="aviso-card aviso-informativo">
+          <div class="aviso-card aviso-informativo" data-tipo="informativo" data-status="lido" data-id="4">
             <div class="aviso-header">
               <div class="aviso-badges">
                 <span class="badge badge-info">Informativo</span>
@@ -253,12 +253,12 @@
               </div>
               <span class="aviso-data">10 Nov 2026, 08:15</span>
             </div>
-            <h5 class="aviso-titulo">Actualizacao do Sistema de Gestao Escolar</h5>
-            <p class="aviso-texto">Informamos que o sistema SGE foi actualizado com novas funcionalidades. Agora e possivel exportar as mini-pautas em formato PDF e Excel. Consulte o manual de utilizacao para mais informacoes.</p>
+            <h5 class="aviso-titulo">Atualização do Sistema de Gestão Escolar</h5>
+            <p class="aviso-texto">Informamos que o sistema SGE foi atualizado com novas funcionalidades. Agora é possível exportar as mini-pautas em formato PDF e Excel. Consulte o manual de utilização para mais informações.</p>
             <div class="aviso-footer">
               <span class="aviso-autor">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Suporte Tecnico
+                Suporte Técnico
               </span>
               <span class="text-muted small">Lido em 10 Nov 2026</span>
             </div>
@@ -276,5 +276,146 @@
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script src="js/professor.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const filtroTipo = document.getElementById('filtroTipo');
+      const filtroStatus = document.getElementById('filtroStatus');
+      const buscaAviso = document.getElementById('buscaAviso');
+      const btnFiltrar = document.getElementById('btnFiltrar');
+      const avisosList = document.getElementById('avisosList');
+      const btnMarcarLido = document.querySelectorAll('.btn-marcar-lido');
+
+      // Função para mostrar mensagens flash
+      function showFlashMessage(message, type = 'success') {
+        // Remover mensagem anterior se existir
+        const existingFlash = document.querySelector('.alert');
+        if (existingFlash) {
+          existingFlash.remove();
+        }
+
+        const flash = document.createElement('div');
+        flash.className = `alert alert-${type} alert-dismissible fade show`;
+        flash.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.page-content').insertBefore(flash, document.querySelector('.page-content').firstChild);
+        
+        setTimeout(() => {
+          if (flash.parentNode) {
+            flash.remove();
+          }
+        }, 5000);
+      }
+
+      // Função para filtrar avisos
+      function filtrarAvisos() {
+        const tipoSelecionado = filtroTipo.value;
+        const statusSelecionado = filtroStatus.value;
+        const termoBusca = buscaAviso.value.toLowerCase().trim();
+        const avisos = document.querySelectorAll('.aviso-card');
+
+        avisos.forEach(aviso => {
+          const tipo = aviso.dataset.tipo;
+          const status = aviso.dataset.status;
+          const titulo = aviso.querySelector('.aviso-titulo').textContent.toLowerCase();
+          const texto = aviso.querySelector('.aviso-texto').textContent.toLowerCase();
+
+          const matchTipo = !tipoSelecionado || tipo === tipoSelecionado;
+          const matchStatus = !statusSelecionado || status === statusSelecionado;
+          const matchBusca = !termoBusca || titulo.includes(termoBusca) || texto.includes(termoBusca);
+
+          if (matchTipo && matchStatus && matchBusca) {
+            aviso.style.display = 'block';
+          } else {
+            aviso.style.display = 'none';
+          }
+        });
+      }
+
+      // Função para marcar aviso como lido
+      function marcarComoLido(avisoId) {
+        const aviso = document.querySelector(`[data-id="${avisoId}"]`);
+        if (!aviso) return;
+
+        // Simulação da API
+        console.log(`Marcando aviso ${avisoId} como lido...`);
+
+        setTimeout(() => {
+          // Atualizar o status do aviso
+          aviso.dataset.status = 'lido';
+          aviso.classList.remove('aviso-nao-lido');
+
+          // Atualizar badges
+          const badgesContainer = aviso.querySelector('.aviso-badges');
+          const badgeNaoLido = badgesContainer.querySelector('.badge-warning');
+          const badgeLido = badgesContainer.querySelector('.badge-secondary');
+
+          if (badgeNaoLido) {
+            badgeNaoLido.textContent = 'Lido';
+            badgeNaoLido.className = 'badge badge-secondary';
+          } else if (!badgeLido) {
+            // Se não existe badge de lido, criar um
+            const newBadge = document.createElement('span');
+            newBadge.className = 'badge badge-secondary';
+            newBadge.textContent = 'Lido';
+            badgesContainer.appendChild(newBadge);
+          }
+
+          // Atualizar footer
+          const footer = aviso.querySelector('.aviso-footer');
+          const btnMarcarLido = footer.querySelector('.btn-marcar-lido');
+          if (btnMarcarLido) {
+            btnMarcarLido.remove();
+          }
+
+          // Adicionar data de leitura
+          const dataLeitura = document.createElement('span');
+          dataLeitura.className = 'text-muted small';
+          dataLeitura.textContent = `Lido em ${new Date().toLocaleDateString('pt-AO', { day: '2-digit', month: 'short', year: 'numeric' })}`;
+          footer.appendChild(dataLeitura);
+
+          console.log(`Aviso ${avisoId} marcado como lido com sucesso!`);
+          showFlashMessage('Aviso marcado como lido!');
+
+          // Atualizar contador no sidebar se existir
+          atualizarContadorNaoLidos();
+        }, 1000);
+      }
+
+      // Função para atualizar contador de avisos não lidos no sidebar
+      function atualizarContadorNaoLidos() {
+        const naoLidos = document.querySelectorAll('.aviso-card[data-status="nao_lido"]').length;
+        const badge = document.querySelector('.nav-badge');
+        if (badge) {
+          badge.textContent = naoLidos;
+          if (naoLidos === 0) {
+            badge.style.display = 'none';
+          } else {
+            badge.style.display = 'inline';
+          }
+        }
+      }
+
+      // Event listeners
+      btnFiltrar.addEventListener('click', filtrarAvisos);
+
+      // Busca em tempo real
+      buscaAviso.addEventListener('input', filtrarAvisos);
+      filtroTipo.addEventListener('change', filtrarAvisos);
+      filtroStatus.addEventListener('change', filtrarAvisos);
+
+      // Marcar como lido
+      document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('btn-marcar-lido')) {
+          const avisoId = e.target.dataset.id;
+          marcarComoLido(avisoId);
+        }
+      });
+
+      // Inicializar contador
+      atualizarContadorNaoLidos();
+    });
+  </script>
 </body>
 </html>
