@@ -130,7 +130,7 @@
           </div>
         </div>
         
-        <!-- Stats Cards -->
+        <!-- Quick Stats -->
         <div class="row g-4 mb-4">
           <div class="col-md-6 col-lg-3">
             <div class="stat-card">
@@ -180,7 +180,7 @@
         
         <div class="row g-4">
           <!-- Recent Grades -->
-          <div class="col-lg-8">
+          <div class="col-lg-6">
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center">
                 <h6 class="card-title mb-0">Ultimas Notas</h6>
@@ -198,86 +198,8 @@
                         <th class="text-center">MT</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <tr>
-                        <td><strong>Matematica</strong></td>
-                        <td class="text-center">15</td>
-                        <td class="text-center">14</td>
-                        <td class="text-center">16</td>
-                        <td class="text-center"><span class="badge badge-success">15</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Fisica</strong></td>
-                        <td class="text-center">13</td>
-                        <td class="text-center">12</td>
-                        <td class="text-center">14</td>
-                        <td class="text-center"><span class="badge badge-success">13</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Quimica</strong></td>
-                        <td class="text-center">14</td>
-                        <td class="text-center">15</td>
-                        <td class="text-center">13</td>
-                        <td class="text-center"><span class="badge badge-success">14</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Biologia</strong></td>
-                        <td class="text-center">16</td>
-                        <td class="text-center">17</td>
-                        <td class="text-center">15</td>
-                        <td class="text-center"><span class="badge badge-success">16</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Lingua Portuguesa</strong></td>
-                        <td class="text-center">12</td>
-                        <td class="text-center">11</td>
-                        <td class="text-center">13</td>
-                        <td class="text-center"><span class="badge badge-success">12</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Schedule Today -->
-            <div class="card mt-4">
-              <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">Horario de Hoje - Segunda-feira</h6>
-                <a href="horario.html" class="btn btn-sm btn-outline-primary">Ver Completo</a>
-              </div>
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table class="table mb-0">
-                    <tbody>
-                      <tr>
-                        <td style="width: 100px;" class="text-muted">07:30 - 08:15</td>
-                        <td><span class="horario-cell">Matematica</span></td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted">08:15 - 09:00</td>
-                        <td><span class="horario-cell">Matematica</span></td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted">09:00 - 09:45</td>
-                        <td><span class="horario-cell lingua">Lingua Portuguesa</span></td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted">09:45 - 10:00</td>
-                        <td><span class="horario-cell intervalo">Intervalo</span></td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted">10:00 - 10:45</td>
-                        <td><span class="horario-cell">Fisica</span></td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted">10:45 - 11:30</td>
-                        <td><span class="horario-cell">Fisica</span></td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted">11:30 - 12:15</td>
-                        <td><span class="horario-cell educacao-fisica">Educacao Fisica</span></td>
-                      </tr>
+                    <tbody id="notasTableBody">
+                      <!-- Dados serão carregados via JavaScript -->
                     </tbody>
                   </table>
                 </div>
@@ -285,73 +207,28 @@
             </div>
           </div>
           
-          <!-- Sidebar Info -->
-          <div class="col-lg-4">
-            <!-- Performance Ring -->
+          <!-- Faltas por Disciplina -->
+          <div class="col-lg-6">
             <div class="card">
-              <div class="card-header">
-                <h6 class="card-title mb-0">Desempenho Geral</h6>
-              </div>
-              <div class="card-body text-center">
-                <div class="progress-ring">
-                  <svg width="120" height="120" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" stroke-width="12"/>
-                    <circle class="progress-ring-circle" cx="60" cy="60" r="54" fill="none" stroke="#3b82f6" stroke-width="12" stroke-dasharray="339.3" stroke-dashoffset="67.86" stroke-linecap="round"/>
-                  </svg>
-                  <div class="progress-ring-text">
-                    <span class="progress-ring-value">80%</span>
-                    <span class="progress-ring-label">Aproveitamento</span>
-                  </div>
-                </div>
-                <p class="text-muted mt-3 mb-0 small">Baseado nas notas do I Trimestre</p>
-              </div>
-            </div>
-            
-            <!-- Recent Notices -->
-            <div class="card mt-4">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">Avisos Recentes</h6>
-                <a href="avisos.html" class="btn btn-sm btn-link p-0">Ver todos</a>
+                <h6 class="card-title mb-0">Faltas por Disciplina</h6>
+                <a href="faltas.html" class="btn btn-sm btn-outline-primary">Ver Todas</a>
               </div>
               <div class="card-body">
-                <div class="aviso-mini">
-                  <div class="d-flex align-items-start gap-2 mb-3 pb-3 border-bottom">
-                    <span class="badge badge-danger">Urgente</span>
-                    <div>
-                      <p class="mb-1 small fw-medium">Prova de Matematica</p>
-                      <p class="mb-0 text-muted small">Segunda-feira, 18 Nov - 07:30</p>
-                    </div>
-                  </div>
-                  <div class="d-flex align-items-start gap-2">
-                    <span class="badge badge-info">Info</span>
-                    <div>
-                      <p class="mb-1 small fw-medium">Entrega de Trabalho de Biologia</p>
-                      <p class="mb-0 text-muted small">Prazo: 20 Nov 2026</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Quick Links -->
-            <div class="card mt-4">
-              <div class="card-header">
-                <h6 class="card-title mb-0">Acesso Rapido</h6>
-              </div>
-              <div class="card-body">
-                <div class="d-grid gap-2">
-                  <a href="notas.html" class="btn btn-outline-primary btn-sm text-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-                    Ver Boletim Completo
-                  </a>
-                  <a href="materiais.html" class="btn btn-outline-secondary btn-sm text-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    Materiais de Estudo
-                  </a>
-                  <a href="horario.html" class="btn btn-outline-secondary btn-sm text-start">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Horario Semanal
-                  </a>
+                <div class="table-responsive">
+                  <table class="table table-hover mb-0">
+                    <thead>
+                      <tr>
+                        <th>Disciplina</th>
+                        <th class="text-center">Faltas</th>
+                        <th class="text-center">Limite</th>
+                        <th class="text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="faltasTableBody">
+                      <!-- Dados serão carregados via JavaScript -->
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -368,5 +245,201 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Dados simulados
+      const notasData = [
+        { disciplina: 'Matematica', mac: 15, npp: 14, npt: 16, mt: 15 },
+        { disciplina: 'Fisica', mac: 13, npp: 12, npt: 14, mt: 13 },
+        { disciplina: 'Quimica', mac: 14, npp: 15, npt: 13, mt: 14 },
+        { disciplina: 'Biologia', mac: 16, npp: 17, npt: 15, mt: 16 },
+        { disciplina: 'Lingua Portuguesa', mac: 12, npp: 11, npt: 13, mt: 12 }
+      ];
+
+      const faltasData = [
+        { disciplina: 'Matematica', faltas: 2, limite: 10, status: 'OK' },
+        { disciplina: 'Fisica', faltas: 1, limite: 10, status: 'OK' },
+        { disciplina: 'Quimica', faltas: 0, limite: 10, status: 'OK' },
+        { disciplina: 'Biologia', faltas: 1, limite: 10, status: 'OK' },
+        { disciplina: 'Lingua Portuguesa', faltas: 1, limite: 10, status: 'OK' }
+      ];
+
+      // Função para mostrar mensagens flash
+      function showFlashMessage(message, type = 'success') {
+        const existingFlash = document.querySelector('.alert');
+        if (existingFlash) {
+          existingFlash.remove();
+        }
+
+        const flash = document.createElement('div');
+        flash.className = `alert alert-${type} alert-dismissible fade show`;
+        flash.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.page-content').insertBefore(flash, document.querySelector('.page-content').firstChild);
+        
+        setTimeout(() => {
+          if (flash.parentNode) {
+            flash.remove();
+          }
+        }, 5000);
+      }
+
+      // Função para carregar notas
+      function loadNotas(searchTerm = '') {
+        const tbody = document.getElementById('notasTableBody');
+        tbody.innerHTML = '';
+
+        const filteredData = searchTerm 
+          ? notasData.filter(item => item.disciplina.toLowerCase().includes(searchTerm.toLowerCase()))
+          : notasData;
+
+        console.log('[API] GET /api/aluno/notas', { trimestre: 1, search: searchTerm });
+
+        filteredData.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><strong>${item.disciplina}</strong></td>
+            <td class="text-center">${item.mac}</td>
+            <td class="text-center">${item.npp}</td>
+            <td class="text-center">${item.npt}</td>
+            <td class="text-center"><span class="badge badge-success">${item.mt}</span></td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        setTimeout(() => {
+          console.log('Notas carregadas com sucesso!', filteredData);
+        }, 500);
+      }
+
+      // Função para carregar faltas
+      function loadFaltas(searchTerm = '') {
+        const tbody = document.getElementById('faltasTableBody');
+        tbody.innerHTML = '';
+
+        const filteredData = searchTerm 
+          ? faltasData.filter(item => item.disciplina.toLowerCase().includes(searchTerm.toLowerCase()))
+          : faltasData;
+
+        console.log('[API] GET /api/aluno/faltas', { trimestre: 1, search: searchTerm });
+
+        filteredData.forEach(item => {
+          const statusClass = item.status === 'OK' ? 'badge-success' : 'badge-warning';
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><strong>${item.disciplina}</strong></td>
+            <td class="text-center">${item.faltas}</td>
+            <td class="text-center text-muted">${item.limite}</td>
+            <td class="text-center"><span class="badge ${statusClass}">${item.status}</span></td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        setTimeout(() => {
+          console.log('Faltas carregadas com sucesso!', filteredData);
+        }, 500);
+      }
+
+      // Função de busca
+      function handleSearch(searchTerm) {
+        loadNotas(searchTerm);
+        loadFaltas(searchTerm);
+        
+        if (searchTerm) {
+          showFlashMessage(`Resultados filtrados para: "${searchTerm}"`, 'info');
+        }
+      }
+
+      // Adicionar campo de busca
+      const searchContainer = document.createElement('div');
+      searchContainer.className = 'card mb-4';
+      searchContainer.innerHTML = `
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path d="m21 21-4.35-4.35"/>
+                  </svg>
+                </span>
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar por disciplina..." autocomplete="off">
+                <button class="btn btn-outline-secondary" type="button" id="clearSearch">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-primary w-100" id="refreshBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                  <path d="M21 3v5h-5"/>
+                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                  <path d="M8 16H3v5"/>
+                </svg>
+                Actualizar
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Inserir campo de busca após o banner de boas-vindas
+      const welcomeCard = document.querySelector('.card[style*="background: linear-gradient"]');
+      welcomeCard.insertAdjacentElement('afterend', searchContainer);
+
+      // Event listeners
+      const searchInput = document.getElementById('searchInput');
+      const clearSearch = document.getElementById('clearSearch');
+      const refreshBtn = document.getElementById('refreshBtn');
+
+      // Busca com debounce
+      let searchTimeout;
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          handleSearch(this.value);
+        }, 300);
+      });
+
+      clearSearch.addEventListener('click', function() {
+        searchInput.value = '';
+        handleSearch('');
+        showFlashMessage('Busca limpa', 'info');
+      });
+
+      refreshBtn.addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Actualizando...';
+        
+        setTimeout(() => {
+          loadNotas();
+          loadFaltas();
+          this.disabled = false;
+          this.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+              <path d="M8 16H3v5"/>
+            </svg>
+            Actualizar
+          `;
+          showFlashMessage('Dados actualizados com sucesso!', 'success');
+        }, 1500);
+      });
+
+      // Carregar dados iniciais
+      loadNotas();
+      loadFaltas();
+    });
+  </script>
 </body>
 </html>

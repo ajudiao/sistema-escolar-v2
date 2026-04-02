@@ -151,9 +151,9 @@
         </div>
         
         <!-- Boletim Preview -->
-        <div class="boletim-preview mb-4">
+        <div class="boletim-preview mb-4" id="boletimContainer">
           <div class="boletim-header">
-            <h4>BOLETIM DE NOTAS - I TRIMESTRE</h4>
+            <h4>BOLETIM DE NOTAS - <span id="trimestreTitle">I TRIMESTRE</span></h4>
             <p>Escola Secundaria do I e EIA-10AD N. 1234 - Luanda</p>
           </div>
           <div class="boletim-info">
@@ -171,12 +171,12 @@
             </div>
             <div class="boletim-info-item">
               <span class="boletim-info-label">Ano Lectivo:</span>
-              <span class="boletim-info-value">2026/2025</span>
+              <span class="boletim-info-value" id="anoLectivo">2026/2025</span>
             </div>
           </div>
           <div class="table-responsive">
-            <table class="boletim-table">
-              <thead>
+            <table class="boletim-table" id="boletimTable">
+              <thead id="boletimTableHead">
                 <tr>
                   <th>Disciplina</th>
                   <th>MAC</th>
@@ -185,19 +185,12 @@
                   <th>MT</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>Matematica</td>
-                  <td>15</td>
-                  <td>14</td>
-                  <td>16</td>
-                  <td class="nota-positiva">15</td>
-                </tr>
-                <tr>
-                  <td>Fisica</td>
-                  <td>13</td>
-                  <td>12</td>
-                  <td>14</td>
+              <tbody id="boletimTableBody">
+                <!-- Dados serão carregados via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
                   <td class="nota-positiva">13</td>
                 </tr>
                 <tr>
@@ -301,77 +294,170 @@
   <script src="../../js/sidebar.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Função para mostrar notificação
+      // Dados simulados por trimestre
+      const notasData = {
+        1: [
+          { disciplina: 'Matematica', mac: 15, npp: 14, npt: 16, mt: 15 },
+          { disciplina: 'Fisica', mac: 13, npp: 12, npt: 14, mt: 13 },
+          { disciplina: 'Quimica', mac: 14, npp: 15, npt: 13, mt: 14 },
+          { disciplina: 'Biologia', mac: 16, npp: 17, npt: 15, mt: 16 },
+          { disciplina: 'Lingua Portuguesa', mac: 12, npp: 11, npt: 13, mt: 12 },
+          { disciplina: 'Lingua Inglesa', mac: 14, npp: 13, npt: 15, mt: 14 },
+          { disciplina: 'Educacao Fisica', mac: 16, npp: 15, npt: 17, mt: 16 },
+          { disciplina: 'Filosofia', mac: 13, npp: 14, npt: 12, mt: 13 },
+          { disciplina: 'Geografia', mac: 15, npp: 16, npt: 14, mt: 15 },
+          { disciplina: 'Historia', mac: 14, npp: 13, npt: 15, mt: 14 }
+        ],
+        2: [
+          { disciplina: 'Matematica', mac: 16, npp: 15, npt: 17, mt: 16 },
+          { disciplina: 'Fisica', mac: 14, npp: 13, npt: 15, mt: 14 },
+          { disciplina: 'Quimica', mac: 15, npp: 16, npt: 14, mt: 15 },
+          { disciplina: 'Biologia', mac: 17, npp: 18, npt: 16, mt: 17 },
+          { disciplina: 'Lingua Portuguesa', mac: 13, npp: 12, npt: 14, mt: 13 },
+          { disciplina: 'Lingua Inglesa', mac: 15, npp: 14, npt: 16, mt: 15 },
+          { disciplina: 'Educacao Fisica', mac: 17, npp: 16, npt: 18, mt: 17 },
+          { disciplina: 'Filosofia', mac: 14, npp: 15, npt: 13, mt: 14 },
+          { disciplina: 'Geografia', mac: 16, npp: 17, npt: 15, mt: 16 },
+          { disciplina: 'Historia', mac: 15, npp: 14, npt: 16, mt: 15 }
+        ],
+        3: [
+          { disciplina: 'Matematica', mac: 17, npp: 16, npt: 18, mt: 17 },
+          { disciplina: 'Fisica', mac: 15, npp: 14, npt: 16, mt: 15 },
+          { disciplina: 'Quimica', mac: 16, npp: 17, npt: 15, mt: 16 },
+          { disciplina: 'Biologia', mac: 18, npp: 19, npt: 17, mt: 18 },
+          { disciplina: 'Lingua Portuguesa', mac: 14, npp: 13, npt: 15, mt: 14 },
+          { disciplina: 'Lingua Inglesa', mac: 16, npp: 15, npt: 17, mt: 16 },
+          { disciplina: 'Educacao Fisica', mac: 18, npp: 17, npt: 19, mt: 18 },
+          { disciplina: 'Filosofia', mac: 15, npp: 16, npt: 14, mt: 15 },
+          { disciplina: 'Geografia', mac: 17, npp: 18, npt: 16, mt: 17 },
+          { disciplina: 'Historia', mac: 16, npp: 15, npt: 17, mt: 16 }
+        ]
+      };
+
+      // Função para mostrar notificações
       function showNotification(message, type = 'success') {
-        let container = document.querySelector('.toast-container');
-        if (!container) {
-          container = document.createElement('div');
-          container.className = 'toast-container position-fixed top-0 end-0 p-3';
-          container.style.zIndex = '1100';
-          document.body.appendChild(container);
+        const existingNotification = document.querySelector('.alert');
+        if (existingNotification) {
+          existingNotification.remove();
         }
 
-        const toastId = 'toast-' + Date.now();
-        const bgClass = {
-          'success': 'bg-success',
-          'danger': 'bg-danger',
-          'warning': 'bg-warning',
-          'info': 'bg-primary'
-        }[type] || 'bg-primary';
-
-        const toastHtml = `
-          <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert">
-            <div class="d-flex">
-              <div class="toast-body">${message}</div>
-              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-          </div>
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-
-        container.insertAdjacentHTML('beforeend', toastHtml);
-        const toastElement = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastElement, { delay: 3000 });
-        toast.show();
+        document.querySelector('.page-content').insertBefore(notification, document.querySelector('.page-content').firstChild);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 5000);
       }
 
+      // Função para carregar notas
+      function loadNotas(trimestre = 1, anoLectivo = '2026') {
+        const tbody = document.getElementById('boletimTableBody');
+        const trimestreTitle = document.getElementById('trimestreTitle');
+        const anoLectivoElement = document.getElementById('anoLectivo');
+        
+        tbody.innerHTML = '';
+        trimestreTitle.textContent = `${trimestre === 1 ? 'I' : trimestre === 2 ? 'II' : 'III'} TRIMESTRE`;
+        anoLectivoElement.textContent = `${anoLectivo}/${parseInt(anoLectivo) + 1}`;
+
+        const data = notasData[trimestre] || notasData[1];
+        
+        console.log('[API] GET /api/aluno/notas', { trimestre, anoLectivo });
+
+        data.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.disciplina}</td>
+            <td>${item.mac}</td>
+            <td>${item.npp}</td>
+            <td>${item.npt}</td>
+            <td class="nota-positiva">${item.mt}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        setTimeout(() => {
+          console.log('Notas carregadas com sucesso!', data);
+          showNotification(`Notas do ${trimestre === 1 ? 'I' : trimestre === 2 ? 'II' : 'III'} Trimestre carregadas!`, 'success');
+        }, 800);
+      }
+
+      // Event listeners para os selects
+      const trimestreSelect = document.querySelector('select[aria-label="Trimestre"]');
+      const anoLectivoSelect = document.querySelector('select[aria-label="Ano Lectivo"]');
+
+      trimestreSelect.addEventListener('change', function() {
+        const trimestre = parseInt(this.value);
+        const anoLectivo = anoLectivoSelect.value;
+        loadNotas(trimestre, anoLectivo);
+      });
+
+      anoLectivoSelect.addEventListener('change', function() {
+        const trimestre = parseInt(trimestreSelect.value);
+        const anoLectivo = this.value;
+        loadNotas(trimestre, anoLectivo);
+      });
+
+      // Botão de download PDF
       const btnDownloadPDF = document.getElementById('btnDownloadPDF');
       if (btnDownloadPDF) {
-        btnDownloadPDF.addEventListener('click', function () {
+        btnDownloadPDF.addEventListener('click', function() {
+          const trimestre = trimestreSelect.value;
+          const anoLectivo = anoLectivoSelect.value;
+          
           const data = {
             acao: 'download_boletim',
             formato: 'pdf',
             aluno: 'Maria Teresa dos Santos',
             classe: 'EIA-11AD',
-            trimestre: '1º',
+            trimestre: trimestre,
+            anoLectivo: anoLectivo,
             periodo: new Date().toLocaleDateString('pt-AO')
           };
           
-          console.log('[API] POST /api/boletim/download', data);
+          console.log('[API] POST /api/aluno/boletim/download', data);
           showNotification('Gerando boletim em PDF...', 'info');
           
-          // Simulação de download - em produção seria um arquivo real com pdfkit, html2pdf, etc
+          this.disabled = true;
+          this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Gerando...';
+          
+          // Simulação de download
           setTimeout(() => {
             try {
-              // Cria um blob simples para download
-              const conteudo = 'BOLETIM DE NOTAS\nAluno: Maria Teresa dos Santos\nClasse: EIA-11AD\n\nNotas:\nMatemática: 15\nFísica: 13\nQuímica: 14';
+              const conteudo = `BOLETIM DE NOTAS\n\nDados do boletim seriam gerados aqui...`;
               const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
               const url = URL.createObjectURL(blob);
               const link = document.createElement('a');
               link.setAttribute('href', url);
-              link.setAttribute('download', 'boletim_maria_teresa.pdf');
+              link.setAttribute('download', `boletim_maria_teresa_${trimestre}_${anoLectivo}.pdf`);
               link.style.visibility = 'hidden';
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
               URL.revokeObjectURL(url);
+              
+              this.disabled = false;
+              this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF';
+              
               showNotification('Boletim baixado com sucesso!', 'success');
             } catch (error) {
               console.error('Erro ao baixar PDF:', error);
+              this.disabled = false;
+              this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF';
               showNotification('Erro ao gerar PDF. Tente novamente.', 'danger');
             }
-          }, 1000);
+          }, 2000);
         });
       }
+
+      // Carregar dados iniciais
+      loadNotas();
     });
   </script>
 </body>
