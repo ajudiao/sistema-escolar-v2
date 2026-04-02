@@ -330,18 +330,6 @@
               </div>
               <div class="card-body">
                 <form id="formPerfil">
-                  <h6 class="mb-3">Foto de Perfil</h6>
-                  <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                      <label class="form-label">Alterar Foto</label>
-                      <input type="file" id="perfilFoto" class="form-control" accept="image/*">
-                      <small class="form-text text-muted">Formatos aceites: JPG, PNG. Tamanho máximo: 2MB</small>
-                    </div>
-                    <div class="col-md-6 d-flex align-items-end">
-                      <div class="profile-avatar-preview">AD</div>
-                    </div>
-                  </div>
-
                   <h6 class="mb-3">Informações Pessoais</h6>
                   <div class="row g-3">
                     <div class="col-md-6">
@@ -515,7 +503,6 @@
       document.getElementById('formPerfil').addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const foto = document.getElementById('perfilFoto').files[0];
         const nome = document.getElementById('perfilNome').value;
         const email = document.getElementById('perfilEmail').value;
         const telefone = document.getElementById('perfilTelefone').value;
@@ -525,7 +512,6 @@
         const senhaConfirmar = document.getElementById('perfilSenhaConfirmar').value;
 
         const data = {
-          foto: foto ? foto.name : null,
           nome: nome,
           email: email,
           telefone: telefone,
