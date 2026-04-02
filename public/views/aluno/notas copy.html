@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+  <title>Minhas Notas - Aluno | SGE MED Angola</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/sidebar.css">
+  <link rel="stylesheet" href="css/aluno.css">
+</head>
+<body>
+  <div class="main-wrapper">
+    <div class="sidebar-overlay"></div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <button class="sidebar-close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">SGE</div>
+        <div class="sidebar-brand-text">
+          <span class="sidebar-brand-title">Gestao Escolar</span>
+          <span class="sidebar-brand-subtitle">MED Angola</span>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-group">
+          <div class="nav-group-title">Principal</div>
+          <div class="nav-item">
+            <a href="dashboard.html" class="nav-link" data-title="Dashboard">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </span>
+              <span class="nav-link-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+        
+        <div class="nav-group">
+          <div class="nav-group-title">Academico</div>
+          <div class="nav-item">
+            <a href="notas.html" class="nav-link active" data-title="Minhas Notas">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              </span>
+              <span class="nav-link-text">Minhas Notas</span>
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="faltas.html" class="nav-link" data-title="Minhas Faltas">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </span>
+              <span class="nav-link-text">Minhas Faltas</span>
+            </a>
+          </div>
+        </div>
+        
+
+        
+        <div class="nav-group">
+          <div class="nav-group-title">Conta</div>
+          <div class="nav-item">
+            <a href="perfil.html" class="nav-link" data-title="Meu Perfil">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <span class="nav-link-text">Meu Perfil</span>
+            </a>
+          </div>
+          <div class="nav-item">
+             <a href="../../../index.html" class="nav-link" data-title="Sair">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </span>
+              <span class="nav-link-text">Sair</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle">
+          <span class="sidebar-toggle-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </span>
+          <span class="sidebar-toggle-text">Recolher menu</span>
+        </button>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="main-header">
+        <div class="header-left">
+          <button class="mobile-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <h1 class="header-title">Minhas Notas</h1>
+        </div>
+        <div class="header-right">
+          <div class="header-user">
+            <div class="header-user-avatar">MS</div>
+            <div class="header-user-info">
+              <span class="header-user-name">Maria Santos</span>
+              <span class="header-user-role">Aluno - EIA-11AD</span>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <div class="page-content">
+        <!-- Trimester Selector -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-4">
+                <label class="form-label">Trimestre</label>
+                <select class="form-control form-select">
+                  <option value="1" selected>I Trimestre (em curso)</option>
+                  <option value="2">II Trimestre</option>
+                  <option value="3">III Trimestre</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Ano Lectivo</label>
+                <select class="form-control form-select">
+                  <option value="2026" selected>2026/2025</option>
+                  <option value="2023">2023/2026</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <button id="btnDownloadPDF" class="btn btn-primary w-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  PDF
+                </button>
+              </div>
+              <div class="col-md-2">
+                <button class="btn btn-outline-primary w-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  Imprimir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Boletim Preview -->
+        <div class="boletim-preview mb-4" id="boletimContainer">
+          <div class="boletim-header">
+            <h4>BOLETIM DE NOTAS - <span id="trimestreTitle">I TRIMESTRE</span></h4>
+            <p>Escola Secundaria do I e EIA-10AD N. 1234 - Luanda</p>
+          </div>
+          <div class="boletim-info">
+            <div class="boletim-info-item">
+              <span class="boletim-info-label">Aluno:</span>
+              <span class="boletim-info-value">Maria Teresa dos Santos</span>
+            </div>
+            <div class="boletim-info-item">
+              <span class="boletim-info-label">Classe/Turma:</span>
+              <span class="boletim-info-value">EIA-11AD</span>
+            </div>
+            <div class="boletim-info-item">
+              <span class="boletim-info-label">Curso:</span>
+              <span class="boletim-info-value">Ciencias Fisicas e Biologicas</span>
+            </div>
+            <div class="boletim-info-item">
+              <span class="boletim-info-label">Ano Lectivo:</span>
+              <span class="boletim-info-value" id="anoLectivo">2026/2025</span>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="boletim-table" id="boletimTable">
+              <thead id="boletimTableHead">
+                <tr>
+                  <th>Disciplina</th>
+                  <th>MAC</th>
+                  <th>NPP</th>
+                  <th>NPT</th>
+                  <th>MT</th>
+                </tr>
+              </thead>
+              <tbody id="boletimTableBody">
+                <!-- Dados serão carregados via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+                  <td class="nota-positiva">13</td>
+                </tr>
+                <tr>
+                  <td>Quimica</td>
+                  <td>14</td>
+                  <td>15</td>
+                  <td>13</td>
+                  <td class="nota-positiva">14</td>
+                </tr>
+                <tr>
+                  <td>Biologia</td>
+                  <td>16</td>
+                  <td>17</td>
+                  <td>15</td>
+                  <td class="nota-positiva">16</td>
+                </tr>
+                <tr>
+                  <td>Lingua Portuguesa</td>
+                  <td>12</td>
+                  <td>11</td>
+                  <td>13</td>
+                  <td class="nota-positiva">12</td>
+                </tr>
+                <tr>
+                  <td>Lingua Inglesa</td>
+                  <td>14</td>
+                  <td>13</td>
+                  <td>15</td>
+                  <td class="nota-positiva">14</td>
+                </tr>
+                <tr>
+                  <td>Historia</td>
+                  <td>11</td>
+                  <td>10</td>
+                  <td>12</td>
+                  <td class="nota-positiva">11</td>
+                </tr>
+                <tr>
+                  <td>Geografia</td>
+                  <td>13</td>
+                  <td>14</td>
+                  <td>12</td>
+                  <td class="nota-positiva">13</td>
+                </tr>
+                <tr>
+                  <td>Educacao Fisica</td>
+                  <td>17</td>
+                  <td>18</td>
+                  <td>16</td>
+                  <td class="nota-positiva">17</td>
+                </tr>
+                <tr>
+                  <td>Filosofia</td>
+                  <td>9</td>
+                  <td>8</td>
+                  <td>10</td>
+                  <td class="nota-negativa">9</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr style="background: var(--bg-light);">
+                  <td><strong>Media Geral</strong></td>
+                  <td colspan="3"></td>
+                  <td><strong class="nota-positiva">14.2</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="card mt-4">
+          <div class="card-body">
+            <h6 class="mb-3">Legenda</h6>
+            <div class="row">
+              <div class="col-md-6">
+                <ul class="list-unstyled mb-0 small text-muted">
+                  <li><strong>MAC</strong> - Media de Avaliacao Continua</li>
+                  <li><strong>NPP</strong> - Nota da Prova do Professor</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <ul class="list-unstyled mb-0 small text-muted">
+                  <li><strong>NPT</strong> - Nota da Prova Trimestral</li>
+                  <li><strong>MT</strong> - Media Trimestral = (MAC + NPP + NPT) / 3</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <footer class="main-footer">
+        <p class="mb-0">Sistema de Gestao Escolar - 2026 - Ministerio da Educacao de Angola</p>
+      </footer>
+    </main>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/global.js"></script>
+  <script src="../../js/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Dados simulados por trimestre
+      const notasData = {
+        1: [
+          { disciplina: 'Matematica', mac: 15, npp: 14, npt: 16, mt: 15 },
+          { disciplina: 'Fisica', mac: 13, npp: 12, npt: 14, mt: 13 },
+          { disciplina: 'Quimica', mac: 14, npp: 15, npt: 13, mt: 14 },
+          { disciplina: 'Biologia', mac: 16, npp: 17, npt: 15, mt: 16 },
+          { disciplina: 'Lingua Portuguesa', mac: 12, npp: 11, npt: 13, mt: 12 },
+          { disciplina: 'Lingua Inglesa', mac: 14, npp: 13, npt: 15, mt: 14 },
+          { disciplina: 'Educacao Fisica', mac: 16, npp: 15, npt: 17, mt: 16 },
+          { disciplina: 'Filosofia', mac: 13, npp: 14, npt: 12, mt: 13 },
+          { disciplina: 'Geografia', mac: 15, npp: 16, npt: 14, mt: 15 },
+          { disciplina: 'Historia', mac: 14, npp: 13, npt: 15, mt: 14 }
+        ],
+        2: [
+          { disciplina: 'Matematica', mac: 16, npp: 15, npt: 17, mt: 16 },
+          { disciplina: 'Fisica', mac: 14, npp: 13, npt: 15, mt: 14 },
+          { disciplina: 'Quimica', mac: 15, npp: 16, npt: 14, mt: 15 },
+          { disciplina: 'Biologia', mac: 17, npp: 18, npt: 16, mt: 17 },
+          { disciplina: 'Lingua Portuguesa', mac: 13, npp: 12, npt: 14, mt: 13 },
+          { disciplina: 'Lingua Inglesa', mac: 15, npp: 14, npt: 16, mt: 15 },
+          { disciplina: 'Educacao Fisica', mac: 17, npp: 16, npt: 18, mt: 17 },
+          { disciplina: 'Filosofia', mac: 14, npp: 15, npt: 13, mt: 14 },
+          { disciplina: 'Geografia', mac: 16, npp: 17, npt: 15, mt: 16 },
+          { disciplina: 'Historia', mac: 15, npp: 14, npt: 16, mt: 15 }
+        ],
+        3: [
+          { disciplina: 'Matematica', mac: 17, npp: 16, npt: 18, mt: 17 },
+          { disciplina: 'Fisica', mac: 15, npp: 14, npt: 16, mt: 15 },
+          { disciplina: 'Quimica', mac: 16, npp: 17, npt: 15, mt: 16 },
+          { disciplina: 'Biologia', mac: 18, npp: 19, npt: 17, mt: 18 },
+          { disciplina: 'Lingua Portuguesa', mac: 14, npp: 13, npt: 15, mt: 14 },
+          { disciplina: 'Lingua Inglesa', mac: 16, npp: 15, npt: 17, mt: 16 },
+          { disciplina: 'Educacao Fisica', mac: 18, npp: 17, npt: 19, mt: 18 },
+          { disciplina: 'Filosofia', mac: 15, npp: 16, npt: 14, mt: 15 },
+          { disciplina: 'Geografia', mac: 17, npp: 18, npt: 16, mt: 17 },
+          { disciplina: 'Historia', mac: 16, npp: 15, npt: 17, mt: 16 }
+        ]
+      };
+
+      // Função para mostrar notificações
+      function showNotification(message, type = 'success') {
+        const existingNotification = document.querySelector('.alert');
+        if (existingNotification) {
+          existingNotification.remove();
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.querySelector('.page-content').insertBefore(notification, document.querySelector('.page-content').firstChild);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 5000);
+      }
+
+      // Função para carregar notas
+      function loadNotas(trimestre = 1, anoLectivo = '2026') {
+        const tbody = document.getElementById('boletimTableBody');
+        const trimestreTitle = document.getElementById('trimestreTitle');
+        const anoLectivoElement = document.getElementById('anoLectivo');
+        
+        tbody.innerHTML = '';
+        trimestreTitle.textContent = `${trimestre === 1 ? 'I' : trimestre === 2 ? 'II' : 'III'} TRIMESTRE`;
+        anoLectivoElement.textContent = `${anoLectivo}/${parseInt(anoLectivo) + 1}`;
+
+        const data = notasData[trimestre] || notasData[1];
+        
+        console.log('[API] GET /api/aluno/notas', { trimestre, anoLectivo });
+
+        data.forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.disciplina}</td>
+            <td>${item.mac}</td>
+            <td>${item.npp}</td>
+            <td>${item.npt}</td>
+            <td class="nota-positiva">${item.mt}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        setTimeout(() => {
+          console.log('Notas carregadas com sucesso!', data);
+          showNotification(`Notas do ${trimestre === 1 ? 'I' : trimestre === 2 ? 'II' : 'III'} Trimestre carregadas!`, 'success');
+        }, 800);
+      }
+
+      // Event listeners para os selects
+      const trimestreSelect = document.querySelector('select[aria-label="Trimestre"]');
+      const anoLectivoSelect = document.querySelector('select[aria-label="Ano Lectivo"]');
+
+      trimestreSelect.addEventListener('change', function() {
+        const trimestre = parseInt(this.value);
+        const anoLectivo = anoLectivoSelect.value;
+        loadNotas(trimestre, anoLectivo);
+      });
+
+      anoLectivoSelect.addEventListener('change', function() {
+        const trimestre = parseInt(trimestreSelect.value);
+        const anoLectivo = this.value;
+        loadNotas(trimestre, anoLectivo);
+      });
+
+      // Botão de download PDF
+      const btnDownloadPDF = document.getElementById('btnDownloadPDF');
+      if (btnDownloadPDF) {
+        btnDownloadPDF.addEventListener('click', function() {
+          const trimestre = trimestreSelect.value;
+          const anoLectivo = anoLectivoSelect.value;
+          
+          const data = {
+            acao: 'download_boletim',
+            formato: 'pdf',
+            aluno: 'Maria Teresa dos Santos',
+            classe: 'EIA-11AD',
+            trimestre: trimestre,
+            anoLectivo: anoLectivo,
+            periodo: new Date().toLocaleDateString('pt-AO')
+          };
+          
+          console.log('[API] POST /api/aluno/boletim/download', data);
+          showNotification('Gerando boletim em PDF...', 'info');
+          
+          this.disabled = true;
+          this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Gerando...';
+          
+          // Simulação de download
+          setTimeout(() => {
+            try {
+              const conteudo = `BOLETIM DE NOTAS\n\nDados do boletim seriam gerados aqui...`;
+              const blob = new Blob([conteudo], { type: 'text/plain;charset=utf-8' });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.setAttribute('href', url);
+              link.setAttribute('download', `boletim_maria_teresa_${trimestre}_${anoLectivo}.pdf`);
+              link.style.visibility = 'hidden';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+              
+              this.disabled = false;
+              this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF';
+              
+              showNotification('Boletim baixado com sucesso!', 'success');
+            } catch (error) {
+              console.error('Erro ao baixar PDF:', error);
+              this.disabled = false;
+              this.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF';
+              showNotification('Erro ao gerar PDF. Tente novamente.', 'danger');
+            }
+          }, 2000);
+        });
+      }
+
+      // Carregar dados iniciais
+      loadNotas();
+    });
+  </script>
+</body>
+</html>
