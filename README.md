@@ -1,207 +1,184 @@
 # 🎓 Sistema de Gestão Escolar (SGE)
 
-Sistema web para gestão escolar, permitindo o controlo centralizado de alunos, professores, turmas, disciplinas e processos académicos.
+Sistema web para gestão escolar desenvolvido para fins de aprendizado, com foco em integração entre frontend e API.
 
 ---
 
 ## 📌 Visão Geral
 
-O Sistema de Gestão Escolar (SGE) foi desenvolvido para digitalizar e automatizar processos administrativos e académicos de instituições de ensino.
+O Sistema de Gestão Escolar (SGE) permite gerir alunos, professores, turmas e disciplinas de forma simples e organizada.
 
-O sistema possui três tipos principais de utilizadores:
+Este projeto é dividido em:
 
-* 👨‍💼 **Administrador**
-* 👨‍🏫 **Professor**
-* 👨‍🎓 **Aluno**
-
-Cada perfil possui permissões e funcionalidades específicas.
+* 🎨 **Frontend:** HTML, CSS, Bootstrap 5 e JavaScript
+* ⚙️ **Backend (API):** NestJS (consumida via HTTP)
 
 ---
 
-## 🎯 Objetivos
+## 🎯 Objetivo do Projeto
 
-* Centralizar informações académicas
-* Reduzir processos manuais
-* Melhorar a comunicação entre escola, professores e alunos
-* Facilitar gestão de turmas, disciplinas e avaliações
+Este sistema foi desenvolvido com fins educacionais para:
+
+* Praticar consumo de APIs REST
+* Trabalhar com manipulação de DOM
+* Aplicar Bootstrap 5 em interfaces reais
+* Entender arquitetura cliente-servidor
 
 ---
 
 ## 👥 Tipos de Utilizadores
 
-### 🔹 Administrador
-
-Responsável pela gestão global do sistema.
-
-**Permissões:**
+### 👨‍💼 Administrador
 
 * Gerir professores, alunos e turmas
-* Criar e editar disciplinas
-* Associar disciplinas a cursos
-* Definir horários e salas
-* Gerir anos letivos
-* Acompanhar relatórios
+* Criar disciplinas
+* Associar entidades
 
----
+### 👨‍🏫 Professor
 
-### 🔹 Professor
-
-Responsável pela gestão académica das suas turmas.
-
-**Permissões:**
-
-* Visualizar turmas atribuídas
-* Registar notas
-* Marcar presenças
+* Visualizar turmas
 * Consultar disciplinas
-* Atualizar informações básicas
+* Lançar notas (via API)
 
----
-
-### 🔹 Aluno
-
-Utilizador final do sistema.
-
-**Permissões:**
+### 👨‍🎓 Aluno
 
 * Consultar notas
-* Ver horários
-* Acompanhar disciplinas
-* Visualizar informações pessoais
+* Ver disciplinas
+* Acompanhar dados académicos
 
 ---
 
-## 🧩 Funcionalidades Principais
+## 🧩 Funcionalidades
 
-* 📚 Gestão de Disciplinas
+* 📚 Cadastro de Disciplinas
 * 🏫 Gestão de Turmas
 * 👨‍🏫 Gestão de Professores
 * 👨‍🎓 Gestão de Alunos
-* 🗓️ Gestão de Ano Letivo
-* 🧾 Registo de Notas
-* 📊 Relatórios Académicos
-* 🧑‍🤝‍🧑 Associação entre entidades (Curso ↔ Disciplina ↔ Turma)
+* 🔗 Relacionamento entre entidades
+* 🌐 Consumo de API REST
 
 ---
 
-## 🗄️ Estrutura do Sistema (Entidades)
+## 🛠️ Tecnologias Utilizadas
 
-### Principais tabelas:
-
-* `usuarios`
-* `professores`
-* `alunos`
-* `turmas`
-* `disciplinas`
-* `cursos`
-* `notas`
-* `presencas`
-
-### Relações importantes:
-
-* Curso ↔ Disciplina (N:N)
-* Turma ↔ Aluno (1:N)
-* Professor ↔ Turma (1:N)
-* Turma ↔ Disciplina (N:N)
-
----
-
-## 🏗️ Arquitetura
-
-* **Frontend:** HTML, Bootstrap 5, JavaScript
-* **Backend:** (PHP / Node.js / outro)
-* **Base de Dados:** MySQL
-* **API:** RESTful
-
----
-
-## 🖥️ Interface
-
-* Interface responsiva
-* Uso de modais para criação/edição
-* Layout organizado por módulos
-* UX focada em simplicidade e produtividade
-
----
-
-## 🔐 Autenticação e Permissões
-
-* Sistema de login com níveis de acesso
-* Controle por perfil (Admin, Professor, Aluno)
-* Proteção de rotas no backend
-
----
-
-## ⚙️ Instalação
-
-```bash
-# Clonar repositório
-git clone https://github.com/seu-repo/sge.git
-
-# Entrar no projeto
-cd sge
-
-# Instalar dependências (se aplicável)
-npm install
-```
-
-Configurar base de dados:
-
-```sql
-CREATE DATABASE sge;
-```
-
----
-
-## ▶️ Execução
-
-```bash
-# Iniciar servidor
-npm start
-```
-
-Ou configurar servidor local (XAMPP, Laragon, etc.)
-
----
-
-## 📊 Boas Práticas Aplicadas
-
-* Separação de responsabilidades
-* Uso de tabelas relacionais (normalização)
-* Interface limpa com Bootstrap
-* Estrutura modular
-* Preparado para escalabilidade
-
----
-
-## 🚀 Futuras Melhorias
-
-* 📱 Aplicação mobile
-* 📧 Notificações por email
-* 📈 Dashboard com métricas
-* 📅 Gestão de horários avançada
-* 💳 Integração com pagamentos (propinas)
-
----
-
-## 🧑‍💻 Tecnologias Utilizadas
+### Frontend
 
 * HTML5
-* CSS3 / Bootstrap 5
-* JavaScript
-* MySQL
-* Backend (PHP ou Node.js)
+* CSS3
+* Bootstrap 5
+* JavaScript (Vanilla)
+
+### Backend (API)
+
+* NestJS
+* REST API
 
 ---
 
-## 📌 Observações
+## 🔗 Integração com API
 
-Este sistema foi desenvolvido com foco em instituições de ensino de pequeno a médio porte, podendo ser expandido conforme necessidade.
+O frontend comunica com a API através de requisições HTTP usando `fetch`.
+
+### 📌 Link da API
+
+```
+https://SEU-LINK-DA-API-AQUI.com
+```
+
+---
+
+## 📡 Exemplo de Consumo da API
+
+```javascript id="api-example"
+fetch('https://SEU-LINK-DA-API-AQUI.com/disciplinas')
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+  })
+  .catch(error => console.error(error));
+```
+
+---
+
+## 📁 Estrutura do Projeto
+
+```bash id="proj-struct"
+📁 projeto-sge
+│
+├── index.html
+├── professores.html
+├── alunos.html
+├── turmas.html
+├── disciplinas.html
+│
+├── css/
+│   └── styles.css
+│
+├── js/
+│   ├── api.js
+│   ├── professores.js
+│   ├── alunos.js
+│   └── disciplinas.js
+│
+└── assets/
+```
+
+---
+
+## ▶️ Como Executar
+
+1. Clonar o repositório:
+
+```bash id="clone"
+git clone https://github.com/seu-repo/sge-frontend.git
+```
+
+2. Abrir o projeto:
+
+* Basta abrir o arquivo `index.html` no navegador
+
+3. Garantir que a API está ativa:
+
+* A API (NestJS) deve estar rodando localmente ou online
+
+---
+
+## ⚠️ Observações Importantes
+
+* Este projeto **não possui backend próprio no frontend**
+* Todas as operações dependem da API
+* Certifique-se que o CORS está habilitado na API
+
+---
+
+## 🚀 Aprendizados Envolvidos
+
+* Consumo de APIs REST
+* Organização de frontend sem framework
+* Manipulação de formulários
+* Estruturação de sistemas reais
+* Integração frontend + backend
+
+---
+
+## 🔮 Melhorias Futuras
+
+* Autenticação (JWT)
+* Dashboard administrativo
+* Upload de arquivos
+* Validação avançada de formulários
+* Migração para framework (React/Vue)
+
+---
+
+## 📌 Status do Projeto
+
+🚧 Em desenvolvimento (Projeto educacional)
 
 ---
 
 ## 📄 Licença
 
-Este projeto é de uso livre para fins educativos e institucionais.
+Projeto criado para fins de aprendizado.
 
 ---
