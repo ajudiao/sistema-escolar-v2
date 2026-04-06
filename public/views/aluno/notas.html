@@ -1,616 +1,25 @@
 <!DOCTYPE html>
 <html lang="pt-AO">
 <head>
+  <title>Minhas Notas - Aluno | SGE MED Angola</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minhas Notas - Aluno | SGE MED Angola</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary-color: #4f46e5;
-      --success-color: #10b981;
-      --danger-color: #ef4444;
-      --warning-color: #f59e0b;
-      --info-color: #0ea5e9;
-      --dark-color: #1f2937;
-      --light-color: #f3f4f6;
-      --border-color: #e5e7eb;
-      --text-muted: #6b7280;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f9fafb;
-      color: var(--dark-color);
-    }
-
-    .main-wrapper {
-      display: flex;
-      height: 100vh;
-    }
-
-    .sidebar {
-      width: 260px;
-      background: white;
-      border-right: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .sidebar-brand {
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .sidebar-logo {
-      width: 40px;
-      height: 40px;
-      background: var(--primary-color);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .sidebar-brand-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar-brand-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--dark-color);
-    }
-
-    .sidebar-brand-subtitle {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .sidebar-nav {
-      flex: 1;
-      padding: 20px 0;
-      overflow-y: auto;
-    }
-
-    .nav-group {
-      margin-bottom: 20px;
-    }
-
-    .nav-group-title {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      padding: 0 20px;
-      margin-bottom: 8px;
-      letter-spacing: 0.5px;
-    }
-
-    .nav-item {
-      padding: 0 8px;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 12px;
-      color: var(--text-muted);
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: all 0.3s ease;
-    }
-
-    .nav-link:hover {
-      background-color: var(--light-color);
-      color: var(--dark-color);
-    }
-
-    .nav-link.active {
-      background-color: #ede9fe;
-      color: var(--primary-color);
-      font-weight: 600;
-    }
-
-    .nav-link-icon {
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .main-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .main-header {
-      background: white;
-      border-bottom: 1px solid var(--border-color);
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .header-title {
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0;
-    }
-
-    .header-user {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .header-user-avatar {
-      width: 40px;
-      height: 40px;
-      background: var(--primary-color);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .header-user-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--dark-color);
-    }
-
-    .header-user-role {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .page-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 30px;
-    }
-
-    .card {
-      background: white;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      margin-bottom: 24px;
-    }
-
-    .card-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border-color);
-      background-color: #f9fafb;
-    }
-
-    .card-body {
-      padding: 20px;
-    }
-
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .btn {
-      padding: 10px 16px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 14px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-primary {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background-color: #4338ca;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
-    }
-
-    .btn-outline-primary {
-      border: 2px solid var(--primary-color);
-      color: var(--primary-color);
-      background: white;
-    }
-
-    .btn-outline-primary:hover {
-      background-color: #ede9fe;
-    }
-
-    .btn-secondary {
-      background-color: #6b7280;
-      color: white;
-    }
-
-    .btn-secondary:hover {
-      background-color: #4b5563;
-    }
-
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 13px;
-    }
-
-    .btn-success {
-      background-color: var(--success-color);
-      color: white;
-    }
-
-    .btn-success:hover {
-      background-color: #059669;
-    }
-
-    .w-100 {
-      width: 100%;
-    }
-
-    .form-label {
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: var(--dark-color);
-      font-size: 14px;
-    }
-
-    .form-control, .form-select {
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 10px 12px;
-      font-size: 14px;
-      transition: border-color 0.3s ease;
-      font-family: inherit;
-    }
-
-    .form-control:focus, .form-select:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-      outline: none;
-    }
-
-    .assessment-list {
-      display: grid;
-      gap: 16px;
-    }
-
-    .assessment-card {
-      background: white;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 16px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .assessment-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-color: var(--primary-color);
-    }
-
-    .assessment-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-
-    .assessment-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--dark-color);
-    }
-
-    .assessment-date {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-    }
-
-    .assessment-disciplines {
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .assessment-type {
-      display: inline-block;
-      padding: 4px 10px;
-      background-color: #dbeafe;
-      color: #0284c7;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .assessment-type.prova {
-      background-color: #fef3c7;
-      color: #b45309;
-    }
-
-    .assessment-type.trabalho {
-      background-color: #d1fae5;
-      color: #065f46;
-    }
-
-    .assessment-type.teste {
-      background-color: #fce7f3;
-      color: #be185d;
-    }
-
-    .assessment-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .assessment-subjects {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .assessment-subjects strong {
-      color: var(--dark-color);
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1050;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal.show {
-      display: flex;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 12px;
-      max-width: 600px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-    }
-
-    .modal-header {
-      padding: 24px;
-      border-bottom: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .modal-close {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-muted);
-      font-size: 24px;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-close:hover {
-      color: var(--dark-color);
-    }
-
-    .modal-body {
-      padding: 24px;
-    }
-
-    .grades-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .grades-table th {
-      background-color: #f9fafb;
-      padding: 12px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 13px;
-      color: var(--dark-color);
-      border-bottom: 2px solid var(--border-color);
-    }
-
-    .grades-table td {
-      padding: 12px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .grades-table tr:hover {
-      background-color: #f9fafb;
-    }
-
-    .grade-value {
-      font-weight: 600;
-      font-size: 15px;
-    }
-
-    .grade-positive {
-      color: var(--success-color);
-    }
-
-    .grade-negative {
-      color: var(--danger-color);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--text-muted);
-    }
-
-    .empty-state-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    .empty-state-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--dark-color);
-      margin-bottom: 8px;
-    }
-
-    .footer {
-      padding: 20px;
-      border-top: 1px solid var(--border-color);
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 13px;
-      background: white;
-    }
-
-    .alert {
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .alert-success {
-      background-color: #d1fae5;
-      color: #065f46;
-      border: 1px solid #a7f3d0;
-    }
-
-    .alert-info {
-      background-color: #cffafe;
-      color: #0c4a6e;
-      border: 1px solid #a5f3fc;
-    }
-
-    .alert-danger {
-      background-color: #fee2e2;
-      color: #7f1d1d;
-      border: 1px solid #fca5a5;
-    }
-
-    .alert-close {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: inherit;
-    }
-
-    .filter-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-      gap: 16px;
-      align-items: flex-end;
-    }
-
-    .filter-actions {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-    }
-
-    .assessment-grade {
-      font-size: 18px;
-      font-weight: 700;
-      padding: 8px 12px;
-      background-color: #ede9fe;
-      border-radius: 8px;
-      color: var(--primary-color);
-      margin-top: 8px;
-      display: inline-block;
-    }
-
-    @media (max-width: 768px) {
-      .sidebar {
-        width: 200px;
-      }
-
-      .page-content {
-        padding: 20px;
-      }
-
-      .main-header {
-        flex-direction: column;
-        gap: 12px;
-        text-align: center;
-      }
-
-      .filter-row {
-        grid-template-columns: 1fr;
-      }
-
-      .filter-actions {
-        flex-direction: column;
-        width: 100%;
-      }
-
-      .filter-actions button {
-        width: 100%;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/sidebar.css">
+  <link rel="stylesheet" href="css/aluno.css">
 </head>
 <body>
   <div class="main-wrapper">
+    <div class="sidebar-overlay"></div>
+    
     <!-- Sidebar -->
     <aside class="sidebar">
+      <button class="sidebar-close">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      
       <div class="sidebar-brand">
         <div class="sidebar-logo">SGE</div>
         <div class="sidebar-brand-text">
@@ -623,9 +32,11 @@
         <div class="nav-group">
           <div class="nav-group-title">Principal</div>
           <div class="nav-item">
-            <a href="dashboard.html" class="nav-link">
-              <span class="nav-link-icon"><i class="bi bi-graph-up"></i></span>
-              <span>Dashboard</span>
+            <a href="dashboard.html" class="nav-link" data-title="Dashboard">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </span>
+              <span class="nav-link-text">Dashboard</span>
             </a>
           </div>
         </div>
@@ -633,525 +44,310 @@
         <div class="nav-group">
           <div class="nav-group-title">Academico</div>
           <div class="nav-item">
-            <a href="notas.html" class="nav-link active">
-              <span class="nav-link-icon"><i class="bi bi-file-text"></i></span>
-              <span>Minhas Notas</span>
+            <a href="notas.html" class="nav-link active" data-title="Minhas Notas">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+              </span>
+              <span class="nav-link-text">Minhas Notas</span>
             </a>
           </div>
           <div class="nav-item">
-            <a href="faltas.html" class="nav-link">
-              <span class="nav-link-icon"><i class="bi bi-x-circle"></i></span>
-              <span>Minhas Faltas</span>
+            <a href="faltas.html" class="nav-link" data-title="Minhas Faltas">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </span>
+              <span class="nav-link-text">Minhas Faltas</span>
             </a>
           </div>
         </div>
         
+
+        
         <div class="nav-group">
           <div class="nav-group-title">Conta</div>
           <div class="nav-item">
-            <a href="perfil.html" class="nav-link">
-              <span class="nav-link-icon"><i class="bi bi-person"></i></span>
-              <span>Meu Perfil</span>
+            <a href="perfil.html" class="nav-link" data-title="Meu Perfil">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <span class="nav-link-text">Meu Perfil</span>
             </a>
           </div>
           <div class="nav-item">
-            <a href="index.html" class="nav-link">
-              <span class="nav-link-icon"><i class="bi bi-box-arrow-left"></i></span>
-              <span>Sair</span>
+             <a href="../../../index.html" class="nav-link" data-title="Sair">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </span>
+              <span class="nav-link-text">Sair</span>
             </a>
           </div>
         </div>
       </nav>
+      
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle">
+          <span class="sidebar-toggle-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </span>
+          <span class="sidebar-toggle-text">Recolher menu</span>
+        </button>
+      </div>
     </aside>
     
     <!-- Main Content -->
     <main class="main-content">
       <header class="main-header">
-        <div>
+        <div class="header-left">
+          <button class="mobile-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <h1 class="header-title">Minhas Notas</h1>
         </div>
-        <div class="header-user">
-          <div class="header-user-avatar">MS</div>
-          <div>
-            <div class="header-user-name">Maria Santos</div>
-            <div class="header-user-role">Aluno - EIA-11AD</div>
+        <div class="header-right">
+          <div class="header-user">
+            <div class="header-user-avatar">MS</div>
+            <div class="header-user-info">
+              <span class="header-user-name">Maria Santos</span>
+              <span class="header-user-role">Aluno - EIA-11AD</span>
+            </div>
           </div>
         </div>
       </header>
       
       <div class="page-content">
-        <!-- Filtro -->
+        <!-- Trimester Selector -->
         <div class="card mb-4">
           <div class="card-body">
-            <div class="filter-row">
-              <div>
-                <label class="form-label">Ano</label>
-                <select id="yearFilter" class="form-control">
-                  <option value="2026" selected>2026</option>
-                  <option value="2025">2025</option>
-                  <option value="2024">2024</option>
-                  <option value="2023">2023</option>
-                </select>
-              </div>
-              <div>
+            <div class="row g-3 align-items-end">
+              <div class="col-md-3">
                 <label class="form-label">Trimestre</label>
-                <select id="trimestreFilter" class="form-control">
-                  <option value="">Selecionar Trimestre...</option>
-                  <option value="1" selected>I Trimestre</option>
+                <select class="form-control form-select" id="trimestreSelect">
+                  <option value="1" selected>I Trimestre (em curso)</option>
                   <option value="2">II Trimestre</option>
                   <option value="3">III Trimestre</option>
                 </select>
               </div>
-              <div>
-                <label class="form-label">Data</label>
-                <input type="date" id="dateFilter" class="form-control">
-              </div>
-              <div>
-                <label class="form-label">Disciplina</label>
-                <select id="disciplineFilter" class="form-control">
-                  <option value="">Todas as disciplinas</option>
-                  <option value="Matematica">Matemática</option>
-                  <option value="Fisica">Física</option>
-                  <option value="Quimica">Química</option>
-                  <option value="Biologia">Biologia</option>
-                  <option value="Lingua Portuguesa">Português</option>
-                  <option value="Lingua Inglesa">Inglês</option>
-                  <option value="Historia">História</option>
-                  <option value="Geografia">Geografia</option>
-                  <option value="Filosofia">Filosofia</option>
+              <div class="col-md-3">
+                <label class="form-label">Ano Lectivo</label>
+                <select class="form-control form-select" id="anoSelect">
+                  <option value="2026" selected>2026/2025</option>
+                  <option value="2025">2025/2024</option>
                 </select>
               </div>
-              <div class="filter-actions">
-                <button id="btnSearch" class="btn btn-primary">Buscar</button>
-                <button id="btnClearFilters" class="btn btn-outline-primary">Limpar</button>
+              <div class="col-md-3">
+                <label class="form-label">Disciplina</label>
+                <select class="form-control form-select" id="disciplinaSelect">
+                  <option value="todas" selected>Todas</option>
+                  <option value="Matemática">Matemática</option>
+                  <option value="Português">Português</option>
+                  <option value="Física">Física</option>
+                  <option value="Química">Química</option>
+                  <option value="Biologia">Biologia</option>
+                  <option value="História">História</option>
+                  <option value="Geografia">Geografia</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <button id="btnCarregarNotas" class="btn btn-primary w-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Carregar Notas
+                </button>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Lista de Avaliações -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Avaliações</h3>
+        
+        <!-- Boletim Preview -->
+        <div class="boletim-preview mb-4" id="boletimContainer">
+          <div class="boletim-header">
+            <h4>BOLETIM DE NOTAS - <span id="trimestreTitle">I TRIMESTRE</span></h4>
+            <p>Escola Secundaria do I e EIA-10AD N. 1234 - Luanda</p>
           </div>
-          <div class="card-body">
-            <div id="assessmentContainer" class="assessment-list">
-        <div class="empty-state">
-          <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
-          <div class="empty-state-title">Nenhuma avaliação encontrada</div>
-          <p>Selecione um trimestre para ver as avaliações</p>
+          <div class="boletim-info">
+            <div class="boletim-info-item">
+              <span class="boletim-info-label">Aluno:</span>
+              <span class="boletim-info-value">Maria Teresa dos Santos</span>
+            </div>
+            <div class="boletim-info-item">
+              <span class="boletim-info-label">Classe/Turma:</span>
+              <span class="boletim-info-value">EIA-11AD</span>
+            </div>
+            <div class="boletim-info-item">
+              <span class="boletim-info-label">Curso:</span>
+              <span class="boletim-info-value">Ciencias Fisicas e Biologicas</span>
+            </div>
+            <div class="boletim-info-item">
+              <span class="boletim-info-label">Ano Lectivo:</span>
+              <span class="boletim-info-value" id="anoLectivo">2026/2025</span>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="boletim-table" id="boletimTable">
+              <thead id="boletimTableHead">
+                <tr>
+                  <th>Disciplina</th>
+                  <th>Data</th>
+                  <th>MAC</th>
+                  <th>NPP</th>
+                  <th>NPT</th>
+                  <th>MT</th>
+                </tr>
+              </thead>
+              <tbody id="boletimTableBody">
+                <!-- Dados serão carregados via JavaScript -->
+              </tbody>
+            </table>
+          </div>
         </div>
+        
+        <!-- Legend -->
+        <div class="card mt-4">
+          <div class="card-body">
+            <h6 class="mb-3">Legenda</h6>
+            <div class="row">
+              <div class="col-md-6">
+                <ul class="list-unstyled mb-0 small text-muted">
+                  <li><strong>MAC</strong> - Media de Avaliacao Continua</li>
+                  <li><strong>NPP</strong> - Nota da Prova do Professor</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <ul class="list-unstyled mb-0 small text-muted">
+                  <li><strong>NPT</strong> - Nota da Prova Trimestral</li>
+                  <li><strong>MT</strong> - Media Trimestral = (MAC + NPP + NPT) / 3</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      <footer class="footer">
-        <p>Sistema de Gestao Escolar - 2026 - Ministerio da Educacao de Angola</p>
+      
+      <footer class="main-footer">
+        <p class="mb-0">Sistema de Gestao Escolar - 2026 - Ministerio da Educacao de Angola</p>
       </footer>
     </main>
   </div>
-
-  <!-- Modal de Notas -->
-  <div id="gradesModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title" id="modalTitle">Notas - Avaliação</h2>
-        <button class="modal-close" id="modalClose">&times;</button>
-      </div>
-      <div class="modal-body">
-        <table class="grades-table">
-          <thead>
-            <tr>
-              <th>Disciplina</th>
-              <th>Professor</th>
-              <th>Nota</th>
-            </tr>
-          </thead>
-          <tbody id="gradesTableBody">
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/global.js"></script>
+  <script src="../../js/sidebar.js"></script>
   <script>
-    // ========================================
-    // DADOS SIMULADOS
-    // ========================================
-    const assessmentsData = {
-      1: [
-        {
-          id: 1,
-          title: 'Prova dos Professores',
-          type: 'prova',
-          date: '2026-01-15',
-          year: 2026,
-          grades: [
-            { disciplina: 'Matematica', professor: 'Prof. Silva', nota: 15 },
-            { disciplina: 'Quimica', professor: 'Prof. Santos', nota: 14 },
-            { disciplina: 'Educacao Musical', professor: 'Prof. Costa', nota: 16 }
-          ]
-        },
-        {
-          id: 2,
-          title: 'Trabalho Prático',
-          type: 'trabalho',
-          date: '2026-01-22',
-          year: 2026,
-          grades: [
-            { disciplina: 'Fisica', professor: 'Prof. Oliveira', nota: 16 },
-            { disciplina: 'Quimica', professor: 'Prof. Santos', nota: 15 },
-            { disciplina: 'Biologia', professor: 'Prof. Pereira', nota: 17 }
-          ]
-        },
-        {
-          id: 3,
-          title: 'Teste Rápido 1',
-          type: 'teste',
-          date: '2026-02-05',
-          year: 2026,
-          grades: [
-            { disciplina: 'Lingua Portuguesa', professor: 'Prof. Garcia', nota: 14 },
-            { disciplina: 'Lingua Inglesa', professor: 'Prof. Martins', nota: 15 },
-            { disciplina: 'Historia', professor: 'Prof. Ferreira', nota: 12 }
-          ]
-        },
-        {
-          id: 101,
-          title: 'Prova dos Professores',
-          type: 'prova',
-          date: '2025-01-12',
-          year: 2025,
-          grades: [
-            { disciplina: 'Matematica', professor: 'Prof. Silva', nota: 13 },
-            { disciplina: 'Fisica', professor: 'Prof. Oliveira', nota: 12 },
-            { disciplina: 'Quimica', professor: 'Prof. Santos', nota: 11 }
-          ]
+    document.addEventListener('DOMContentLoaded', function () {
+      // Dados simulados com datas
+      const notasData = [
+        { disciplina: 'Matemática', data: '2026-01-15', mac: 15, npp: 14, npt: null, mt: null },
+        { disciplina: 'Matemática', data: '2026-02-10', mac: 16, npp: 15, npt: 17, mt: 16 },
+        { disciplina: 'Matemática', data: '2026-03-05', mac: 14, npp: 13, npt: 15, mt: 14 },
+        { disciplina: 'Física', data: '2026-01-20', mac: 13, npp: 12, npt: null, mt: null },
+        { disciplina: 'Física', data: '2026-02-15', mac: 14, npp: 13, npt: 15, mt: 14 },
+        { disciplina: 'Química', data: '2026-01-25', mac: 14, npp: 15, npt: null, mt: null },
+        { disciplina: 'Química', data: '2026-02-20', mac: 15, npp: 16, npt: 14, mt: 15 },
+        { disciplina: 'Biologia', data: '2026-01-30', mac: 16, npp: 17, npt: null, mt: null },
+        { disciplina: 'Biologia', data: '2026-02-25', mac: 17, npp: 18, npt: 16, mt: 17 },
+        { disciplina: 'Português', data: '2026-01-10', mac: 12, npp: 11, npt: null, mt: null },
+        { disciplina: 'Português', data: '2026-02-05', mac: 13, npp: 12, npt: 14, mt: 13 },
+        { disciplina: 'Inglês', data: '2026-01-18', mac: 14, npp: 13, npt: null, mt: null },
+        { disciplina: 'Inglês', data: '2026-02-12', mac: 15, npp: 14, npt: 16, mt: 15 },
+        { disciplina: 'História', data: '2026-01-22', mac: 11, npp: 10, npt: null, mt: null },
+        { disciplina: 'História', data: '2026-02-18', mac: 12, npp: 11, npt: 13, mt: 12 },
+        { disciplina: 'Geografia', data: '2026-01-28', mac: 13, npp: 14, npt: null, mt: null },
+        { disciplina: 'Geografia', data: '2026-02-22', mac: 14, npp: 15, npt: 13, mt: 14 },
+        // Adicionar mais dados para outros trimestres se necessário
+        { disciplina: 'Matemática', data: '2026-04-15', mac: 17, npp: 16, npt: 18, mt: 17 },
+        { disciplina: 'Física', data: '2026-04-20', mac: 15, npp: 14, npt: 16, mt: 15 },
+        { disciplina: 'Química', data: '2026-04-25', mac: 16, npp: 17, npt: 15, mt: 16 },
+        { disciplina: 'Biologia', data: '2026-04-30', mac: 18, npp: 19, npt: 17, mt: 18 },
+        { disciplina: 'Português', data: '2026-04-10', mac: 14, npp: 13, npt: 15, mt: 14 },
+        { disciplina: 'Inglês', data: '2026-04-18', mac: 16, npp: 15, npt: 17, mt: 16 },
+        { disciplina: 'História', data: '2026-04-22', mac: 13, npp: 12, npt: 14, mt: 13 },
+        { disciplina: 'Geografia', data: '2026-04-28', mac: 15, npp: 16, npt: 14, mt: 15 },
+      ];
+
+      // Função para mostrar notificações
+      function showNotification(message, type = 'success') {
+        const existingNotification = document.querySelector('.alert');
+        if (existingNotification) {
+          existingNotification.remove();
         }
-      ],
-      2: [
-        {
-          id: 4,
-          title: 'Prova 2',
-          type: 'prova',
-          date: '2026-05-10',
-          year: 2026,
-          grades: [
-            { disciplina: 'Matematica', professor: 'Prof. Silva', nota: 16 },
-            { disciplina: 'Fisica', professor: 'Prof. Oliveira', nota: 14 },
-            { disciplina: 'Quimica', professor: 'Prof. Santos', nota: 15 }
-          ]
-        },
-        {
-          id: 5,
-          title: 'Apresentacao Seminario',
-          type: 'trabalho',
-          date: '2026-05-18',
-          year: 2026,
-          grades: [
-            { disciplina: 'Historia', professor: 'Prof. Ferreira', nota: 16 },
-            { disciplina: 'Geografia', professor: 'Prof. Mendes', nota: 15 },
-            { disciplina: 'Filosofia', professor: 'Prof. Alves', nota: 14 }
-          ]
-        },
-        {
-          id: 102,
-          title: 'Prova 2',
-          type: 'prova',
-          date: '2025-05-08',
-          year: 2025,
-          grades: [
-            { disciplina: 'Matematica', professor: 'Prof. Silva', nota: 14 },
-            { disciplina: 'Fisica', professor: 'Prof. Oliveira', nota: 13 },
-            { disciplina: 'Quimica', professor: 'Prof. Santos', nota: 12 }
-          ]
-        }
-      ],
-      3: [
-        {
-          id: 6,
-          title: 'Prova Final',
-          type: 'prova',
-          date: '2026-09-12',
-          year: 2026,
-          grades: [
-            { disciplina: 'Matematica', professor: 'Prof. Silva', nota: 17 },
-            { disciplina: 'Fisica', professor: 'Prof. Oliveira', nota: 15 },
-            { disciplina: 'Quimica', professor: 'Prof. Santos', nota: 16 },
-            { disciplina: 'Biologia', professor: 'Prof. Pereira', nota: 18 }
-          ]
-        },
-        {
-          id: 103,
-          title: 'Prova Final',
-          type: 'prova',
-          date: '2025-09-10',
-          year: 2025,
-          grades: [
-            { disciplina: 'Matematica', professor: 'Prof. Silva', nota: 15 },
-            { disciplina: 'Fisica', professor: 'Prof. Oliveira', nota: 14 },
-            { disciplina: 'Quimica', professor: 'Prof. Santos', nota: 13 },
-            { disciplina: 'Biologia', professor: 'Prof. Pereira', nota: 16 }
-          ]
-        }
-      ]
-    };
 
-    // ========================================
-    // FUNCOES UTILITARIAS
-    // ========================================
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('pt-AO', { day: 'numeric', month: 'long', year: 'numeric' });
-    }
-
-    function getAssessmentBadgeClass(type) {
-      const types = {
-        'prova': 'prova',
-        'trabalho': 'trabalho',
-        'teste': 'teste'
-      };
-      return types[type] || 'teste';
-    }
-
-    function showNotification(message, type = 'success') {
-      const container = document.querySelector('.page-content');
-      const alert = document.createElement('div');
-      alert.className = `alert alert-${type}`;
-      alert.innerHTML = `
-        <span>${message}</span>
-        <button class="alert-close">&times;</button>
-      `;
-      container.insertBefore(alert, container.firstChild);
-      
-      alert.querySelector('.alert-close').addEventListener('click', () => alert.remove());
-      
-      setTimeout(() => {
-        if (alert.parentNode) alert.remove();
-      }, 4000);
-    }
-
-    // ========================================
-    // FUNCOES DE API (SIMULADAS)
-    // ========================================
-    function fetchAssessments(year, trimestre, dateFilter = null, discipline = null) {
-      const params = { year, trimestre, dateFilter, discipline };
-      console.log('[API] GET /api/aluno/avaliacoes', params);
-
-      const assessments = assessmentsData[trimestre] || [];
-      
-      let filtered = assessments;
-      
-      // Filtrar por ano
-      filtered = filtered.filter(a => parseInt(a.year || 2026) === parseInt(year));
-      
-      // Filtrar por data
-      if (dateFilter) {
-        filtered = filtered.filter(a => a.date === dateFilter);
-      }
-
-      // Filtrar por disciplina se selecionada
-      if (discipline) {
-        filtered = filtered.map(assessment => ({
-          ...assessment,
-          grades: assessment.grades.filter(g => g.disciplina === discipline)
-        })).filter(assessment => assessment.grades.length > 0);
-      }
-
-      // Simular delay de API
-      setTimeout(() => {
-        console.log('[API Response] Avaliacoes carregadas:', filtered);
-      }, 300);
-
-      return filtered;
-    }
-
-    function fetchAssessmentGrades(assessmentId, discipline = null) {
-      const params = { assessmentId, discipline };
-      console.log('[API] GET /api/aluno/avaliacoes/:id/notas', params);
-
-      let gradeData = null;
-      for (let trimestre in assessmentsData) {
-        const assessment = assessmentsData[trimestre].find(a => a.id === assessmentId);
-        if (assessment) {
-          gradeData = assessment;
-          break;
-        }
-      }
-
-      if (gradeData && discipline) {
-        const grade = gradeData.grades.find(g => g.disciplina === discipline);
-        gradeData = { ...gradeData, selectedGrade: grade };
-      }
-
-      // Simular delay de API
-      setTimeout(() => {
-        console.log('[API Response] Nota da avaliacao:', gradeData?.selectedGrade || gradeData?.grades || []);
-      }, 300);
-
-      return gradeData;
-    }
-
-    // ========================================
-    // RENDERIZACAO
-    // ========================================
-    function renderAssessments(assessments) {
-      const container = document.getElementById('assessmentContainer');
-      
-      if (assessments.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
-            <div class="empty-state-title">Nenhuma avaliação encontrada</div>
-            <p>Ajuste os filtros e clique em "Buscar" para ver as avaliações</p>
-          </div>
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        return;
-      }
-
-      const discipline = document.getElementById('disciplineFilter').value;
-
-      container.innerHTML = assessments.map(assessment => {
-        const gradeValue = assessment.grades.length > 0 ? assessment.grades[0].nota : '-';
-        const gradeClass = gradeValue >= 12 ? 'grade-positive' : gradeValue === '-' ? '' : 'grade-negative';
-        const disciplinesText = assessment.grades.map(g => g.disciplina).join(', ');
+        document.querySelector('.page-content').insertBefore(notification, document.querySelector('.page-content').firstChild);
         
-        return `
-          <div class="assessment-card" data-assessment-id="${assessment.id}">
-            <div class="assessment-header">
-              <div>
-                <div class="assessment-title">${assessment.title}</div>
-                <div class="assessment-date">${formatDate(assessment.date)}</div>
-                <div class="assessment-disciplines">
-                  <small><strong>Disciplinas:</strong> ${disciplinesText}</small>
-                </div>
-                ${discipline ? `<div class="assessment-grade"><span class="grade-value ${gradeClass}">${gradeValue}</span></div>` : ''}
-              </div>
-              <span class="assessment-type ${getAssessmentBadgeClass(assessment.type)}">
-                ${assessment.type.charAt(0).toUpperCase() + assessment.type.slice(1)}
-              </span>
-            </div>
-            <div class="assessment-footer">
-              <div class="assessment-subjects">
-                <strong>${assessment.grades.length}</strong> disciplina${assessment.grades.length > 1 ? 's' : ''}
-              </div>
-              <button class="btn btn-sm btn-primary btnViewGrades" data-assessment-id="${assessment.id}">
-                Ver Nota
-              </button>
-            </div>
-          </div>
-        `;
-      }).join('');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 5000);
+      }
 
-      // Adicionar event listeners aos botoes
-      document.querySelectorAll('.btnViewGrades').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const assessmentId = parseInt(btn.getAttribute('data-assessment-id'));
-          const discipline = document.getElementById('disciplineFilter').value;
-          openGradesModal(assessmentId, discipline);
+      // Função para carregar notas
+      function loadNotas() {
+        const trimestre = document.getElementById('trimestreSelect').value;
+        const ano = document.getElementById('anoSelect').value;
+        const disciplina = document.getElementById('disciplinaSelect').value;
+
+        console.log(`Buscando notas para ano: ${ano}, trimestre: ${trimestre}, disciplina: ${disciplina}`);
+
+        // Simulação de busca
+        let filteredData = notasData.filter(nota => {
+          const notaDate = new Date(nota.data);
+          const trimestreStart = trimestre == 1 ? new Date(ano, 0, 1) : trimestre == 2 ? new Date(ano, 3, 1) : new Date(ano, 6, 1);
+          const trimestreEnd = trimestre == 1 ? new Date(ano, 2, 31) : trimestre == 2 ? new Date(ano, 5, 30) : new Date(ano, 8, 30);
+          const inTrimestre = notaDate >= trimestreStart && notaDate <= trimestreEnd;
+          const matchesDisciplina = disciplina === 'todas' || nota.disciplina === disciplina;
+          return inTrimestre && matchesDisciplina;
         });
+
+        // Ordenar por data descendente
+        filteredData.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        const tbody = document.getElementById('boletimTableBody');
+        tbody.innerHTML = '';
+
+        if (filteredData.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhuma nota encontrada para os filtros selecionados.</td></tr>';
+          return;
+        }
+
+        const today = new Date();
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 7);
+
+        filteredData.forEach(nota => {
+          const row = document.createElement('tr');
+          const notaDate = new Date(nota.data);
+          const isRecent = notaDate >= sevenDaysAgo;
+          if (isRecent) {
+            row.classList.add('recent');
+          }
+
+          row.innerHTML = `
+            <td>${nota.disciplina}</td>
+            <td>${nota.data}</td>
+            <td>${nota.mac}</td>
+            <td>${nota.npp}</td>
+            <td>${nota.npt || '-'}</td>
+            <td>${nota.mt || '-'}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+        showNotification(`${filteredData.length} notas carregadas com sucesso.`, 'success');
+      }
+
+      // Event listener para o botão
+      document.getElementById('btnCarregarNotas').addEventListener('click', function() {
+        loadNotas();
       });
-    }
 
-    function openGradesModal(assessmentId, discipline = null) {
-      const data = fetchAssessmentGrades(assessmentId, discipline);
-      
-      if (!data) return;
-
-      const modal = document.getElementById('gradesModal');
-      const modalTitle = document.getElementById('modalTitle');
-      const gradesBody = document.getElementById('gradesTableBody');
-
-      modalTitle.textContent = `Notas - ${data.title}`;
-      
-      let gradesToDisplay = data.grades;
-      
-      // Se uma disciplina foi selecionada, mostrar todas mas destacar a selecionada
-      if (discipline && data.selectedGrade) {
-        gradesToDisplay = data.grades;
-      }
-
-      gradesBody.innerHTML = gradesToDisplay.map(grade => {
-        const gradeClass = grade.nota >= 12 ? 'grade-positive' : 'grade-negative';
-        const isSelected = discipline && grade.disciplina === discipline ? 'style="background-color: #f0f0f0; font-weight: bold;"' : '';
-        return `
-          <tr ${isSelected}>
-            <td>${grade.disciplina}</td>
-            <td>${grade.professor}</td>
-            <td><span class="grade-value ${gradeClass}">${grade.nota}</span></td>
-          </tr>
-        `;
-      }).join('');
-
-      modal.classList.add('show');
-    }
-
-    // ========================================
-    // EVENT LISTENERS
-    // ========================================
-    document.getElementById('btnSearch').addEventListener('click', function() {
-      const year = document.getElementById('yearFilter').value;
-      const trimestre = document.getElementById('trimestreFilter').value;
-      const dateFilter = document.getElementById('dateFilter').value;
-      const discipline = document.getElementById('disciplineFilter').value;
-      
-      if (!trimestre) {
-        showNotification('Selecione um trimestre para buscar', 'danger');
-        return;
-      }
-
-      console.log('[Search] Iniciando busca com:', { year, trimestre, dateFilter, discipline });
-      
-      const assessments = fetchAssessments(year, parseInt(trimestre), dateFilter || null, discipline || null);
-      renderAssessments(assessments);
-      
-      const trimesterName = trimestre === '1' ? 'I' : trimestre === '2' ? 'II' : 'III';
-      const disciplineText = discipline ? ` de ${discipline}` : '';
-      showNotification(`Avaliações do ${trimesterName} Trimestre ${disciplineText} carregadas`, 'success');
+      // Carregar dados iniciais
+      loadNotas();
     });
-
-      document.getElementById('btnClearFilters').addEventListener('click', function() {
-      document.getElementById('yearFilter').value = '2026';
-      document.getElementById('trimestreFilter').value = '';
-      document.getElementById('dateFilter').value = '';
-      document.getElementById('disciplineFilter').value = '';
-      document.getElementById('assessmentContainer').innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon"><i class="bi bi-inbox"></i></div>
-          <div class="empty-state-title">Nenhuma avaliação encontrada</div>
-          <p>Ajuste os filtros e clique em "Buscar" para ver as avaliações</p>
-        </div>
-      `;
-    });
-
-    // Modal close
-    document.getElementById('modalClose').addEventListener('click', function() {
-      document.getElementById('gradesModal').classList.remove('show');
-    });
-
-    document.getElementById('gradesModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        this.classList.remove('show');
-      }
-    });
-
-    // Keyboard shortcut para fechar modal
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        document.getElementById('gradesModal').classList.remove('show');
-      }
-    });
-
-    console.log('[App] Página de notas carregada com sucesso');
-    console.log('[App] Dados de avaliacoes disponiveis:', assessmentsData);
-    console.log('[Info] Use o botão "Buscar" para filtrar avaliações por:');
-    console.log('  - Ano (2026, 2025, 2024, 2023)');
-    console.log('  - Trimestre (I, II, III)');
-    console.log('  - Data (opcional)');
-    console.log('  - Disciplina (opcional)');
-    console.log('[Info] Veja o console.log para simular as chamadas de API');
   </script>
 </body>
 </html>

@@ -122,19 +122,37 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
             </div>
             <div class="faltas-item-content">
-              <div class="faltas-item-value">5</div>
+              <div class="faltas-item-value" id="totalFaltas">0</div>
               <div class="faltas-item-label">Total de Faltas</div>
             </div>
           </div>
           
-          <!-- Justification counts removed -->
+          <div class="faltas-item">
+            <div class="faltas-item-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="faltas-item-content">
+              <div class="faltas-item-value" id="faltasJustificadas">0</div>
+              <div class="faltas-item-label">Justificadas</div>
+            </div>
+          </div>
+          
+          <div class="faltas-item">
+            <div class="faltas-item-icon" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </div>
+            <div class="faltas-item-content">
+              <div class="faltas-item-value" id="faltasNaoJustificadas">0</div>
+              <div class="faltas-item-label">Não Justificadas</div>
+            </div>
+          </div>
           
           <div class="faltas-item">
             <div class="faltas-item-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
             <div class="faltas-item-content">
-              <div class="faltas-item-value">95%</div>
+              <div class="faltas-item-value" id="assiduidade">100%</div>
               <div class="faltas-item-label">Assiduidade</div>
             </div>
           </div>
@@ -148,34 +166,62 @@
           </div>
         </div>
         
-        <!-- Faltas by Discipline -->
+        <!-- Filtros -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-3">
+                <label class="form-label">Trimestre</label>
+                <select class="form-control form-select" id="trimestreSelect">
+                  <option value="1" selected>I Trimestre (em curso)</option>
+                  <option value="2">II Trimestre</option>
+                  <option value="3">III Trimestre</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Ano Lectivo</label>
+                <select class="form-control form-select" id="anoSelect">
+                  <option value="2026" selected>2026/2025</option>
+                  <option value="2025">2025/2024</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Disciplina</label>
+                <select class="form-control form-select" id="disciplinaSelect">
+                  <option value="todas" selected>Todas</option>
+                  <option value="Matemática">Matemática</option>
+                  <option value="Física">Física</option>
+                  <option value="Química">Química</option>
+                  <option value="Biologia">Biologia</option>
+                  <option value="Português">Português</option>
+                  <option value="Inglês">Inglês</option>
+                  <option value="História">História</option>
+                  <option value="Geografia">Geografia</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <button id="btnCarregarFaltas" class="btn btn-primary w-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-1"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Carregar Faltas
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Faltas List -->
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <h6 class="card-title mb-0">Faltas por Disciplina - I Trimestre</h6>
-            <div class="d-flex gap-2">
-              <select id="faltasTrimestre" class="form-select form-select-sm">
-                <option value="1" selected>I Trimestre</option>
-                <option value="2">II Trimestre</option>
-                <option value="3">III Trimestre</option>
-              </select>
-              <button id="refreshFaltas" class="btn btn-sm btn-outline-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-                  <path d="M21 3v5h-5"/>
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-                  <path d="M8 16H3v5"/>
-                </svg>
-              </button>
-            </div>
+            <h6 class="card-title mb-0">Histórico de Faltas</h6>
           </div>
           <div class="card-body p-0">
             <div class="table-responsive">
               <table class="table table-hover mb-0">
                 <thead>
                   <tr>
+                    <th>Data</th>
                     <th>Disciplina</th>
-                    <th class="text-center">Faltas</th>
-                    <th class="text-center">Limite</th>
+                    <th class="text-center">Quantidade</th>
                     <th class="text-center">Status</th>
                   </tr>
                 </thead>
@@ -186,30 +232,6 @@
             </div>
           </div>
         </div>
-                    <td>Prof. Carlos Mendes</td>
-                    <td class="text-center"><span class="badge badge-warning">Falta</span></td>
-                    <td class="text-muted">Consulta medica - Declaracao apresentada</td>
-                  </tr>
-                  <tr>
-                    <td>05/11/2026</td>
-                    <td>Lingua Portuguesa</td>
-                    <td>Prof. Ana Silva</td>
-                    <td class="text-center"><span class="badge badge-danger">Falta</span></td>
-                    <td class="text-muted">-</td>
-                  </tr>
-                  <tr>
-                    <td>01/11/2026</td>
-                    <td>Matematica</td>
-                    <td>Prof. Joao Ferreira</td>
-                    <td class="text-center"><span class="badge badge-warning">Falta</span></td>
-                    <td class="text-muted">Doenca - Atestado medico</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
       
       <footer class="main-footer">
         <p class="mb-0">Sistema de Gestao Escolar - 2026 - Ministerio da Educacao de Angola</p>
@@ -223,45 +245,22 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Dados simulados por trimestre
-      const faltasData = {
-        1: [
-          { disciplina: 'Matematica', faltas: 2, limite: 10, status: 'OK' },
-          { disciplina: 'Fisica', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Quimica', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Biologia', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Lingua Portuguesa', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Lingua Inglesa', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Educacao Fisica', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Filosofia', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Geografia', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Historia', faltas: 0, limite: 10, status: 'OK' }
-        ],
-        2: [
-          { disciplina: 'Matematica', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Fisica', faltas: 2, limite: 10, status: 'OK' },
-          { disciplina: 'Quimica', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Biologia', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Lingua Portuguesa', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Lingua Inglesa', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Educacao Fisica', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Filosofia', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Geografia', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Historia', faltas: 0, limite: 10, status: 'OK' }
-        ],
-        3: [
-          { disciplina: 'Matematica', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Fisica', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Quimica', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Biologia', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Lingua Portuguesa', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Lingua Inglesa', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Educacao Fisica', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Filosofia', faltas: 0, limite: 10, status: 'OK' },
-          { disciplina: 'Geografia', faltas: 1, limite: 10, status: 'OK' },
-          { disciplina: 'Historia', faltas: 0, limite: 10, status: 'OK' }
-        ]
-      };
+      // Dados simulados com datas
+      const faltasData = [
+        { data: '2026-01-15', disciplina: 'Matemática', status: 'Não justificado' },
+        { data: '2026-01-20', disciplina: 'Física', status: 'Justificado' },
+        { data: '2026-01-25', disciplina: 'Química', status: 'Não justificado' },
+        { data: '2026-02-05', disciplina: 'Português', status: 'Justificado' },
+        { data: '2026-02-10', disciplina: 'Inglês', status: 'Não justificado' },
+        { data: '2026-02-15', disciplina: 'História', status: 'Justificado' },
+        { data: '2026-02-20', disciplina: 'Geografia', status: 'Não justificado' },
+        { data: '2026-04-10', disciplina: 'Matemática', status: 'Justificado' },
+        { data: '2026-04-15', disciplina: 'Física', status: 'Não justificado' },
+        { data: '2026-04-20', disciplina: 'Química', status: 'Justificado' },
+        { data: '2026-04-25', disciplina: 'Biologia', status: 'Não justificado' },
+        { data: '2026-05-05', disciplina: 'Português', status: 'Justificado' },
+        { data: '2026-05-10', disciplina: 'Inglês', status: 'Não justificado' },
+      ];
 
       // Função para mostrar notificações
       function showNotification(message, type = 'success') {
@@ -286,59 +285,72 @@
       }
 
       // Função para carregar faltas
-      function loadFaltas(trimestre = 1) {
+      function loadFaltas() {
+        const trimestre = document.getElementById('trimestreSelect').value;
+        const ano = document.getElementById('anoSelect').value;
+        const disciplina = document.getElementById('disciplinaSelect').value;
+
+        console.log(`Buscando faltas para ano: ${ano}, trimestre: ${trimestre}, disciplina: ${disciplina}`);
+
+        // Simulação de busca
+        let filteredData = faltasData.filter(falta => {
+          const faltaDate = new Date(falta.data);
+          const trimestreStart = trimestre == 1 ? new Date(ano, 0, 1) : trimestre == 2 ? new Date(ano, 3, 1) : new Date(ano, 6, 1);
+          const trimestreEnd = trimestre == 1 ? new Date(ano, 2, 31) : trimestre == 2 ? new Date(ano, 5, 30) : new Date(ano, 8, 30);
+          const inTrimestre = faltaDate >= trimestreStart && faltaDate <= trimestreEnd;
+          const matchesDisciplina = disciplina === 'todas' || falta.disciplina === disciplina;
+          return inTrimestre && matchesDisciplina;
+        });
+
+        // Ordenar por data descendente
+        filteredData.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        const faltasPorDisciplina = filteredData.reduce((counts, falta) => {
+          counts[falta.disciplina] = (counts[falta.disciplina] || 0) + 1;
+          return counts;
+        }, {});
+
+        filteredData = filteredData.map(falta => ({
+          ...falta,
+          quantidade: faltasPorDisciplina[falta.disciplina] || 0
+        }));
+
         const tbody = document.getElementById('faltasTableBody');
         tbody.innerHTML = '';
 
-        const data = faltasData[trimestre] || faltasData[1];
-        
-        console.log('[API] GET /api/aluno/faltas', { trimestre });
+        if (filteredData.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Nenhuma falta encontrada para os filtros selecionados.</td></tr>';
+        } else {
+          filteredData.forEach(falta => {
+            const statusClass = falta.status === 'Justificado' ? 'badge-success' : 'badge-danger';
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${falta.data}</td>
+              <td>${falta.disciplina}</td>
+              <td class="text-center">${falta.quantidade}</td>
+              <td class="text-center"><span class="badge ${statusClass}">${falta.status}</span></td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
 
-        data.forEach(item => {
-          const statusClass = item.status === 'OK' ? 'badge-success' : 'badge-warning';
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td><strong>${item.disciplina}</strong></td>
-            <td class="text-center">${item.faltas}</td>
-            <td class="text-center text-muted">${item.limite}</td>
-            <td class="text-center"><span class="badge ${statusClass}">${item.status}</span></td>
-          `;
-          tbody.appendChild(row);
-        });
+        // Atualizar resumos
+        const totalFaltas = filteredData.length;
+        const justificadas = filteredData.filter(f => f.status === 'Justificado').length;
+        const naoJustificadas = totalFaltas - justificadas;
+        const assiduidade = totalFaltas > 0 ? Math.round((1 - (naoJustificadas / 100)) * 100) + '%' : '100%'; // Assumindo 100 dias por trimestre
 
-        setTimeout(() => {
-          console.log('Faltas carregadas com sucesso!', data);
-          showNotification(`Faltas do ${trimestre === 1 ? 'I' : trimestre === 2 ? 'II' : 'III'} Trimestre carregadas!`, 'success');
-        }, 800);
+        document.getElementById('totalFaltas').textContent = totalFaltas;
+        document.getElementById('faltasJustificadas').textContent = justificadas;
+        document.getElementById('faltasNaoJustificadas').textContent = naoJustificadas;
+        document.getElementById('assiduidade').textContent = assiduidade;
+
+        showNotification(`${totalFaltas} faltas carregadas com sucesso.`, 'success');
       }
 
-      // Event listeners
-      const trimestreSelect = document.getElementById('faltasTrimestre');
-      const refreshBtn = document.getElementById('refreshFaltas');
-
-      trimestreSelect.addEventListener('change', function() {
-        const trimestre = parseInt(this.value);
-        loadFaltas(trimestre);
-      });
-
-      refreshBtn.addEventListener('click', function() {
-        this.disabled = true;
-        this.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-        
-        setTimeout(() => {
-          const trimestre = parseInt(trimestreSelect.value);
-          loadFaltas(trimestre);
-          this.disabled = false;
-          this.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
-              <path d="M21 3v5h-5"/>
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
-              <path d="M8 16H3v5"/>
-            </svg>
-          `;
-          showNotification('Dados actualizados com sucesso!', 'success');
-        }, 1500);
+      // Event listener para o botão
+      document.getElementById('btnCarregarFaltas').addEventListener('click', function() {
+        loadFaltas();
       });
 
       // Carregar dados iniciais

@@ -164,41 +164,101 @@
       <!-- Page Content -->
       <div class="page-content">
         <div id="flashMessage" class="alert" style="display: none;" role="alert"></div>
-        
-        <!-- Lançar Notas -->
-        <div class="card">
+
+        <div class="card mb-4">
           <div class="card-header">
-            <h5 class="card-title mb-0">Lançar Notas</h5>
+            <h5 class="card-title mb-0">Filtro de lançamento</h5>
           </div>
           <div class="card-body">
-            <div class="row g-3 mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Selecionar Avaliação Pendente</label>
-                <select class="form-control form-select" id="selectAvaliacaoLancar">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-4">
+                <label class="form-label">Trimestre</label>
+                <select class="form-control form-select" id="trimestreSelect">
                   <option value="">Selecione...</option>
-                  <!-- Opções serão carregadas dinamicamente -->
+                  <option value="1">I Trimestre</option>
+                  <option value="2">II Trimestre</option>
+                  <option value="3">III Trimestre</option>
                 </select>
               </div>
-              <div class="col-md-6 d-flex align-items-end">
-                <button class="btn btn-primary" id="btnCarregarAlunos">Carregar Alunos</button>
+              <div class="col-md-4">
+                <label class="form-label">Turma</label>
+                <select class="form-control form-select" id="turmaSelect">
+                  <option value="">Selecione...</option>
+                  <option value="10A">10A</option>
+                  <option value="10B">10B</option>
+                  <option value="11A">11A</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Disciplina</label>
+                <select class="form-control form-select" id="disciplinaSelect">
+                  <option value="">Selecione...</option>
+                  <option value="Matemática">Matemática</option>
+                  <option value="Física">Física</option>
+                  <option value="Química">Química</option>
+                  <option value="Biologia">Biologia</option>
+                  <option value="Português">Português</option>
+                </select>
               </div>
             </div>
-            <div id="divLancarNotas" style="display: none;">
-              <div class="table-responsive">
-                <table class="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>Nota</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tabelaAlunosNotas">
-                    <!-- Alunos serão inseridos aqui -->
-                  </tbody>
-                </table>
+          </div>
+        </div>
+
+        <div id="divLancarNotas" class="card" style="display: none;">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Dados dos alunos</h5>
+          </div>
+          <div class="card-body">
+                <div class="row g-3 mb-4">
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Trimestre</small>
+                  <div class="h4 mb-0 mt-2" id="trimestreInfo">-</div>
+                </div>
               </div>
-              <div class="mt-3">
-                <button class="btn btn-success" id="btnLancarNotas">Lançar Notas</button>
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Turma</small>
+                  <div class="h4 mb-0 mt-2" id="turmaInfo">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Disciplina</small>
+                  <div class="h4 mb-0 mt-2" id="disciplinaInfo">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Alunos</small>
+                  <div class="h4 mb-0 mt-2" id="alunosCount">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">#</th>
+                    <th>Aluno</th>
+                    <th style="width: 110px;">MAC</th>
+                    <th style="width: 110px;">NPP</th>
+                    <th style="width: 110px;">NPT</th>
+                    <th style="width: 110px;">MT</th>
+                  </tr>
+                </thead>
+                <tbody id="tabelaAlunosNotas">
+                </tbody>
+              </table>
+            </div>
+
+            <div class="row g-3 align-items-center mt-3">
+              <div class="col-md-8">
+                <p class="text-muted mb-0"><strong>Observação:</strong> campos em branco são considerados como prova ainda não realizada e serão tratados como zero na média.</p>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-success" id="btnLancarNotas">Salvar lançamentos</button>
               </div>
             </div>
           </div>
@@ -218,14 +278,8 @@
   <!-- Global JS -->
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
-  <script src="js/professor.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      let avaliacoes = [
-        { id: 1, titulo: 'Teste 1º Trimestre', data: '2026-03-15', duracao: 90, disciplina: 'matematica', turma: '10A', status: 'pendente' },
-        { id: 2, titulo: 'Prova Física', data: '2026-04-10', duracao: 120, disciplina: 'fisica', turma: '10B', status: 'lançadas' }
-      ];
-
       function showFlashMessage(message, type = 'success') {
         const flash = document.getElementById('flashMessage');
         flash.textContent = message;
@@ -236,67 +290,108 @@
         }, 5000);
       }
 
-      function renderSelectAvaliacoesPendentes() {
-        const select = document.getElementById('selectAvaliacaoLancar');
-        select.innerHTML = '<option value="">Selecione...</option>';
-        avaliacoes.filter(av => av.status === 'pendente').forEach(av => {
-          const option = document.createElement('option');
-          option.value = av.id;
-          option.textContent = `${av.titulo} - ${av.turma}`;
-          select.appendChild(option);
-        });
-      }
-
       function getAlunosMock(turma) {
         const alunosPorTurma = {
-          '10A': ['Ana Pereira', 'Pedro Santos', 'João Costa'],
-          '10B': ['Maria Silva', 'Luís Gomes', 'Rita Alves'],
-          '11A': ['Carlos Mendes', 'Sofia Ribeiro', 'Miguel Sousa']
+          '10A': ['Ana Pereira', 'Pedro Santos', 'João Costa', 'Luana Martins'],
+          '10B': ['Maria Silva', 'Luís Gomes', 'Rita Alves', 'Samuel Costa'],
+          '11A': ['Carlos Mendes', 'Sofia Ribeiro', 'Miguel Sousa', 'Paula Reis']
         };
         return alunosPorTurma[turma] || [];
       }
 
-      // Carregar Alunos para Lançar Notas
-      document.getElementById('btnCarregarAlunos').addEventListener('click', function () {
-        const avId = document.getElementById('selectAvaliacaoLancar').value;
-        if (!avId) {
-          showFlashMessage('Selecione uma avaliação.', 'warning');
+      function updateMediaLinha(row) {
+        const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
+        const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
+        const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
+        const media = ((mac + npp + npt) / 3).toFixed(1);
+        row.querySelector('.media-valor').textContent = media;
+      }
+
+      function updateResumo() {
+        const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
+        const medias = rows.map(row => parseFloat(row.querySelector('.media-valor').textContent) || 0);
+        const mediaTurma = medias.length ? (medias.reduce((sum, value) => sum + value, 0) / medias.length).toFixed(1) : '0.0';
+        document.getElementById('alunosCount').textContent = medias.length;
+        document.getElementById('mediaTurma').textContent = mediaTurma;
+      }
+
+      function definirInfoSelecionada(trimestre, turma, disciplina) {
+        document.getElementById('trimestreInfo').textContent = trimestre ? `${trimestre}º` : '-';
+        document.getElementById('turmaInfo').textContent = turma || '-';
+        document.getElementById('disciplinaInfo').textContent = disciplina || '-';
+      }
+
+      function carregarTabelaNotas() {
+        const trimestre = document.getElementById('trimestreSelect').value;
+        const turma = document.getElementById('turmaSelect').value;
+        const disciplina = document.getElementById('disciplinaSelect').value;
+
+        definirInfoSelecionada(trimestre, turma, disciplina);
+
+        if (!trimestre || !turma || !disciplina) {
+          document.getElementById('divLancarNotas').style.display = 'none';
           return;
         }
-        const avaliacao = avaliacoes.find(av => av.id == avId);
-        const alunos = getAlunosMock(avaliacao.turma);
+
+        const alunos = getAlunosMock(turma);
         const tbody = document.getElementById('tabelaAlunosNotas');
         tbody.innerHTML = '';
-        alunos.forEach(aluno => {
+
+        alunos.forEach((aluno, index) => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
+            <td>${index + 1}</td>
             <td>${aluno}</td>
-            <td><input type="number" class="form-control nota-input" min="0" max="20" placeholder="0-20"></td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="mac" min="0" max="20" step="0.1" placeholder="0"></td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="npp" min="0" max="20" step="0.1" placeholder="0"></td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="npt" min="0" max="20" step="0.1" placeholder="0"></td>
+            <td class="text-center"><strong class="media-valor">0.0</strong></td>
           `;
           tbody.appendChild(tr);
         });
+
         document.getElementById('divLancarNotas').style.display = 'block';
-      });
 
-      // Lançar Notas
-      document.getElementById('btnLancarNotas').addEventListener('click', function () {
-        const avId = document.getElementById('selectAvaliacaoLancar').value;
-        const notas = Array.from(document.querySelectorAll('.nota-input')).map(inp => parseFloat(inp.value) || 0);
-        const avaliacao = avaliacoes.find(av => av.id == avId);
+        tbody.querySelectorAll('input[data-field="mac"], input[data-field="npp"], input[data-field="npt"]').forEach(input => {
+          input.addEventListener('input', function () {
+            const row = this.closest('tr');
+            updateMediaLinha(row);
+            updateResumo();
+          });
+        });
 
-        // Simulação API
-        setTimeout(() => {
-          console.log('Lançando notas para avaliação:', avaliacao, 'Notas:', notas);
-          avaliacao.status = 'lançadas';
-          renderSelectAvaliacoesPendentes();
-          showFlashMessage('Notas lançadas com sucesso!');
-          document.getElementById('divLancarNotas').style.display = 'none';
-          document.getElementById('selectAvaliacaoLancar').value = '';
-        }, 1000);
-      });
+        updateResumo();
+      }
 
-      // Inicializar
-      renderSelectAvaliacoesPendentes();
+      function salvarNotas() {
+        const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
+        if (rows.length === 0) {
+          showFlashMessage('Carregue o trimestre, a turma e a disciplina antes de salvar.', 'danger');
+          return;
+        }
+
+        const trimestre = document.getElementById('trimestreSelect').value;
+        const turma = document.getElementById('turmaSelect').value;
+        const disciplina = document.getElementById('disciplinaSelect').value;
+
+        const lancamentos = rows.map(row => {
+          const aluno = row.children[1].textContent.trim();
+          const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
+          const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
+          const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
+          const mt = parseFloat(((mac + npp + npt) / 3).toFixed(1));
+          return { aluno, mac, npp, npt, mt };
+        });
+
+        console.log('Notas lançadas:', { trimestre, turma, disciplina, lancamentos });
+        showFlashMessage('Notas lançadas com sucesso!');
+        document.getElementById('divLancarNotas').style.display = 'none';
+      }
+
+      document.getElementById('trimestreSelect').addEventListener('change', carregarTabelaNotas);
+      document.getElementById('turmaSelect').addEventListener('change', carregarTabelaNotas);
+      document.getElementById('disciplinaSelect').addEventListener('change', carregarTabelaNotas);
+      document.getElementById('btnLancarNotas').addEventListener('click', salvarNotas);
     });
   </script>
 </body>
