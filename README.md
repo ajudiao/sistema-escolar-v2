@@ -38,7 +38,7 @@ Este sistema foi desenvolvido com fins educacionais para:
 
 * Visualizar turmas
 * Consultar disciplinas
-* Lançar notas (via API)
+* Notas (via API)
 
 ### 👨‍🎓 Aluno
 

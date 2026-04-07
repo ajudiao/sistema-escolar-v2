@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Admin | SGE</title>
+  <title>Detalhes da Pauta - Administração | SGE MED Angola</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/global.css">
@@ -12,7 +12,7 @@
 <body>
   <div class="main-wrapper">
     <div class="sidebar-overlay"></div>
-    
+
     <!-- Sidebar -->
     <aside class="sidebar">
       <button class="sidebar-close">
@@ -206,15 +206,14 @@
         </button>
       </div>
     </aside>
-    
-    <!-- Main Content -->
+
     <main class="main-content">
       <header class="main-header">
         <div class="header-left">
           <button class="mobile-toggle">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <h1 class="header-title">Dashboard</h1>
+          <h1 class="header-title">Detalhes da Pauta</h1>
         </div>
         <div class="header-right">
           <div class="header-user">
@@ -226,83 +225,120 @@
           </div>
         </div>
       </header>
-      
       <div class="page-content">
-        <div class="page-header mb-4">
-          <h2 class="page-title">Painel de Controlo</h2>
-          <p class="page-subtitle">Ano Lectivo 2026/2025</p>
-        </div>
-        
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">1.245</div>
-              <div class="stat-label">Alunos (11º-13ª)</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon success">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">48</div>
-              <div class="stat-label">Professores</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon warning">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">18</div>
-              <div class="stat-label">Turmas</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon info">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">5</div>
-              <div class="stat-label">Avisos</div>
+        <div class="card mb-4">
+          <div class="card-body">
+            <div class="row gy-3">
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Pauta</small>
+                  <div class="h4 mb-0 mt-2" id="pautaId">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Disciplina</small>
+                  <div class="h4 mb-0 mt-2" id="pautaDisciplina">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Turma</small>
+                  <div class="h4 mb-0 mt-2" id="pautaTurma">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Trimestre</small>
+                  <div class="h4 mb-0 mt-2" id="pautaTrimestre">-</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- Distribuição por Classe -->
-        <div class="card mt-4">
-          <div class="card-header">
-            <h5 class="card-title mb-0">Distribuição de Alunos</h5>
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Notas da Pauta</h5>
+            <a href="notas.html" class="btn btn-outline-secondary btn-sm">Voltar</a>
           </div>
           <div class="card-body">
-            <div class="row text-center">
-              <div class="col-4 col-md-2">
-                <div class="fw-bold text-primary">11ª</div>
-                <small class="text-muted">350 alunos</small>
-              </div>
-              <div class="col-4 col-md-2">
-                <div class="fw-bold text-primary">12ª</div>
-                <small class="text-muted">420 alunos</small>
-              </div>
-              <div class="col-4 col-md-2">
-                <div class="fw-bold text-primary">13ª</div>
-                <small class="text-muted">475 alunos</small>
-              </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th>Aluno</th>
+                    <th class="text-end">MAC</th>
+                    <th class="text-end">NPP</th>
+                    <th class="text-end">NPT</th>
+                    <th class="text-end">Média</th>
+                    <th class="text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="detalhesTabela">
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
       </div>
+      <footer class="main-footer">
+        <p class="mb-0">Sistema de Gestão Escolar - 2026 - Ministério da Educação de Angola</p>
+      </footer>
     </main>
   </div>
-  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const pautas = {
+        '001': {
+          id: '001', disciplina: 'Matemática', turma: '10A', trimestre: '1º Trimestre', notas: [
+            { aluno: 'Ana Pereira', mac: 15, npp: 14, npt: 16 },
+            { aluno: 'Pedro Santos', mac: 12, npp: 12, npt: 12 },
+            { aluno: 'João Costa', mac: 18, npp: 17, npt: 19 }
+          ]
+        },
+        '002': {
+          id: '002', disciplina: 'Física', turma: '10B', trimestre: '2º Trimestre', notas: [
+            { aluno: 'Maria Silva', mac: 14, npp: 15, npt: 13 },
+            { aluno: 'Luís Gomes', mac: 8, npp: 9, npt: 10 },
+            { aluno: 'Rita Alves', mac: 16, npp: 0, npt: 15 }
+          ]
+        },
+        '003': {
+          id: '003', disciplina: 'Biologia', turma: '11A', trimestre: '1º Trimestre', notas: [
+            { aluno: 'Carlos Mendes', mac: 13, npp: 12, npt: 14 },
+            { aluno: 'Sofia Ribeiro', mac: 11, npp: 12, npt: 11 },
+            { aluno: 'Miguel Sousa', mac: 12, npp: 13, npt: 11 }
+          ]
+        }
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id') || '001';
+      const pauta = pautas[id] || pautas['001'];
+
+      document.getElementById('pautaId').textContent = pauta.id;
+      document.getElementById('pautaDisciplina').textContent = pauta.disciplina;
+      document.getElementById('pautaTurma').textContent = pauta.turma;
+      document.getElementById('pautaTrimestre').textContent = pauta.trimestre;
+
+      const tbody = document.getElementById('detalhesTabela');
+      pauta.notas.forEach(item => {
+        const media = ((item.mac + item.npp + item.npt) / 3).toFixed(1);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.aluno}</td>
+          <td class="text-end">${item.mac}</td>
+          <td class="text-end">${item.npp}</td>
+          <td class="text-end">${item.npt}</td>
+          <td class="text-end">${media}</td>
+          <td class="text-center"><span class="badge ${media >= 10 ? 'bg-success' : 'bg-danger'}">${media >= 10 ? 'Aprovado' : 'Reprovado'}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+  </script>
 </body>
 </html>

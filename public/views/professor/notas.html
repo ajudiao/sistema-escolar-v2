@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notas dos Alunos - Professor | SGE MED Angola</title>
+  <title>Lançamento e Visualização de Notas - Professor | SGE MED Angola</title>
   
   <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -61,29 +61,14 @@
             </a>
           </div>
           <div class="nav-item">
-            <a href="avaliacoes.html" class="nav-link" data-title="Avaliações">
-              <span class="nav-link-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-              </span>
-              <span class="nav-link-text">Avaliações</span>
-            </a>
-          </div>
-          <div class="nav-item">
-            <a href="lancamento-notas.html" class="nav-link" data-title="Lançar Notas">
-              <span class="nav-link-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-              </span>
-              <span class="nav-link-text">Lançar Notas</span>
-            </a>
-          </div>
-          <div class="nav-item">
             <a href="notas.html" class="nav-link active" data-title="Notas">
               <span class="nav-link-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
               </span>
               <span class="nav-link-text">Notas</span>
             </a>
           </div>
+          
           <div class="nav-item">
             <a href="faltas.html" class="nav-link" data-title="Faltas">
               <span class="nav-link-icon">
@@ -148,7 +133,7 @@
           <button class="mobile-toggle">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <h1 class="header-title">Notas dos Alunos</h1>
+          <h1 class="header-title">Lançamento e Visualização de Notas</h1>
         </div>
         <div class="header-right">
           <div class="header-user">
@@ -164,97 +149,116 @@
       <!-- Page Content -->
       <div class="page-content">
         <div id="flashMessage" class="alert" style="display: none;" role="alert"></div>
-        
-        <!-- Selecionar Avaliação -->
+
         <div class="card mb-4">
           <div class="card-header">
-            <h5 class="card-title mb-0">Selecionar Avaliação</h5>
+            <h5 class="card-title mb-0">Filtro de lançamento</h5>
           </div>
           <div class="card-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Avaliação</label>
-                <select class="form-control form-select" id="selectAvaliacaoNotas">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-2">
+                <label class="form-label">Trimestre</label>
+                <select class="form-control form-select" id="trimestreSelect">
                   <option value="">Selecione...</option>
-                  <!-- Opções serão carregadas dinamicamente -->
+                  <option value="1">I Trimestre</option>
+                  <option value="2">II Trimestre</option>
+                  <option value="3">III Trimestre</option>
                 </select>
               </div>
-              <div class="col-md-6 d-flex align-items-end">
-                <button class="btn btn-primary" id="btnCarregarNotas">Carregar Notas</button>
+              <div class="col-md-2">
+                <label class="form-label">Turma</label>
+                <select class="form-control form-select" id="turmaSelect">
+                  <option value="">Selecione...</option>
+                  <option value="10A">10A</option>
+                  <option value="10B">10B</option>
+                  <option value="11A">11A</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Disciplina</label>
+                <select class="form-control form-select" id="disciplinaSelect">
+                  <option value="">Selecione...</option>
+                  <option value="Matemática">Matemática</option>
+                  <option value="Física">Física</option>
+                  <option value="Química">Química</option>
+                  <option value="Biologia">Biologia</option>
+                  <option value="Português">Português</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label">Data</label>
+                <input type="date" class="form-control" id="dataAvaliacao" value="2026-04-07">
+              </div>
+              <div class="col-md-4">
+                <button class="btn btn-primary w-100" id="btnCarregarAlunos">Carregar Alunos</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Detalhes da Avaliação -->
-        <div class="card mb-4" id="cardDetalhesAvaliacao" style="display: none;">
+        <div id="divLancarNotas" class="card" style="display: none;">
           <div class="card-header">
-            <h5 class="card-title mb-0">Detalhes da Avaliação</h5>
+            <h5 class="card-title mb-0">Dados dos alunos</h5>
           </div>
           <div class="card-body">
-            <div class="row">
-              <div class="col-md-3"><strong>Título:</strong> <span id="detalheTitulo"></span></div>
-              <div class="col-md-3"><strong>Data:</strong> <span id="detalheData"></span></div>
-              <div class="col-md-3"><strong>Duração:</strong> <span id="detalheDuracao"></span></div>
-              <div class="col-md-3"><strong>Disciplina:</strong> <span id="detalheDisciplina"></span></div>
-            </div>
-            <div class="row mt-2">
-              <div class="col-md-3"><strong>Turma:</strong> <span id="detalheTurma"></span></div>
-              <div class="col-md-3"><strong>Status:</strong> <span id="detalheStatus"></span></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Buscar Notas -->
-        <div class="card mb-4" id="cardBuscarNotas" style="display: none;">
-          <div class="card-header">
-            <h5 class="card-title mb-0">Buscar Notas</h5>
-          </div>
-          <div class="card-body">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <input type="text" class="form-control" id="buscaNome" placeholder="Buscar por nome do aluno">
+                <div class="row g-3 mb-4">
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Trimestre</small>
+                  <div class="h4 mb-0 mt-2" id="trimestreInfo">-</div>
+                </div>
               </div>
               <div class="col-md-3">
-                <select class="form-control form-select" id="filtroStatus">
-                  <option value="">Todos os Status</option>
-                  <option value="aprovado">Aprovado</option>
-                  <option value="reprovado">Reprovado</option>
-                </select>
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Turma</small>
+                  <div class="h4 mb-0 mt-2" id="turmaInfo">-</div>
+                </div>
               </div>
-              <div class="col-md-3 d-flex align-items-end">
-                <button class="btn btn-outline-secondary" id="btnLimparBusca">Limpar</button>
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Disciplina</small>
+                  <div class="h4 mb-0 mt-2" id="disciplinaInfo">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Média da turma</small>
+                  <div class="h4 mb-0 mt-2" id="mediaTurma">0.0</div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Tabela de Notas -->
-        <div class="card" id="cardTabelaNotas" style="display: none;">
-          <div class="card-header">
-            <h5 class="card-title mb-0">Notas dos Alunos</h5>
-          </div>
-          <div class="card-body">
             <div class="table-responsive">
-              <table class="table table-hover">
+              <table class="table table-hover align-middle">
                 <thead>
                   <tr>
-                    <th>Nome do Aluno</th>
-                    <th>Nota</th>
-                    <th>Status</th>
+                    <th style="width: 40px;">#</th>
+                    <th>Aluno</th>
+                    <th style="width: 110px;">MAC</th>
+                    <th style="width: 110px;">NPP</th>
+                    <th style="width: 110px;">NPT</th>
+                    <th style="width: 110px;">MT</th>
                   </tr>
                 </thead>
-                <tbody id="tabelaNotasAlunos">
-                  <!-- Notas serão inseridas aqui -->
+                <tbody id="tabelaAlunosNotas">
                 </tbody>
               </table>
+            </div>
+
+            <div class="row g-3 align-items-center mt-3">
+              <div class="col-md-8">
+                <p class="text-muted mb-0"><strong>Observação:</strong> campos em branco são considerados como prova ainda não realizada e serão tratados como zero na média.</p>
+              </div>
+              <div class="col-md-4 text-end">
+                <button class="btn btn-success" id="btnLancarNotas">Salvar lançamentos</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
       
       <!-- Footer -->
-      <footer class="main-footer mt-4">
+      <footer class="main-footer">
         <p class="mb-0">Sistema de Escola Conectada &copy; 2026 - Ministério da Educação de Angola</p>
       </footer>
     </main>
@@ -266,16 +270,8 @@
   <!-- Global JS -->
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
-  <script src="js/professor.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      let avaliacoes = [
-        { id: 1, titulo: 'Teste 1º Trimestre', data: '2026-03-15', duracao: 90, disciplina: 'matematica', turma: '10A', status: 'lançadas' },
-        { id: 2, titulo: 'Prova Física', data: '2026-04-10', duracao: 120, disciplina: 'fisica', turma: '10B', status: 'lançadas' }
-      ];
-
-      let notasAtuais = [];
-
       function showFlashMessage(message, type = 'success') {
         const flash = document.getElementById('flashMessage');
         flash.textContent = message;
@@ -286,106 +282,129 @@
         }, 5000);
       }
 
-      function renderSelectAvaliacoesLancadas() {
-        const select = document.getElementById('selectAvaliacaoNotas');
-        select.innerHTML = '<option value="">Selecione...</option>';
-        avaliacoes.filter(av => av.status === 'lançadas').forEach(av => {
-          const option = document.createElement('option');
-          option.value = av.id;
-          option.textContent = `${av.titulo} - ${av.turma}`;
-          select.appendChild(option);
-        });
-      }
-
-      function getNotasMock(avaliacao) {
-        const alunos = {
+      function getAlunosMock(turma, trimestre, disciplina) {
+        const alunosPorTurma = {
           '10A': [
-            { nome: 'Ana Pereira', nota: 15 },
-            { nome: 'Pedro Santos', nota: 12 },
-            { nome: 'João Costa', nota: 18 }
+            { nome: 'Ana Pereira', mac: 15, npp: 14, npt: 16 },
+            { nome: 'Pedro Santos', mac: 12, npp: '', npt: 13 },
+            { nome: 'João Costa', mac: 18, npp: 17, npt: 19 },
+            { nome: 'Luana Martins', mac: '', npp: '', npt: '' }
           ],
           '10B': [
-            { nome: 'Maria Silva', nota: 14 },
-            { nome: 'Luís Gomes', nota: 8 },
-            { nome: 'Rita Alves', nota: 16 }
+            { nome: 'Maria Silva', mac: 14, npp: 15, npt: 13 },
+            { nome: 'Luís Gomes', mac: 8, npp: 9, npt: 10 },
+            { nome: 'Rita Alves', mac: 16, npp: '', npt: 15 },
+            { nome: 'Samuel Costa', mac: '', npp: '', npt: '' }
+          ],
+          '11A': [
+            { nome: 'Carlos Mendes', mac: '', npp: '', npt: '' },
+            { nome: 'Sofia Ribeiro', mac: '', npp: '', npt: '' },
+            { nome: 'Miguel Sousa', mac: '', npp: '', npt: '' },
+            { nome: 'Paula Reis', mac: '', npp: '', npt: '' }
           ]
         };
-        return alunos[avaliacao.turma] || [];
+        return alunosPorTurma[turma] || [];
       }
 
-      function renderDetalhesAvaliacao(avaliacao) {
-        document.getElementById('detalheTitulo').textContent = avaliacao.titulo;
-        document.getElementById('detalheData').textContent = avaliacao.data;
-        document.getElementById('detalheDuracao').textContent = `${avaliacao.duracao} min`;
-        document.getElementById('detalheDisciplina').textContent = avaliacao.disciplina;
-        document.getElementById('detalheTurma').textContent = avaliacao.turma;
-        document.getElementById('detalheStatus').textContent = avaliacao.status;
-        document.getElementById('cardDetalhesAvaliacao').style.display = 'block';
+      function updateMediaLinha(row) {
+        const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
+        const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
+        const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
+        const media = ((mac + npp + npt) / 3).toFixed(1);
+        row.querySelector('.media-valor').textContent = media;
       }
 
-      function renderTabelaNotas(notas) {
-        const tbody = document.getElementById('tabelaNotasAlunos');
+      function updateResumo() {
+        const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
+        const medias = rows.map(row => parseFloat(row.querySelector('.media-valor').textContent) || 0);
+        const mediaTurma = medias.length ? (medias.reduce((sum, value) => sum + value, 0) / medias.length).toFixed(1) : '0.0';
+        document.getElementById('alunosCount').textContent = medias.length;
+        document.getElementById('mediaTurma').textContent = mediaTurma;
+      }
+
+      function definirInfoSelecionada(trimestre, turma, disciplina) {
+        document.getElementById('trimestreInfo').textContent = trimestre ? `${trimestre}º` : '-';
+        document.getElementById('turmaInfo').textContent = turma || '-';
+        document.getElementById('disciplinaInfo').textContent = disciplina || '-';
+      }
+
+      function carregarTabelaNotas() {
+        const trimestre = document.getElementById('trimestreSelect').value;
+        const turma = document.getElementById('turmaSelect').value;
+        const disciplina = document.getElementById('disciplinaSelect').value;
+        const data = document.getElementById('dataAvaliacao').value;
+
+        if (!trimestre || !turma || !disciplina || !data) {
+          showFlashMessage('Selecione trimestre, turma, disciplina e data.', 'warning');
+          return;
+        }
+
+        definirInfoSelecionada(trimestre, turma, disciplina);
+
+        const alunos = getAlunosMock(turma, trimestre, disciplina);
+        const tbody = document.getElementById('tabelaAlunosNotas');
         tbody.innerHTML = '';
-        notas.forEach(nota => {
-          const status = nota.nota >= 10 ? 'Aprovado' : 'Reprovado';
-          const badgeClass = nota.nota >= 10 ? 'bg-success' : 'bg-danger';
+
+        alunos.forEach((aluno, index) => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${nota.nome}</td>
-            <td>${nota.nota}</td>
-            <td><span class="badge ${badgeClass}">${status}</span></td>
+            <td>${index + 1}</td>
+            <td>${aluno.nome}</td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="mac" min="0" max="20" step="0.1" placeholder="0" value="${aluno.mac || ''}"></td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="npp" min="0" max="20" step="0.1" placeholder="0" value="${aluno.npp || ''}"></td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="npt" min="0" max="20" step="0.1" placeholder="0" value="${aluno.npt || ''}"></td>
+            <td class="text-center"><strong class="media-valor">0.0</strong></td>
           `;
           tbody.appendChild(tr);
         });
-      }
 
-      function filtrarNotas() {
-        const buscaNome = document.getElementById('buscaNome').value.toLowerCase();
-        const filtroStatus = document.getElementById('filtroStatus').value;
+        document.getElementById('divLancarNotas').style.display = 'block';
 
-        let notasFiltradas = notasAtuais.filter(nota => {
-          const matchNome = !buscaNome || nota.nome.toLowerCase().includes(buscaNome);
-          const matchStatus = !filtroStatus || (filtroStatus === 'aprovado' ? nota.nota >= 10 : nota.nota < 10);
-          return matchNome && matchStatus;
+        tbody.querySelectorAll('input[data-field="mac"], input[data-field="npp"], input[data-field="npt"]').forEach(input => {
+          input.addEventListener('input', function () {
+            const row = this.closest('tr');
+            updateMediaLinha(row);
+            updateResumo();
+          });
         });
 
-        renderTabelaNotas(notasFiltradas);
+        // Update all medias initially
+        tbody.querySelectorAll('tr').forEach(row => {
+          updateMediaLinha(row);
+        });
+
+        updateResumo();
+        showFlashMessage('Alunos carregados com sucesso!');
       }
 
-      // Carregar Notas
-      document.getElementById('btnCarregarNotas').addEventListener('click', function () {
-        const avId = document.getElementById('selectAvaliacaoNotas').value;
-        if (!avId) {
-          showFlashMessage('Selecione uma avaliação.', 'warning');
+      function salvarNotas() {
+        const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
+        if (rows.length === 0) {
+          showFlashMessage('Carregue o trimestre, a turma e a disciplina antes de salvar.', 'danger');
           return;
         }
-        const avaliacao = avaliacoes.find(av => av.id == avId);
-        notasAtuais = getNotasMock(avaliacao);
 
-        // Simulação API
-        setTimeout(() => {
-          console.log('Carregando notas para avaliação:', avaliacao, 'Notas:', notasAtuais);
-          renderDetalhesAvaliacao(avaliacao);
-          renderTabelaNotas(notasAtuais);
-          document.getElementById('cardBuscarNotas').style.display = 'block';
-          document.getElementById('cardTabelaNotas').style.display = 'block';
-          showFlashMessage('Notas carregadas com sucesso!');
-        }, 1000);
-      });
+        const trimestre = document.getElementById('trimestreSelect').value;
+        const turma = document.getElementById('turmaSelect').value;
+        const disciplina = document.getElementById('disciplinaSelect').value;
+        const data = document.getElementById('dataAvaliacao').value;
 
-      // Busca em tempo real
-      document.getElementById('buscaNome').addEventListener('input', filtrarNotas);
-      document.getElementById('filtroStatus').addEventListener('change', filtrarNotas);
+        const lancamentos = rows.map(row => {
+          const aluno = row.children[1].textContent.trim();
+          const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
+          const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
+          const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
+          const mt = parseFloat(((mac + npp + npt) / 3).toFixed(1));
+          return { aluno, mac, npp, npt, mt };
+        });
 
-      // Limpar Busca
-      document.getElementById('btnLimparBusca').addEventListener('click', function () {
-        document.getElementById('buscaNome').value = '';
-        document.getElementById('filtroStatus').value = '';
-        renderTabelaNotas(notasAtuais);
-      });
+        console.log('Notas lançadas:', { trimestre, turma, disciplina, data, lancamentos });
+        showFlashMessage('Notas lançadas com sucesso!');
+        document.getElementById('divLancarNotas').style.display = 'none';
+      }
 
-      // Inicializar
-      renderSelectAvaliacoesLancadas();
+      document.getElementById('btnCarregarAlunos').addEventListener('click', carregarTabelaNotas);
+      document.getElementById('btnLancarNotas').addEventListener('click', salvarNotas);
     });
   </script>
 </body>

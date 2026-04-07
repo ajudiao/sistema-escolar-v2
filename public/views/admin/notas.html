@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Admin | SGE</title>
+  <title>Notas - Administração | SGE MED Angola</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../css/global.css">
@@ -206,15 +206,14 @@
         </button>
       </div>
     </aside>
-    
-    <!-- Main Content -->
+
     <main class="main-content">
       <header class="main-header">
         <div class="header-left">
           <button class="mobile-toggle">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
-          <h1 class="header-title">Dashboard</h1>
+          <h1 class="header-title">Notas</h1>
         </div>
         <div class="header-right">
           <div class="header-user">
@@ -226,83 +225,147 @@
           </div>
         </div>
       </header>
-      
       <div class="page-content">
         <div class="page-header mb-4">
-          <h2 class="page-title">Painel de Controlo</h2>
-          <p class="page-subtitle">Ano Lectivo 2026/2025</p>
-        </div>
-        
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">1.245</div>
-              <div class="stat-label">Alunos (11º-13ª)</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon success">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">48</div>
-              <div class="stat-label">Professores</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon warning">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">18</div>
-              <div class="stat-label">Turmas</div>
-            </div>
-          </div>
-
-          <div class="stat-card">
-            <div class="stat-icon info">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">5</div>
-              <div class="stat-label">Avisos</div>
-            </div>
+          <div>
+            <h2 class="page-title">Notas Pendentes</h2>
+            <p class="page-subtitle">Aprovar ou recusar pautas lançadas pelos professores</p>
           </div>
         </div>
-
-        <!-- Distribuição por Classe -->
-        <div class="card mt-4">
-          <div class="card-header">
-            <h5 class="card-title mb-0">Distribuição de Alunos</h5>
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h5 class="card-title mb-1">Pauta 001</h5>
+                    <p class="text-muted mb-0">Matemática • 10A • 1º Trimestre</p>
+                  </div>
+                  <span class="badge bg-warning">Pendente</span>
+                </div>
+                <div class="table-responsive mb-3">
+                  <table class="table table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th>Aluno</th>
+                        <th class="text-end">Média</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Ana Pereira</td><td class="text-end">15.0</td></tr>
+                      <tr><td>Pedro Santos</td><td class="text-end">12.0</td></tr>
+                      <tr><td>João Costa</td><td class="text-end">18.0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="d-flex gap-2">
+                  <a href="notas-detalhes.html?id=001" class="btn btn-outline-primary btn-sm">Ver Detalhes</a>
+                  <button class="btn btn-success btn-sm">Aprovar</button>
+                  <button class="btn btn-danger btn-sm">Recusar</button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="card-body">
-            <div class="row text-center">
-              <div class="col-4 col-md-2">
-                <div class="fw-bold text-primary">11ª</div>
-                <small class="text-muted">350 alunos</small>
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h5 class="card-title mb-1">Pauta 002</h5>
+                    <p class="text-muted mb-0">Física • 10B • 2º Trimestre</p>
+                  </div>
+                  <span class="badge bg-warning">Pendente</span>
+                </div>
+                <div class="table-responsive mb-3">
+                  <table class="table table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th>Aluno</th>
+                        <th class="text-end">Média</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Maria Silva</td><td class="text-end">14.0</td></tr>
+                      <tr><td>Luís Gomes</td><td class="text-end">8.0</td></tr>
+                      <tr><td>Rita Alves</td><td class="text-end">16.0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="d-flex gap-2">
+                  <a href="notas-detalhes.html?id=002" class="btn btn-outline-primary btn-sm">Ver Detalhes</a>
+                  <button class="btn btn-success btn-sm">Aprovar</button>
+                  <button class="btn btn-danger btn-sm">Recusar</button>
+                </div>
               </div>
-              <div class="col-4 col-md-2">
-                <div class="fw-bold text-primary">12ª</div>
-                <small class="text-muted">420 alunos</small>
-              </div>
-              <div class="col-4 col-md-2">
-                <div class="fw-bold text-primary">13ª</div>
-                <small class="text-muted">475 alunos</small>
+            </div>
+          </div>
+        </div>
+        <div class="row g-4 mt-1">
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <div>
+                    <h5 class="card-title mb-1">Pauta 003</h5>
+                    <p class="text-muted mb-0">Biologia • 11A • 1º Trimestre</p>
+                  </div>
+                  <span class="badge bg-warning">Pendente</span>
+                </div>
+                <div class="table-responsive mb-3">
+                  <table class="table table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th>Aluno</th>
+                        <th class="text-end">Média</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Carlos Mendes</td><td class="text-end">13.0</td></tr>
+                      <tr><td>Sofia Ribeiro</td><td class="text-end">11.5</td></tr>
+                      <tr><td>Miguel Sousa</td><td class="text-end">12.0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="d-flex gap-2">
+                  <a href="notas-detalhes.html?id=003" class="btn btn-outline-primary btn-sm">Ver Detalhes</a>
+                  <button class="btn btn-success btn-sm">Aprovar</button>
+                  <button class="btn btn-danger btn-sm">Recusar</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <footer class="main-footer">
+        <p class="mb-0">Sistema de Gestão Escolar - 2026 - Ministério da Educação de Angola</p>
+      </footer>
     </main>
   </div>
-  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.btn-success').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var card = button.closest('.card');
+          var pauta = card.querySelector('.card-title').textContent.trim();
+          console.log('Aprovar pauta:', pauta);
+          card.querySelector('.badge').className = 'badge bg-success';
+          card.querySelector('.badge').textContent = 'Aprovado';
+        });
+      });
+
+      document.querySelectorAll('.btn-danger').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var card = button.closest('.card');
+          var pauta = card.querySelector('.card-title').textContent.trim();
+          console.log('Recusar pauta:', pauta);
+          card.querySelector('.badge').className = 'badge bg-danger';
+          card.querySelector('.badge').textContent = 'Recusado';
+        });
+      });
+    });
+  </script>
 </body>
 </html>
