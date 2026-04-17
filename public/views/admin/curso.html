@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../../css/sidebar.css">
 </head>
 
-<body>
+<body data-protected="true">
   <div class="main-wrapper">
     <div class="sidebar-overlay"></div>
     <!-- Sidebar -->
@@ -219,6 +219,7 @@
             <div class="header-user-info"><span class="header-user-name">Administrador</span><span
                 class="header-user-role">Administração</span></div>
           </div>
+          <a href="#" data-logout class="btn btn-sm btn-outline-danger ms-3">Sair</a>
         </div>
       </header>
 
@@ -271,34 +272,6 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>CUR-001</td>
-                    <td>Informática</td>
-                    <td>3 anos</td>
-                    <td>Física, Matemática</td>
-                    <td>Curso técnico de informática...</td>
-                    <td>
-                      <a href="curso-detalhes.html" class="btn btn-sm btn-outline-info me-1">Ver</a>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#cursoModal" data-codigo="CUR-001" data-nome="Informática" data-duracao="3 anos"
-                        data-disciplinas="FIS-2026,MAT-101" data-desc="Curso técnico de informática...">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete" data-codigo="CUR-001">Eliminar</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>CUR-002</td>
-                    <td>Física Aplicada</td>
-                    <td>2 anos</td>
-                    <td>Física, Química</td>
-                    <td>Curso técnico de física aplicada...</td>
-                    <td>
-                      <a href="curso-detalhes.html" class="btn btn-sm btn-outline-info me-1">Ver</a>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#cursoModal" data-codigo="CUR-002" data-nome="Física Aplicada"
-                        data-duracao="2 anos" data-disciplinas="FIS-2026,QUIM-204" data-desc="Curso técnico de física aplicada...">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete" data-codigo="CUR-002">Eliminar</button>
-                    </td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -315,6 +288,7 @@
               </div>
               <form id="formCurso">
                 <div class="modal-body">
+                  <input type="hidden" id="cursoModalForm">
                   <input type="hidden" id="cursoId" value="">
                   <input type="hidden" id="cursoAction" value="add">
                   <div class="mb-3">
@@ -331,25 +305,8 @@
                   </div>
                   <div class="mb-3">
                     <label class="form-label">Disciplinas do Curso</label>
-                    <div id="disciplinasCheckboxes">
-                      <div class="form-check">
-                        <input class="form-check-input disciplina-check" type="checkbox" value="FIS-2026" id="checkFIS">
-                        <label class="form-check-label" for="checkFIS">
-                          Física
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input disciplina-check" type="checkbox" value="QUIM-204" id="checkQUIM">
-                        <label class="form-check-label" for="checkQUIM">
-                          Química
-                        </label>
-                      </div>
-                      <div class="form-check">
-                        <input class="form-check-input disciplina-check" type="checkbox" value="MAT-101" id="checkMAT">
-                        <label class="form-check-label" for="checkMAT">
-                          Matemática
-                        </label>
-                      </div>
+                    <div id="disciplinasCheckboxes" class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                      <!-- Disciplinas carregadas dinamicamente -->
                     </div>
                   </div>
                   <div class="mb-3">
@@ -372,113 +329,239 @@
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      function showFlashMessage(message, type = 'success') {
-        const flash = document.getElementById('flashMessage');
-        flash.textContent = message;
-        flash.className = `alert alert-${type}`;
-        flash.style.display = 'block';
-        setTimeout(() => {
-          flash.style.display = 'none';
-        }, 5000); // Hide after 5 seconds
+    // Proteger página para ADMIN
+    AuthHelper.checkRole(['ADMIN']);
+
+    let cursosData = [];
+    let disciplinasDisponives = [];
+
+    // Carregar cursos da API
+    async function loadCursos() {
+      try {
+        DataLoader.showLoading('Carregando cursos...');
+        cursosData = await api.getCursos();
+        DataLoader.hideLoading();
+        renderCursosTable(cursosData);
+      } catch (error) {
+        DataLoader.hideLoading();
+        DataLoader.showError('Erro ao carregar cursos: ' + error.message);
       }
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-edit');
-        if (!btn) return;
-        const codigo = btn.getAttribute('data-codigo') || '';
-        const nome = btn.getAttribute('data-nome') || '';
-        const duracao = btn.getAttribute('data-duracao') || '';
-        const disciplinas = (btn.getAttribute('data-disciplinas') || '').split(',').filter(Boolean);
-        const desc = btn.getAttribute('data-desc') || '';
+    }
 
+    // Carregar disciplinas para o modal
+    async function loadDisciplinasModal() {
+      try {
+        disciplinasDisponives = await api.getDisciplinas();
+        renderDisciplinasCheckboxes();
+      } catch (error) {
+        console.error('Erro ao carregar disciplinas:', error);
+        DataLoader.showError('Erro ao carregar disciplinas: ' + error.message);
+      }
+    }
+
+    // Renderizar checkboxes de disciplinas
+    function renderDisciplinasCheckboxes() {
+      const container = document.getElementById('disciplinasCheckboxes');
+      container.innerHTML = '';
+
+      if (!disciplinasDisponives || disciplinasDisponives.length === 0) {
+        container.innerHTML = '<p class="text-muted">Nenhuma disciplina encontrada</p>';
+        return;
+      }
+
+      disciplinasDisponives.forEach((disc, index) => {
+        const checkId = `check-disc-${disc.id_disc}`;
+        const div = document.createElement('div');
+        div.className = 'form-check';
+        div.innerHTML = `
+          <input class="form-check-input disciplina-check" type="checkbox" value="${disc.id_disc}" id="${checkId}">
+          <label class="form-check-label" for="${checkId}">
+            ${disc.sigla_disc} - ${disc.descricao_disc}
+          </label>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Renderizar tabela de cursos
+    function renderCursosTable(cursos) {
+      const tbody = document.querySelector('table tbody');
+      tbody.innerHTML = '';
+
+      if (!cursos || cursos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">Nenhum curso encontrado</td></tr>';
+        return;
+      }
+
+      cursos.forEach(curso => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-curso-id', curso.id_curso);
+        row.innerHTML = `
+          <td><strong>${curso.sigla_curso || '-'}</strong></td>
+          <td>${curso.descricao_curso || '-'}</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>
+            <button class="btn btn-sm btn-outline-info me-1 btn-view" data-id="${curso.id_curso}">Ver</button>
+            <button class="btn btn-sm btn-outline-warning me-1 btn-edit" data-id="${curso.id_curso}">Editar</button>
+            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${curso.id_curso}">Deletar</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Adicionar listeners aos botões
+      document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          viewCurso(id);
+        });
+      });
+
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          editCurso(id);
+        });
+      });
+
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          deleteCurso(id);
+        });
+      });
+    }
+
+    // Ver detalhes do curso
+    function viewCurso(id) {
+      const curso = cursosData.find(c => c.id_curso == id);
+      if (curso) {
+        alert(`Curso: ${curso.sigla_curso}\n\nDescrição: ${curso.descricao_curso}`);
+      }
+    }
+
+    // Editar curso
+    function editCurso(id) {
+      const curso = cursosData.find(c => c.id_curso == id);
+      if (curso) {
         document.getElementById('cursoModalTitle').textContent = 'Editar Curso';
-        document.getElementById('cursoId').value = codigo; // Assuming codigo is the id
-        document.getElementById('cursoAction').value = 'edit';
-        document.getElementById('cursoCodigo').value = codigo;
-        document.getElementById('cursoNome').value = nome;
-        document.getElementById('cursoDuracao').value = duracao;
-        document.getElementById('cursoDesc').value = desc;
-
-        // Set selected disciplinas
-        document.querySelectorAll('.disciplina-check').forEach(cb => {
-          cb.checked = disciplinas.includes(cb.value);
-        });
-      });
-
-      const cursoModalEl = document.getElementById('cursoModal');
-      cursoModalEl.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('cursoModalTitle').textContent = 'Novo Curso';
-        document.getElementById('formCurso').reset();
-        document.getElementById('cursoAction').value = 'add';
-        // Uncheck all disciplina checkboxes
+        document.getElementById('cursoCodigo').value = curso.sigla_curso || '';
+        document.getElementById('cursoNome').value = curso.descricao_curso || '';
+        document.getElementById('cursoDuracao').value = '';
+        document.getElementById('cursoDesc').value = curso.descricao_curso || '';
+        document.getElementById('cursoModalForm').setAttribute('data-id', id);
+        
+        // Desmarcar todas as disciplinas
         document.querySelectorAll('.disciplina-check').forEach(cb => cb.checked = false);
+        
+        const modal = new bootstrap.Modal(document.getElementById('cursoModal'));
+        modal.show();
+      }
+    }
+
+    // Deletar curso
+    async function deleteCurso(id) {
+      if (confirm('Tem certeza que quer deletar este curso?')) {
+        try {
+          await api.deleteCurso(id);
+          DataLoader.showSuccess('Curso deletado com sucesso!');
+          loadCursos();
+        } catch (error) {
+          DataLoader.showError('Erro ao deletar curso: ' + error.message);
+        }
+      }
+    }
+
+    // Filtrar cursos
+    document.getElementById('btnFilterCurso').addEventListener('click', function() {
+      const q = document.getElementById('filterCursoSearch').value.trim().toLowerCase();
+      const duracao = document.getElementById('filterCursoDuracao').value.trim();
+
+      const filtered = cursosData.filter(curso => {
+        const sigla = (curso.sigla_curso || '').toLowerCase();
+        const descricao = (curso.descricao_curso || '').toLowerCase();
+
+        const matchSearch = !q || sigla.includes(q) || descricao.includes(q);
+        // Duração não implementada no schema - sempre verdadeiro
+        const matchDuracao = !duracao;
+
+        return matchSearch && matchDuracao;
       });
 
-      document.getElementById('formCurso').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const selectedDisciplinas = Array.from(document.querySelectorAll('.disciplina-check:checked')).map(cb => cb.value);
-        const data = {
-          id: document.getElementById('cursoId').value,
-          action: document.getElementById('cursoAction').value,
-          codigo: document.getElementById('cursoCodigo').value,
-          nome: document.getElementById('cursoNome').value,
-          duracao: document.getElementById('cursoDuracao').value,
-          disciplinas: selectedDisciplinas,
-          descricao: document.getElementById('cursoDesc').value
-        };
+      renderCursosTable(filtered);
+    });
 
-        // Placeholder for API integration
-        if (data.action === 'add') {
-          // TODO: Call API to add curso
-          console.log('Adicionando curso:', data);
-          showFlashMessage('Curso adicionado com sucesso!');
+    // Criar/Editar curso
+    document.getElementById('formCurso').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const id = document.getElementById('cursoModalForm').getAttribute('data-id');
+      const selectedDisciplinas = Array.from(document.querySelectorAll('.disciplina-check:checked')).map(cb => cb.value);
+      const data = {
+        sigla_curso: document.getElementById('cursoCodigo').value,
+        descricao_curso: document.getElementById('cursoNome').value
+      };
+
+      try {
+        if (id) {
+          await api.updateCurso(id, data);
+          DataLoader.showSuccess('Curso atualizado com sucesso!');
         } else {
-          // TODO: Call API to update curso
-          console.log('Editando curso:', data);
-          showFlashMessage('Curso editado com sucesso!');
+          await api.createCurso(data);
+          DataLoader.showSuccess('Curso criado com sucesso!');
         }
 
-        bootstrap.Modal.getInstance(cursoModalEl).hide();
+        bootstrap.Modal.getInstance(document.getElementById('cursoModal')).hide();
+        document.getElementById('cursoModalForm').removeAttribute('data-id');
+        document.getElementById('formCurso').reset();
+        document.getElementById('cursoModalTitle').textContent = 'Novo Curso';
+        
+        loadCursos();
+      } catch (error) {
+        DataLoader.showError('Erro ao guardar curso: ' + error.message);
+      }
+    });
+
+    // Reset modal
+    document.getElementById('cursoModal').addEventListener('hidden.bs.modal', function() {
+      document.getElementById('cursoModalTitle').textContent = 'Novo Curso';
+      document.getElementById('formCurso').reset();
+      document.getElementById('cursoModalForm').removeAttribute('data-id');
+      // Limpar checkboxes
+      document.querySelectorAll('.disciplina-check').forEach(cb => cb.checked = false);
+    });
+
+    // Logout
+    document.querySelectorAll('[data-logout]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        AuthHelper.logout();
       });
+    });
 
-      // Filter functionality
-      document.getElementById('btnFilterCurso').addEventListener('click', function () {
-        const searchValue = document.getElementById('filterCursoSearch').value.toLowerCase();
-        const duracaoValue = document.getElementById('filterCursoDuracao').value;
+    // Carregar dados iniciais
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCursos();
+      loadDisciplinasModal();
 
-        const rows = document.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-          const codigo = row.cells[0].textContent.toLowerCase();
-          const nome = row.cells[1].textContent.toLowerCase();
-          const duracao = row.cells[2].textContent;
-
-          const matchesSearch = !searchValue || codigo.includes(searchValue) || nome.includes(searchValue);
-          const matchesDuracao = !duracaoValue || duracao === duracaoValue;
-
-          row.style.display = matchesSearch && matchesDuracao ? '' : 'none';
-        });
-      });
-
-      // Delete functionality
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-delete');
-        if (!btn) return;
-
-        const codigo = btn.getAttribute('data-codigo');
-        if (confirm(`Tem certeza que deseja eliminar o curso ${codigo}?`)) {
-          // Simulate API call
-          setTimeout(() => {
-            console.log('Eliminando curso:', codigo);
-            // Remove the row from the table
-            const row = btn.closest('tr');
-            row.remove();
-            showFlashMessage('Curso eliminado com sucesso!', 'success');
-          }, 1000); // Simulate delay
-        }
-      });
+      // Update header com dados do usuário
+      const headerUserName = document.querySelector('.header-user-name');
+      const headerUserRole = document.querySelector('.header-user-role');
+      
+      if (headerUserName) {
+        headerUserName.textContent = api.getUserName() || 'Administrador';
+      }
+      if (headerUserRole) {
+        headerUserRole.textContent = AuthHelper.translateRole(api.getUserRole());
+      }
     });
   </script>
 </body>

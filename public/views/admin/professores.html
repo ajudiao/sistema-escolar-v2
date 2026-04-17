@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="../../css/sidebar.css">
 </head>
 
-<body>
+<body data-protected="true">
   <div class="main-wrapper">
     <div class="sidebar-overlay"></div>
     
@@ -187,7 +187,7 @@
             </a>
           </div>
           <div class="nav-item">
-            <a href="../../../index.html" class="nav-link" data-title="Sair">
+            <a href="#" class="nav-link" data-title="Sair" data-logout>
               <span class="nav-link-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -376,6 +376,7 @@
               <form id="formProfessor">
                 <div class="modal-body">
 
+                  <input type="hidden" id="profModalForm">
                   <input type="hidden" id="profId">
 
                   <!-- ================= DADOS PESSOAIS ================= -->
@@ -488,7 +489,7 @@
 
                     <div class="col-md-4 mb-3">
                       <label class="form-label">Área de Formação</label>
-                      <input type="text" class="form-control" name="area_formacao" autocomplete="off">
+                      <input type="text" id="profFormacao" class="form-control" name="area_formacao" autocomplete="off">
                     </div>
 
                     <div class="col-md-4 mb-3">
@@ -657,26 +658,209 @@
         }, 1000);
       });
 
-      // Filter professors by search, disciplina and turma
-      document.getElementById('btnFilterProf').addEventListener('click', function () {
-        const q = document.getElementById('filterProfSearch').value.trim().toLowerCase();
-        const disc = document.getElementById('filterProfDisc').value;
-        const turma = document.getElementById('filterProfTurma').value;
+    });
+  </script>
 
-        document.querySelectorAll('table tbody tr').forEach(tr => {
-          const name = (tr.children[0] && tr.children[0].textContent || '').toLowerCase();
-          const email = (tr.children[1] && tr.children[1].textContent || '').toLowerCase();
-          const disciplina = (tr.children[3] && tr.children[3].textContent || '').trim();
-          const turmasAttr = (tr.getAttribute('data-turmas') || '').split(',').map(s => s.trim()).filter(Boolean);
+  <!-- API Scripts -->
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
 
-          let matches = true;
-          if (q) matches = matches && (name.includes(q) || email.includes(q) || disciplina.toLowerCase().includes(q));
-          if (disc) matches = matches && (disciplina === disc);
-          if (turma) matches = matches && turmasAttr.includes(turma);
+  <!-- Global JS -->
+  <script src="../../js/global.js"></script>
+  <script src="../../js/sidebar.js"></script>
 
-          tr.style.display = matches ? '' : 'none';
+  <script>
+    // Proteger página para ADMIN
+    AuthHelper.checkRole(['ADMIN']);
+
+    let professoresData = [];
+
+    // Carregar professores da API
+    async function loadProfessores() {
+      try {
+        DataLoader.showLoading('Carregando professores...');
+        professoresData = await api.getProfessores();
+        DataLoader.hideLoading();
+        renderProfessoresTable(professoresData);
+      } catch (error) {
+        DataLoader.hideLoading();
+        DataLoader.showError('Erro ao carregar professores: ' + error.message);
+      }
+    }
+
+    // Renderizar tabela de professores
+    function renderProfessoresTable(professores) {
+      const tbody = document.querySelector('table tbody');
+      tbody.innerHTML = '';
+
+      if (!professores || professores.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Nenhum professor encontrado</td></tr>';
+        return;
+      }
+
+      professores.forEach(prof => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-professor-id', prof.id_prof);
+        row.innerHTML = `
+          <td>${prof.nome_prof || '-'}</td>
+          <td>
+            <small class="text-muted">${prof.usuario?.email || '-'}</small>
+          </td>
+          <td>${prof.telefone_prof || '-'}</td>
+          <td>
+            <span class="badge bg-info">${prof.area_formacao_prof || 'N/A'}</span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-info me-1 btn-view" data-id="${prof.id_prof}">Ver</button>
+            <button class="btn btn-sm btn-outline-warning me-1 btn-edit" data-id="${prof.id_prof}">Editar</button>
+            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${prof.id_prof}">Deletar</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Adicionar listeners aos botões
+      document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          viewProfessor(id);
         });
       });
+
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          editProfessor(id);
+        });
+      });
+
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          deleteProfessor(id);
+        });
+      });
+    }
+
+    // Ver detalhes do professor
+    function viewProfessor(id) {
+      const prof = professoresData.find(p => p.id_prof == id);
+      if (prof) {
+        alert(`Professor: ${prof.nome_prof}\nEmail: ${prof.usuario?.email}\nTelefone: ${prof.telefone_prof}\nFormação: ${prof.area_formacao_prof}`);
+      }
+    }
+
+    // Editar professor
+    function editProfessor(id) {
+      const prof = professoresData.find(p => p.id_prof == id);
+      if (prof) {
+        document.getElementById('profModalTitle').textContent = 'Editar Professor';
+        document.getElementById('profNome').value = prof.nome_prof || '';
+        document.getElementById('profEmail').value = prof.usuario?.email || '';
+        document.getElementById('profTelefone').value = prof.telefone_prof || '';
+        document.getElementById('profModalForm').setAttribute('data-id', id);
+        
+        const modal = new bootstrap.Modal(document.getElementById('profModal'));
+        modal.show();
+      }
+    }
+
+    // Deletar professor
+    async function deleteProfessor(id) {
+      if (confirm('Tem certeza que quer deletar este professor?')) {
+        try {
+          await api.deleteProfessor(id);
+          DataLoader.showSuccess('Professor deletado com sucesso!');
+          loadProfessores(); // Recarregar lista
+        } catch (error) {
+          DataLoader.showError('Erro ao deletar professor: ' + error.message);
+        }
+      }
+    }
+
+    // Filtrar professores
+    document.getElementById('btnFilterProf').addEventListener('click', function() {
+      const q = document.getElementById('filterProfSearch').value.trim().toLowerCase();
+      const disc = document.getElementById('filterProfDisc').value.trim().toLowerCase();
+
+      const filtered = professoresData.filter(prof => {
+        const nome = (prof.nome_prof || '').toLowerCase();
+        const email = (prof.usuario?.email || '').toLowerCase();
+        const formacao = (prof.area_formacao_prof || '').toLowerCase();
+
+        const matchSearch = !q || nome.includes(q) || email.includes(q);
+        const matchDisc = !disc || formacao.includes(disc);
+
+        return matchSearch && matchDisc;
+      });
+
+      renderProfessoresTable(filtered);
+    });
+
+    // Criar novo professor
+    document.getElementById('formProfessor').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const id = document.getElementById('profModalForm').getAttribute('data-id');
+      const data = {
+        nome_prof: document.getElementById('profNome').value,
+        email: document.getElementById('profEmail').value,
+        telefone_prof: document.getElementById('profTelefone').value,
+        area_formacao_prof: document.getElementById('profFormacao')?.value || 'Geral'
+      };
+
+      try {
+        if (id) {
+          // Editar
+          await api.updateProfessor(id, data);
+          DataLoader.showSuccess('Professor atualizado com sucesso!');
+        } else {
+          // Criar
+          await api.createProfessor(data);
+          DataLoader.showSuccess('Professor criado com sucesso!');
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('profModal')).hide();
+        document.getElementById('profModalForm').removeAttribute('data-id');
+        document.getElementById('formProfessor').reset();
+        document.getElementById('profModalTitle').textContent = 'Novo Professor';
+        
+        loadProfessores(); // Recarregar lista
+      } catch (error) {
+        DataLoader.showError('Erro ao guardar professor: ' + error.message);
+      }
+    });
+
+    // Reset modal
+    document.getElementById('profModal').addEventListener('hidden.bs.modal', function() {
+      document.getElementById('profModalTitle').textContent = 'Novo Professor';
+      document.getElementById('formProfessor').reset();
+      document.getElementById('profModalForm').removeAttribute('data-id');
+    });
+
+    // Logout
+    document.querySelectorAll('[data-logout]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        AuthHelper.logout();
+      });
+    });
+
+    // Carregar dados iniciais
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProfessores();
+
+      // Update header com dados do usuário
+      const headerUserName = document.querySelector('.header-user-name');
+      const headerUserRole = document.querySelector('.header-user-role');
+      
+      if (headerUserName) {
+        headerUserName.textContent = api.getUserName() || 'Administrador';
+      }
+      if (headerUserRole) {
+        headerUserRole.textContent = AuthHelper.translateRole(api.getUserRole());
+      }
     });
   </script>
 </body>

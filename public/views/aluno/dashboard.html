@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../../css/sidebar.css">
   <link rel="stylesheet" href="css/aluno.css">
 </head>
-<body>
+<body data-protected="true">
   <div class="main-wrapper">
     <div class="sidebar-overlay"></div>
     
@@ -74,7 +74,7 @@
             </a>
           </div>
           <div class="nav-item">
-             <a href="../../../index.html" class="nav-link" data-title="Sair">
+            <a href="#" class="nav-link" data-title="Sair" data-logout>
               <span class="nav-link-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               </span>
@@ -440,6 +440,37 @@
       // Carregar dados iniciais
       loadAvaliacoes();
       loadFaltas();
+    });
+  </script>
+
+  <!-- API Scripts -->
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
+
+  <script>
+    // Proteger página para ALUNO
+    AuthHelper.checkRole(['ALUNO']);
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update header com dados do usuário
+      const headerUserName = document.querySelector('.header-user-name');
+      const headerUserRole = document.querySelector('.header-user-role');
+      
+      if (headerUserName) {
+        headerUserName.textContent = api.getUserName() || 'Aluno';
+      }
+      if (headerUserRole) {
+        headerUserRole.textContent = AuthHelper.translateRole(api.getUserRole());
+      }
+
+      // Logout
+      document.querySelectorAll('[data-logout]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          AuthHelper.logout();
+        });
+      });
     });
   </script>
 </body>

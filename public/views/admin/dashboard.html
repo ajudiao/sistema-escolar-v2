@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="../../css/global.css">
   <link rel="stylesheet" href="../../css/sidebar.css">
 </head>
-<body>
+<body data-protected="true">
   <div class="main-wrapper">
     <div class="sidebar-overlay"></div>
     
@@ -179,7 +179,7 @@
             </a>
           </div>
           <div class="nav-item">
-            <a href="../../../index.html" class="nav-link" data-title="Sair">
+            <a href="#" class="nav-link" data-title="Sair" data-logout>
               <span class="nav-link-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -240,7 +240,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">1.245</div>
+              <div class="stat-value" data-stat-alunos>1.245</div>
               <div class="stat-label">Alunos (11º-13ª)</div>
             </div>
           </div>
@@ -250,7 +250,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">48</div>
+              <div class="stat-value" data-stat-professores>48</div>
               <div class="stat-label">Professores</div>
             </div>
           </div>
@@ -260,7 +260,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">18</div>
+              <div class="stat-value" data-stat-turmas>18</div>
               <div class="stat-label">Turmas</div>
             </div>
           </div>
@@ -270,7 +270,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">5</div>
+              <div class="stat-value" data-stat-avisos>5</div>
               <div class="stat-label">Avisos</div>
             </div>
           </div>
@@ -302,7 +302,64 @@
     </main>
   </div>
   
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
+
+  <script>
+    // Verificar se é ADMIN
+    AuthHelper.checkRole(['ADMIN']);
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Update header com dados do usuário
+      const headerUserName = document.querySelector('.header-user-name');
+      const headerUserRole = document.querySelector('.header-user-role');
+      
+      if (headerUserName) {
+        headerUserName.textContent = api.getUserName() || 'Administrador';
+      }
+      if (headerUserRole) {
+        headerUserRole.textContent = AuthHelper.translateRole(api.getUserRole());
+      }
+
+      // Carregar e exibir estatísticas
+      try {
+        const estudantes = await api.getEstudantes();
+        const professores = await api.getProfessores();
+        const turmas = await api.getTurmas();
+        const avisos = await api.getAvisos();
+
+        // Atualizar cards de estatísticas
+        document.querySelectorAll('[data-stat-alunos]').forEach(el => {
+          el.textContent = estudantes.length;
+        });
+
+        document.querySelectorAll('[data-stat-professores]').forEach(el => {
+          el.textContent = professores.length;
+        });
+
+        document.querySelectorAll('[data-stat-turmas]').forEach(el => {
+          el.textContent = turmas.length;
+        });
+
+        document.querySelectorAll('[data-stat-avisos]').forEach(el => {
+          el.textContent = avisos.length;
+        });
+
+      } catch (error) {
+        console.error('Erro ao carregar dados:', error);
+      }
+
+      // Logout
+      document.querySelectorAll('[data-logout]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          AuthHelper.logout();
+        });
+      });
+    });
+  </script>
 </body>
 </html>

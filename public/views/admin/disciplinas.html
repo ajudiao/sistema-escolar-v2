@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../../css/sidebar.css">
 </head>
 
-<body>
+<body data-protected="true">
   <div class="main-wrapper">
     <div class="sidebar-overlay"></div>
     
@@ -220,6 +220,7 @@
             <div class="header-user-info"><span class="header-user-name">Administrador</span><span
                 class="header-user-role">Administração</span></div>
           </div>
+          <a href="#" data-logout class="btn btn-sm btn-outline-danger ms-3">Sair</a>
         </div>
       </header>
 
@@ -270,32 +271,6 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>FIS-2026</td>
-                    <td>Física</td>
-                    <td>Disciplina de ciências físicas</td>
-                    <td>
-                      <a href="disciplina-detalhes.html" class="btn btn-sm btn-outline-info me-1">Ver</a>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#disciModal" data-codigo="FIS-2026" data-nome="Física"
-                        data-observacao="Disciplina de ciências físicas">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger">Eliminar</button>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td>QUIM-204</td>
-                    <td>Química</td>
-                    <td>Disciplina de ciências químicas</td>
-                    <td>
-                      <a href="disciplina-detalhes.html" class="btn btn-sm btn-outline-info me-1">Ver</a>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#disciModal" data-codigo="QUIM-204" data-nome="Química"
-                        data-observacao="Disciplina de ciências químicas">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger">Eliminar</button>
-                    </td>
-                  </tr>
-
                 </tbody>
               </table>
             </div>
@@ -317,6 +292,7 @@
       <form id="formDisciplina">
         <div class="modal-body">
 
+          <input type="hidden" id="disciModalForm">
           <input type="hidden" id="disciplinaId">
 
           <!-- CÓDIGO -->
@@ -377,39 +353,195 @@
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script>
-      document.addEventListener('DOMContentLoaded', function () {
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-edit');
-        if (!btn) return;
-        const codigo = btn.getAttribute('data-codigo') || '';
-        const nome = btn.getAttribute('data-nome') || '';
-        const observacao = btn.getAttribute('data-observacao') || '';
+    // Proteger página para ADMIN
+    AuthHelper.checkRole(['ADMIN']);
 
+    let disciplinasData = [];
+
+    // Carregar disciplinas da API
+    async function loadDisciplinas() {
+      try {
+        DataLoader.showLoading('Carregando disciplinas...');
+        disciplinasData = await api.getDisciplinas();
+        DataLoader.hideLoading();
+        renderDisciplinasTable(disciplinasData);
+      } catch (error) {
+        DataLoader.hideLoading();
+        DataLoader.showError('Erro ao carregar disciplinas: ' + error.message);
+      }
+    }
+
+    // Renderizar tabela de disciplinas
+    function renderDisciplinasTable(disciplinas) {
+      const tbody = document.querySelector('table tbody');
+      tbody.innerHTML = '';
+
+      if (!disciplinas || disciplinas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma disciplina encontrada</td></tr>';
+        return;
+      }
+
+      disciplinas.forEach(disc => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-disc-id', disc.id_disc);
+        row.innerHTML = `
+          <td><strong>${disc.sigla_disc || '-'}</strong></td>
+          <td>${disc.descricao_disc || '-'}</td>
+          <td>${disc.descricao_disc || '-'}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-info me-1 btn-view" data-id="${disc.id_disc}">Ver</button>
+            <button class="btn btn-sm btn-outline-warning me-1 btn-edit" data-id="${disc.id_disc}">Editar</button>
+            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${disc.id_disc}">Deletar</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Adicionar listeners aos botões
+      document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          viewDisciplina(id);
+        });
+      });
+
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          editDisciplina(id);
+        });
+      });
+
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          deleteDisciplina(id);
+        });
+      });
+    }
+
+    // Ver detalhes da disciplina
+    function viewDisciplina(id) {
+      const disc = disciplinasData.find(d => d.id_disc == id);
+      if (disc) {
+        alert(`Disciplina: ${disc.sigla_disc}\n\nDescrição: ${disc.descricao_disc}`);
+      }
+    }
+
+    // Editar disciplina
+    function editDisciplina(id) {
+      const disc = disciplinasData.find(d => d.id_disc == id);
+      if (disc) {
         document.getElementById('disciModalTitle').textContent = 'Editar Disciplina';
-        document.getElementById('disciplinaCodigo').value = codigo;
-        document.getElementById('disciplinaNome').value = nome;
-        document.getElementById('disciplinaObservacao').value = observacao;
+        document.getElementById('disciplinaCodigo').value = disc.sigla_disc || '';
+        document.getElementById('disciplinaNome').value = disc.descricao_disc || '';
+        document.getElementById('disciplinaObservacao').value = disc.descricao_disc || '';
+        document.getElementById('disciModalForm').setAttribute('data-id', id);
+        
+        const modal = new bootstrap.Modal(document.getElementById('disciModal'));
+        modal.show();
+      }
+    }
+
+    // Deletar disciplina
+    async function deleteDisciplina(id) {
+      if (confirm('Tem certeza que quer deletar esta disciplina?')) {
+        try {
+          await api.deleteDisciplina(id);
+          DataLoader.showSuccess('Disciplina deletada com sucesso!');
+          loadDisciplinas(); // Recarregar lista
+        } catch (error) {
+          DataLoader.showError('Erro ao deletar disciplina: ' + error.message);
+        }
+      }
+    }
+
+    // Filtrar disciplinas
+    document.getElementById('btnFilterDisciplina').addEventListener('click', function() {
+      const q = document.getElementById('filterDisciplinaSearch').value.trim().toLowerCase();
+      const curso = document.getElementById('filterDisciplinaCurso').value.trim().toLowerCase();
+
+      const filtered = disciplinasData.filter(disc => {
+        const sigla = (disc.sigla_disc || '').toLowerCase();
+        const descricao = (disc.descricao_disc || '').toLowerCase();
+
+        const matchSearch = !q || sigla.includes(q) || descricao.includes(q);
+        // Filtro por curso (se implementado no backend)
+        const matchCurso = !curso; // Por enquanto, sem filtro de curso
+
+        return matchSearch && matchCurso;
       });
 
-      const disciModalEl = document.getElementById('disciModal');
-      disciModalEl.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('disciModalTitle').textContent = 'Nova Disciplina';
+      renderDisciplinasTable(filtered);
+    });
+
+    // Criar/Editar disciplina
+    document.getElementById('formDisciplina').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const id = document.getElementById('disciModalForm').getAttribute('data-id');
+      const data = {
+        sigla_disc: document.getElementById('disciplinaCodigo').value,
+        descricao_disc: document.getElementById('disciplinaNome').value
+      };
+
+      try {
+        if (id) {
+          // Editar
+          await api.updateDisciplina(id, data);
+          DataLoader.showSuccess('Disciplina atualizada com sucesso!');
+        } else {
+          // Criar
+          await api.createDisciplina(data);
+          DataLoader.showSuccess('Disciplina criada com sucesso!');
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('disciModal')).hide();
+        document.getElementById('disciModalForm').removeAttribute('data-id');
         document.getElementById('formDisciplina').reset();
-      });
+        document.getElementById('disciModalTitle').textContent = 'Nova Disciplina';
+        
+        loadDisciplinas(); // Recarregar lista
+      } catch (error) {
+        DataLoader.showError('Erro ao guardar disciplina: ' + error.message);
+      }
+    });
 
-      document.getElementById('formDisciplina').addEventListener('submit', function (e) {
+    // Reset modal
+    document.getElementById('disciModal').addEventListener('hidden.bs.modal', function() {
+      document.getElementById('disciModalTitle').textContent = 'Nova Disciplina';
+      document.getElementById('formDisciplina').reset();
+      document.getElementById('disciModalForm').removeAttribute('data-id');
+    });
+
+    // Logout
+    document.querySelectorAll('[data-logout]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
         e.preventDefault();
-        const data = {
-          codigo: document.getElementById('disciplinaCodigo').value,
-          nome: document.getElementById('disciplinaNome').value,
-          observacao: document.getElementById('disciplinaObservacao').value
-        };
-        console.log('Dados da disciplina:', data);
-        // Aqui você pode adicionar lógica para salvar os dados
+        AuthHelper.logout();
       });
+    });
+
+    // Carregar dados iniciais
+    document.addEventListener('DOMContentLoaded', function() {
+      loadDisciplinas();
+
+      // Update header com dados do usuário
+      const headerUserName = document.querySelector('.header-user-name');
+      const headerUserRole = document.querySelector('.header-user-role');
+      
+      if (headerUserName) {
+        headerUserName.textContent = api.getUserName() || 'Administrador';
+      }
+      if (headerUserRole) {
+        headerUserRole.textContent = AuthHelper.translateRole(api.getUserRole());
+      }
     });
   </script>
 </body>

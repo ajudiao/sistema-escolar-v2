@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="../../css/sidebar.css">
 </head>
 
-<body>
+<body data-protected="true">
   <div class="main-wrapper">
     <div class="sidebar-overlay"></div>
    
@@ -181,7 +181,7 @@
             </a>
           </div>
           <div class="nav-item">
-            <a href="../../../index.html" class="nav-link" data-title="Sair">
+            <a href="../../../index.html" data-logout class="nav-link" data-title="Sair">
               <span class="nav-link-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -220,6 +220,7 @@
             <div class="header-user-info"><span class="header-user-name">Administrador</span><span
                 class="header-user-role">Administração</span></div>
           </div>
+          <a href="#" data-logout class="btn btn-sm btn-outline-danger ms-3">Sair</a>
         </div>
       </header>
 
@@ -288,62 +289,6 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>INFO-10AD</td>
-                    <td>Informática</td>
-                    <td>10ª</td>
-                    <td>A101</td>
-                    <td>2025/2026</td>
-                    <td>Maria João</td>
-                    <td>32</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-info me-1 btn-view" data-codigo="INFO-10AD"
-                        data-curso="Informática" data-ciclo="10ª" data-sala="A101" data-ano="2025/2026"
-                        data-prof="Maria João" data-num="32" data-bs-toggle="modal"
-                        data-bs-target="#turmaDetailsModal">Ver</button>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#turmaModal" data-codigo="INFO-10AD" data-curso="Informática" data-ciclo="10ª"
-                        data-sala="A101" data-ano="2025/2026" data-prof="Maria João" data-num="32">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete" data-codigo="INFO-10AD">Eliminar</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>INFO-2AD</td>
-                    <td>--</td>
-                    <td>7ª</td>
-                    <td>A101</td>
-                    <td>2025/2026</td>
-                    <td>Maria João</td>
-                    <td>32</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-info me-1 btn-view" data-codigo="INFO-2AD" data-curso="--"
-                        data-ciclo="7ª" data-sala="A101" data-ano="2025/2026" data-prof="Maria João" data-num="32"
-                        data-bs-toggle="modal" data-bs-target="#turmaDetailsModal">Ver</button>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#turmaModal" data-codigo="INFO-2AD" data-curso="--" data-ciclo="7ª"
-                        data-sala="A101" data-ano="2025/2026" data-prof="Maria João" data-num="32">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete" data-codigo="INFO-2AD">Eliminar</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>EIA-11AD</td>
-                    <td>Electrónica</td>
-                    <td>11ª</td>
-                    <td>B202</td>
-                    <td>2024/2025</td>
-                    <td>Joaquim Silva</td>
-                    <td>28</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-info me-1 btn-view" data-codigo="EIA-11AD"
-                        data-curso="Electrónica" data-ciclo="11ª" data-sala="B202" data-ano="2024/2025"
-                        data-prof="Joaquim Silva" data-num="28" data-bs-toggle="modal"
-                        data-bs-target="#turmaDetailsModal">Ver</button>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#turmaModal" data-codigo="EIA-11AD" data-curso="Electrónica" data-ciclo="11ª"
-                        data-sala="B202" data-ano="2024/2025" data-prof="Joaquim Silva" data-num="28">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete" data-codigo="EIA-11AD">Eliminar</button>
-                    </td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -416,6 +361,7 @@
               <form id="formTurma">
                 <div class="modal-body">
 
+                  <input type="hidden" id="turmaModalForm">
                   <input type="hidden" id="turmaId">
 
                   <!-- ================= IDENTIFICAÇÃO ================= -->
@@ -431,9 +377,9 @@
                       <label class="form-label">Ano Letivo</label>
                       <select id="turmaAno" class="form-select">
                         <option value="">Selecione...</option>
-                        <option>2023/2024</option>
-                        <option>2024/2025</option>
-                        <option>2025/2026</option>
+                        <option value="2023">2023/2024</option>
+                        <option value="2024">2024/2025</option>
+                        <option value="2025">2025/2026</option>
                       </select>
                     </div>
 
@@ -456,9 +402,9 @@
                       <label class="form-label">Classe</label>
                       <select id="turmaClasse" class="form-select">
                         <option value="">Selecione...</option>
-                        <option>10ª Classe</option>
-                        <option>11ª Classe</option>
-                        <option>12ª Classe</option>
+                        <option value="10ª">10ª Classe</option>
+                        <option value="11ª">11ª Classe</option>
+                        <option value="12ª">12ª Classe</option>
                       </select>
                     </div>
 
@@ -466,10 +412,7 @@
                       <label class="form-label">Curso (para 10ª, 11ª e 12ª Classes )</label>
                       <select id="turmaCurso" class="form-select">
                         <option value="">Selecione...</option>
-                        <option>Informática</option>
-                        <option>Administração</option>
-                        <option>Eletrónica</option>
-                        <option>Contabilidade</option>
+
                       </select>
                     </div>
 
@@ -482,9 +425,6 @@
                       <label class="form-label">Director de Turma</label>
                       <select id="turmaProf" class="form-select">
                         <option value="">Selecione...</option>
-                        <option>Maria João dos Santos</option>
-                        <option>Carlos Mendes da Silva</option>
-                        <option>Joaquim Silva</option>
                       </select>
                     </div>
                   </div>
@@ -523,150 +463,328 @@
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Função para mostrar notificação
-      function showNotification(message, type = 'success') {
-        let container = document.querySelector('.toast-container');
-        if (!container) {
-          container = document.createElement('div');
-          container.className = 'toast-container position-fixed top-0 end-0 p-3';
-          container.style.zIndex = '1100';
-          document.body.appendChild(container);
-        }
+    // Proteger página para ADMIN
+    AuthHelper.checkRole(['ADMIN']);
 
-        const toastId = 'toast-' + Date.now();
-        const bgClass = {
-          'success': 'bg-success',
-          'danger': 'bg-danger',
-          'warning': 'bg-warning',
-          'info': 'bg-primary'
-        }[type] || 'bg-primary';
+    let turmasData = [];
+    let cursosDisponives = [];
+    let professoresDisponives = [];
 
-        const toastHtml = `
-          <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert">
-            <div class="d-flex">
-              <div class="toast-body">${message}</div>
-              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-          </div>
-        `;
+    // Carregar turmas da API
+    async function loadTurmas() {
+      try {
+        DataLoader.showLoading('Carregando turmas...');
+        turmasData = await api.getTurmas();
+        DataLoader.hideLoading();
+        renderTurmasTable(turmasData);
+      } catch (error) {
+        DataLoader.hideLoading();
+        DataLoader.showError('Erro ao carregar turmas: ' + error.message);
+      }
+    }
 
-        container.insertAdjacentHTML('beforeend', toastHtml);
-        const toastElement = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
-        toast.show();
+    // Carregar curisos para o modal
+    async function loadCursosModal() {
+      try {
+        cursosDisponives = await api.getCursos();
+        renderCursoSelect();
+      } catch (error) {
+        console.error('Erro ao carregar cursos:', error);
+      }
+    }
+
+    // Carregar professores para o modal
+    async function loadProfessoresModal() {
+      try {
+        professoresDisponives = await api.getProfessores();
+        renderProfessorSelect();
+      } catch (error) {
+        console.error('Erro ao carregar professores:', error);
+      }
+    }
+
+    // Renderizar select de cursos
+    function renderCursoSelect() {
+      const select = document.getElementById('turmaCurso');
+      const options = select.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+
+      if (cursosDisponives && cursosDisponives.length > 0) {
+        cursosDisponives.forEach(curso => {
+          const option = document.createElement('option');
+          option.value = curso.id_curso;
+          option.textContent = curso.descricao_curso;
+          select.appendChild(option);
+        });
+      }
+    }
+
+    // Renderizar select de professores
+    function renderProfessorSelect() {
+      const select = document.getElementById('turmaProf');
+      const options = select.querySelectorAll('option:not(:first-child)');
+      options.forEach(opt => opt.remove());
+
+      if (professoresDisponives && professoresDisponives.length > 0) {
+        professoresDisponives.forEach(prof => {
+          const option = document.createElement('option');
+          option.value = prof.id_prof;
+          option.textContent = prof.nome_prof;
+          select.appendChild(option);
+        });
+      }
+    }
+
+    // Renderizar tabela de turmas
+    function renderTurmasTable(turmas) {
+      const tbody = document.querySelector('table tbody');
+      tbody.innerHTML = '';
+
+      if (!turmas || turmas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Nenhuma turma encontrada</td></tr>';
+        return;
       }
 
-      // Ver detalhes da turma
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-view');
-        if (!btn) return;
-
-        const codigo = btn.getAttribute('data-codigo') || '';
-        const curso = btn.getAttribute('data-curso') || '';
-        const ciclo = btn.getAttribute('data-ciclo') || '';
-        const sala = btn.getAttribute('data-sala') || '';
-        const ano = btn.getAttribute('data-ano') || '';
-        const prof = btn.getAttribute('data-prof') || '';
-        const num = btn.getAttribute('data-num') || '';
-
-        document.getElementById('turmaDetailCodigo').textContent = codigo;
-        document.getElementById('turmaDetailCurso').textContent = curso;
-        document.getElementById('turmaDetailClasse').textContent = ciclo;
-        document.getElementById('turmaDetailSala').textContent = sala;
-        document.getElementById('turmaDetailAno').textContent = ano;
-        document.getElementById('turmaDetailProf').textContent = prof;
-        document.getElementById('turmaDetailNum').textContent = num;
+      turmas.forEach(turma => {
+        const cursoDesc = cursosDisponives.find(c => c.id_curso === turma.curso_id)?.descricao_curso || '--';
+        const profNome = professoresDisponives.find(p => p.id_prof === turma.diretor_turma)?.nome_prof || 'N/A';
+        
+        const row = document.createElement('tr');
+        row.setAttribute('data-turma-id', turma.id_turma);
+        row.innerHTML = `
+          <td><strong>${turma.sigla_turma || '-'}</strong></td>
+          <td>${cursoDesc}</td>
+          <td>${turma.classe_turma || '-'}</td>
+          <td>${turma.sala_turma || '-'}</td>
+          <td>${turma.ano_lectivo_turma || '-'}</td>
+          <td>${profNome}</td>
+          <td>${turma.numero_aluno_turma || '0'}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-info me-1 btn-view" data-id="${turma.id_turma}">Ver</button>
+            <button class="btn btn-sm btn-outline-warning me-1 btn-edit" data-id="${turma.id_turma}">Editar</button>
+            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${turma.id_turma}">Deletar</button>
+          </td>
+        `;
+        tbody.appendChild(row);
       });
 
-      // Deletar turma
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-delete');
-        if (!btn) return;
-
-        const codigo = btn.getAttribute('data-codigo');
-        const data = { acao: 'deletar', codigo: codigo };
-        setTimeout(() => {
-          console.log('[API] DELETE /api/turmas', data);
-          showNotification(`Turma ${codigo} eliminada com sucesso!`, 'success');
-        }, 1000);
-      });
-
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-edit');
-        if (!btn) return;
-        const codigo = btn.getAttribute('data-codigo') || '';
-        const curso = btn.getAttribute('data-curso') || '';
-        const ciclo = btn.getAttribute('data-ciclo') || '';
-        const sala = btn.getAttribute('data-sala') || '';
-        const ano = btn.getAttribute('data-ano') || '';
-        const prof = btn.getAttribute('data-prof') || '';
-        const num = btn.getAttribute('data-num') || '';
-
-        document.getElementById('turmaModalTitle').textContent = 'Editar Turma';
-        document.getElementById('turmaCodigo').value = codigo;
-        document.getElementById('turmaCurso').value = curso;
-        document.getElementById('turmaClasse').value = ciclo;
-        document.getElementById('turmaSala').value = sala;
-        document.getElementById('turmaAno').value = ano;
-        document.getElementById('turmaProf').value = prof;
-        document.getElementById('turmaNum').value = num;
-      });
-
-      const turmaModalEl = document.getElementById('turmaModal');
-      turmaModalEl.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('turmaModalTitle').textContent = 'Nova Turma';
-        document.getElementById('formTurma').reset();
-      });
-
-      document.getElementById('formTurma').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const data = {
-          codigo: document.getElementById('turmaCodigo').value,
-          curso: document.getElementById('turmaCurso').value,
-          classe: document.getElementById('turmaClasse').value,
-          turno: document.getElementById('turmaTurno').value,
-          sala: document.getElementById('turmaSala').value,
-          ano: document.getElementById('turmaAno').value,
-          professor: document.getElementById('turmaProf').value,
-          num_max_alunos: document.getElementById('turmaNum').value,
-          observacoes: document.getElementById('turmaObservacoes').value
-        };
-        setTimeout(() => {
-          console.log('[API] POST/PUT /api/turmas', data);
-          showNotification('Turma guardada com sucesso!', 'success');
-          bootstrap.Modal.getInstance(turmaModalEl).hide();
-        }, 1000);
-      });
-
-      // Filter turmas by search, classe, sala and ano letivo
-      document.getElementById('btnFilterTurma').addEventListener('click', function () {
-        const q = document.getElementById('filterTurmaSearch').value.trim().toLowerCase();
-        const classe = document.getElementById('filterTurmaCiclo').value;
-        const sala = document.getElementById('filterTurmaSala').value.trim().toLowerCase();
-        const ano = document.getElementById('filterTurmaAno').value;
-
-        document.querySelectorAll('table tbody tr').forEach(tr => {
-          const cols = tr.children;
-          const codigo = (cols[0]?.textContent || '').toLowerCase();
-          const curso = (cols[1]?.textContent || '').toLowerCase();
-          const classeTd = (cols[2]?.textContent || '').trim();
-          const salaTd = (cols[3]?.textContent || '').toLowerCase();
-          const anoTd = (cols[4]?.textContent || '').trim();
-          const prof = (cols[5]?.textContent || '').toLowerCase();
-
-          let matches = true;
-          if (q) matches = matches && (codigo.includes(q) || curso.includes(q) || prof.includes(q));
-          if (classe) matches = matches && (classeTd === classe);
-          if (sala) matches = matches && salaTd.includes(sala);
-          if (ano) matches = matches && (anoTd === ano);
-
-          tr.style.display = matches ? '' : 'none';
+      // Adicionar listeners aos botões
+      document.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          viewTurma(id);
         });
       });
+
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          editTurma(id);
+        });
+      });
+
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          deleteTurma(id);
+        });
+      });
+    }
+
+    // Ver detalhes da turma
+    function viewTurma(id) {
+      const turma = turmasData.find(t => t.id_turma == id);
+      if (turma) {
+        const cursoDesc = cursosDisponives.find(c => c.id_curso === turma.curso_id)?.descricao_curso || '--';
+        const profNome = professoresDisponives.find(p => p.id_prof === turma.diretor_turma)?.nome_prof || 'N/A';
+        
+        document.getElementById('turmaDetailCodigo').textContent = turma.sigla_turma || '-';
+        document.getElementById('turmaDetailCurso').textContent = cursoDesc;
+        document.getElementById('turmaDetailClasse').textContent = turma.classe_turma || '-';
+        document.getElementById('turmaDetailSala').textContent = turma.sala_turma || '-';
+        document.getElementById('turmaDetailAno').textContent = turma.ano_lectivo_turma || '-';
+        document.getElementById('turmaDetailProf').textContent = profNome;
+        document.getElementById('turmaDetailNum').textContent = turma.numero_aluno_turma || '0';
+
+        const modal = new bootstrap.Modal(document.getElementById('turmaDetailsModal'));
+        modal.show();
+      }
+    }
+
+    // Editar turma
+    function editTurma(id) {
+      const turma = turmasData.find(t => t.id_turma == id);
+      if (turma) {
+        document.getElementById('turmaModalTitle').textContent = 'Editar Turma';
+        document.getElementById('turmaCodigo').value = turma.sigla_turma || '';
+        document.getElementById('turmaAno').value = turma.ano_lectivo_turma || '';
+        document.getElementById('turmaTurno').value = turma.turno_turma || '';
+        document.getElementById('turmaClasse').value = turma.classe_turma || '';
+        document.getElementById('turmaCurso').value = turma.curso_id || '';
+        document.getElementById('turmaSala').value = turma.sala_turma || '';
+        document.getElementById('turmaProf').value = turma.diretor_turma || '';
+        document.getElementById('turmaNum').value = turma.numero_aluno_turma || '';
+        document.getElementById('turmaObservacoes').value = turma.observacoes_turma || '';
+        document.getElementById('turmaModalForm').setAttribute('data-id', id);
+        
+        const modal = new bootstrap.Modal(document.getElementById('turmaModal'));
+        modal.show();
+      }
+    }
+
+    // Deletar turma
+    async function deleteTurma(id) {
+      if (confirm('Tem certeza que quer deletar esta turma?')) {
+        try {
+          await api.deleteTurma(id);
+          DataLoader.showSuccess('Turma deletada com sucesso!');
+          loadTurmas();
+        } catch (error) {
+          DataLoader.showError('Erro ao deletar turma: ' + error.message);
+        }
+      }
+    }
+
+    // Filtrar turmas
+    document.getElementById('btnFilterTurma').addEventListener('click', function() {
+      const q = document.getElementById('filterTurmaSearch').value.trim().toLowerCase();
+      const classe = document.getElementById('filterTurmaCiclo').value;
+      const sala = document.getElementById('filterTurmaSala').value.trim().toLowerCase();
+      const ano = document.getElementById('filterTurmaAno').value;
+
+      const filtered = turmasData.filter(turma => {
+        const sigla = (turma.sigla_turma || '').toLowerCase();
+        const cursoDesc = (cursosDisponives.find(c => c.id_curso === turma.curso_id)?.descricao_curso || '').toLowerCase();
+        const classeTurma = (turma.classe_turma || '').toLowerCase();
+        const salaTurma = (turma.sala_turma || '').toLowerCase();
+        const anoTurma = String(turma.ano_lectivo_turma || '');
+        const profNome = (professoresDisponives.find(p => p.id_prof === turma.diretor_turma)?.nome_prof || '').toLowerCase();
+
+        let matches = true;
+        if (q) matches = matches && (sigla.includes(q) || cursoDesc.includes(q) || profNome.includes(q));
+        if (classe) matches = matches && (classeTurma.includes(classe.toLowerCase()));
+        if (sala) matches = matches && salaTurma.includes(sala);
+        if (ano) matches = matches && (anoTurma === ano);
+
+        return matches;
+      });
+
+      renderTurmasTable(filtered);
+    });
+
+    // Criar/Editar turma
+    document.getElementById('formTurma').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const id = document.getElementById('turmaModalForm').getAttribute('data-id');
+      const turmaCodigo = document.getElementById('turmaCodigo').value.trim();
+      const turmaAno = document.getElementById('turmaAno').value;
+      const turmaTurno = document.getElementById('turmaTurno').value;
+      const turmaClasse = document.getElementById('turmaClasse').value;
+      const turmaCursoVal = document.getElementById('turmaCurso').value;
+      const turmaSala = document.getElementById('turmaSala').value.trim();
+      const turmaProfVal = document.getElementById('turmaProf').value;
+      const turmaNumVal = document.getElementById('turmaNum').value;
+
+      // Validações
+      if (!turmaCodigo) {
+        DataLoader.showError('Por favor, preencha o código da turma');
+        return;
+      }
+      if (!turmaAno) {
+        DataLoader.showError('Por favor, selecione o ano letivo');
+        return;
+      }
+      if (!turmaTurno) {
+        DataLoader.showError('Por favor, selecione o turno');
+        return;
+      }
+      if (!turmaClasse) {
+        DataLoader.showError('Por favor, selecione a classe');
+        return;
+      }
+      if (!turmaSala) {
+        DataLoader.showError('Por favor, preencha a sala');
+        return;
+      }
+      if (!turmaProfVal) {
+        DataLoader.showError('Por favor, selecione o diretor de turma');
+        return;
+      }
+      if (!turmaNumVal) {
+        DataLoader.showError('Por favor, preencha o número máximo de alunos');
+        return;
+      }
+
+      const data = {
+        sigla_turma: turmaCodigo,
+        ano_lectivo_turma: Number(turmaAno),
+        turno_turma: turmaTurno,
+        classe_turma: turmaClasse,
+        curso_id: turmaCursoVal ? Number(turmaCursoVal) : null,
+        sala_turma: turmaSala,
+        diretor_turma: Number(turmaProfVal),
+        numero_aluno_turma: Number(turmaNumVal),
+        observacoes_turma: document.getElementById('turmaObservacoes').value
+      };
+
+      try {
+        if (id) {
+          await api.updateTurma(id, data);
+          DataLoader.showSuccess('Turma atualizada com sucesso!');
+        } else {
+          await api.createTurma(data);
+          DataLoader.showSuccess('Turma criada com sucesso!');
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('turmaModal')).hide();
+        document.getElementById('turmaModalForm').removeAttribute('data-id');
+        document.getElementById('formTurma').reset();
+        document.getElementById('turmaModalTitle').textContent = 'Nova Turma';
+        
+        loadTurmas();
+      } catch (error) {
+        DataLoader.showError('Erro ao guardar turma: ' + error.message);
+      }
+    });
+
+    // Reset modal
+    document.getElementById('turmaModal').addEventListener('hidden.bs.modal', function() {
+      document.getElementById('turmaModalTitle').textContent = 'Nova Turma';
+      document.getElementById('formTurma').reset();
+      document.getElementById('turmaModalForm').removeAttribute('data-id');
+    });
+
+    // Logout
+    document.querySelectorAll('[data-logout]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        AuthHelper.logout();
+      });
+    });
+
+    // Carregar dados iniciais
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTurmas();
+      loadCursosModal();
+      loadProfessoresModal();
+
+      // Update header com dados do usuário
+      const headerUserName = document.querySelector('.header-user-name');
+      const headerUserRole = document.querySelector('.header-user-role');
+      
+      if (headerUserName) {
+        headerUserName.textContent = api.getUserName() || 'Administrador';
+      }
+      if (headerUserRole) {
+        headerUserRole.textContent = AuthHelper.translateRole(api.getUserRole());
+      }
     });
   </script>
 </body>
