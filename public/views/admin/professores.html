@@ -288,38 +288,6 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr data-turmas="1,3">
-                    <td>Maria João</td>
-                    <td>maria.joao@escola.med.ao</td>
-                    <td>+244 923 000 002</td>
-                    <td>Matemática</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-info me-1 btn-view" data-nome="Maria João"
-                        data-email="maria.joao@escola.med.ao" data-telefone="+244 923 000 002"
-                        data-disciplinas="Matemática" data-bs-toggle="modal"
-                        data-bs-target="#profDetailsModal">Ver</button>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#profModal" data-nome="Maria João" data-email="maria.joao@escola.med.ao"
-                        data-telefone="+244 923 000 002" data-disciplinas="Matemática" data-turmas="1,3">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete" data-nome="Maria João">Eliminar</button>
-                    </td>
-                  </tr>
-                  <tr data-turmas="2">
-                    <td>Joaquim Silva</td>
-                    <td>joaquim.silva@escola.med.ao</td>
-                    <td>+244 923 000 003</td>
-                    <td>Física</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-info me-1 btn-view" data-nome="Joaquim Silva"
-                        data-email="joaquim.silva@escola.med.ao" data-telefone="+244 923 000 003"
-                        data-disciplinas="Física" data-bs-toggle="modal" data-bs-target="#profDetailsModal">Ver</button>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-bs-toggle="modal"
-                        data-bs-target="#profModal" data-nome="Joaquim Silva" data-email="joaquim.silva@escola.med.ao"
-                        data-telefone="+244 923 000 003" data-disciplinas="Física" data-turmas="2">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete"
-                        data-nome="Joaquim Silva">Eliminar</button>
-                    </td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -394,8 +362,12 @@
                     </div>
 
                     <div class="col-md-3 mb-3">
-                      <label class="form-label">Nacionalidade</label>
-                      <input type="text" class="form-control" name="nacionalidade" autocomplete="country-name">
+                      <label class="form-label">Status</label>
+                      <select id="profStatus" class="form-select" name="status">
+                        <option value="ATIVO">Ativo</option>
+                        <option value="INATIVO">Inativo</option>
+                        <option value="LICENCA">Licença</option>
+                      </select>
                     </div>
 
                     <div class="col-md-6 mb-3">
@@ -403,19 +375,24 @@
                       <input type="text" class="form-control" name="filiacao" autocomplete="additional-name">
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Nacionalidade</label>
+                      <input type="text" class="form-control" name="nacionalidade" autocomplete="country-name">
+                    </div>
+
+                    <div class="col-md-6 mb-3">
                       <label class="form-label">Email</label>
                       <input type="email" id="profEmail" class="form-control" name="email" autocomplete="email">
                     </div>
 
-                    <div class="col-md-3 mb-3">
+                    <div class="col-md-6 mb-3">
                       <label class="form-label">Telefone</label>
                       <input type="tel" id="profTelefone" class="form-control" name="telefone" autocomplete="tel">
                     </div>
                   </div>
 
                   <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-6 mb-3" id="senhaGroup">
                       <label class="form-label">Senha Inicial</label>
                       <input type="password" id="profSenha" class="form-control" name="senha" autocomplete="new-password" required>
                     </div>
@@ -481,9 +458,11 @@
                       <label class="form-label">Grau Académico</label>
                       <select class="form-select" name="grau_academico" autocomplete="off">
                         <option value="">Selecione...</option>
-                        <option>Licenciatura</option>
-                        <option>Mestrado</option>
-                        <option>Doutoramento</option>
+                        <option value="LICENCIATURA">Licenciatura</option>
+                        <option value="MESTRADO">Mestrado</option>
+                        <option value="DOUTORAMENTO">Doutoramento</option>
+                        <option value="BACHARELATO">Bacharelato</option>
+                        <option value="OUTRO">Outro</option>
                       </select>
                     </div>
 
@@ -501,20 +480,16 @@
                   <!-- DISCIPLINAS -->
                   <div class="mb-3">
                     <label class="form-label">Disciplinas</label>
-                    <div class="border rounded p-3 d-grid gap-2" style="max-height:150px; overflow-y:auto;">
-                      <div class="form-check"><input class="form-check-input" type="checkbox" name="disciplinas" value="Matemática"> Matemática</div>
-                      <div class="form-check"><input class="form-check-input" type="checkbox" name="disciplinas" value="Português"> Português</div>
-                      <div class="form-check"><input class="form-check-input" type="checkbox" name="disciplinas" value="Física"> Física</div>
+                    <div id="disciplinasContainer" class="border rounded p-3 d-grid gap-2" style="max-height:150px; overflow-y:auto;">
+                      <div class="text-muted small">Carregando disciplinas...</div>
                     </div>
                   </div>
 
                   <!-- TURMAS -->
                   <div class="mb-3">
                     <label class="form-label">Turmas</label>
-                    <div class="border rounded p-3 d-grid gap-2" style="max-height:150px; overflow-y:auto;">
-                      <div class="form-check"><input class="form-check-input" type="checkbox" name="turmas" value="1"> Turma 1</div>
-                      <div class="form-check"><input class="form-check-input" type="checkbox" name="turmas" value="2"> Turma 2</div>
-                      <div class="form-check"><input class="form-check-input" type="checkbox" name="turmas" value="3"> Turma 3</div>
+                    <div id="turmasContainer" class="border rounded p-3 d-grid gap-2" style="max-height:150px; overflow-y:auto;">
+                      <div class="text-muted small">Carregando turmas...</div>
                     </div>
                   </div>
 
@@ -537,144 +512,164 @@
     </main>
   </div>
 
-  <!-- Bootstrap 5 JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Função para mostrar notificação
-      function showNotification(message, type = 'success') {
-        let container = document.querySelector('.toast-container');
-        if (!container) {
-          container = document.createElement('div');
-          container.className = 'toast-container position-fixed top-0 end-0 p-3';
-          container.style.zIndex = '1100';
-          document.body.appendChild(container);
-        }
-
-        const toastId = 'toast-' + Date.now();
-        const bgClass = {
-          'success': 'bg-success',
-          'danger': 'bg-danger',
-          'warning': 'bg-warning',
-          'info': 'bg-primary'
-        }[type] || 'bg-primary';
-
-        const toastHtml = `
-          <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert">
-            <div class="d-flex">
-              <div class="toast-body">${message}</div>
-              <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-            </div>
-          </div>
-        `;
-
-        container.insertAdjacentHTML('beforeend', toastHtml);
-        const toastElement = document.getElementById(toastId);
-        const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
-        toast.show();
-      }
-
-      // Ver detalhes do professor
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-view');
-        if (!btn) return;
-
-        const nome = btn.getAttribute('data-nome') || '';
-        const email = btn.getAttribute('data-email') || '';
-        const telefone = btn.getAttribute('data-telefone') || '';
-        const disciplinas = btn.getAttribute('data-disciplinas') || '';
-
-        document.getElementById('profDetailNome').textContent = nome;
-        document.getElementById('profDetailEmail').textContent = email;
-        document.getElementById('profDetailTelefone').textContent = telefone;
-        document.getElementById('profDetailDisciplinas').textContent = disciplinas;
-      });
-
-      // Deletar professor
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-delete');
-        if (!btn) return;
-
-        const nome = btn.getAttribute('data-nome');
-        const data = { acao: 'deletar', nome: nome };
-        setTimeout(() => {
-          console.log('[API] DELETE /api/professores', data);
-          showNotification(`Professor ${nome} eliminado com sucesso!`, 'success');
-        }, 1000);
-      });
-
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-edit');
-        if (!btn) return;
-        const nome = btn.getAttribute('data-nome') || '';
-        const email = btn.getAttribute('data-email') || '';
-        const telefone = btn.getAttribute('data-telefone') || '';
-        const disciplinas = (btn.getAttribute('data-disciplinas') || '').split(',').map(s => s.trim()).filter(Boolean);
-        const turmas = (btn.getAttribute('data-turmas') || '').split(',').map(s => s.trim()).filter(Boolean);
-
-        document.getElementById('profModalTitle').textContent = 'Editar Professor';
-        document.getElementById('profNome').value = nome;
-        document.getElementById('profEmail').value = email;
-        document.getElementById('profTelefone').value = telefone;
-
-        // set discipline checkboxes
-        document.querySelectorAll('input[name="disciplinas"]').forEach(cb => {
-          cb.checked = disciplinas.includes(cb.value);
-        });
-
-        // set turma checkboxes
-        document.querySelectorAll('input[name="turmas"]').forEach(cb => {
-          cb.checked = turmas.includes(cb.value);
-        });
-      });
-
-      // Reset modal when closed
-      const profModalEl = document.getElementById('profModal');
-      profModalEl.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('profModalTitle').textContent = 'Novo Professor';
-        document.getElementById('formProfessor').reset();
-      });
-
-      // Prevent default submit (user will hook to backend later)
-      document.getElementById('formProfessor').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const disciplinas = Array.from(document.querySelectorAll('input[name="disciplinas"]:checked')).map(i => i.value);
-        const turmas = Array.from(document.querySelectorAll('input[name="turmas"]:checked')).map(i => i.value);
-        const data = {
-          nome_completo: document.getElementById('profNome').value,
-          email: document.getElementById('profEmail').value,
-          telefone: document.getElementById('profTelefone').value,
-          senha: document.getElementById('profSenha').value,
-          disciplinas: disciplinas,
-          turmas: turmas
-        };
-        setTimeout(() => {
-          console.log('[API] POST/PUT /api/professores', data);
-          showNotification('Professor guardado com sucesso!', 'success');
-          // close modal
-          bootstrap.Modal.getInstance(profModalEl).hide();
-        }, 1000);
-      });
-
-    });
-  </script>
 
   <!-- API Scripts -->
   <script src="../../js/api-service.js"></script>
   <script src="../../js/auth-helper.js"></script>
   <script src="../../js/data-loader.js"></script>
 
-  <!-- Global JS -->
-  <script src="../../js/global.js"></script>
-  <script src="../../js/sidebar.js"></script>
-
   <script>
     // Proteger página para ADMIN
     AuthHelper.checkRole(['ADMIN']);
 
     let professoresData = [];
+    let disciplinasData = [];
+    let turmasData = [];
+
+    // =========== CARREGAR E RENDERIZAR DISCIPLINAS ===========
+    async function loadDisciplinas() {
+      try {
+        disciplinasData = await api.getDisciplinas();
+        renderDisciplinasCheckboxes();
+      } catch (error) {
+        console.error('Erro ao carregar disciplinas:', error);
+        const container = document.getElementById('disciplinasContainer');
+        container.innerHTML = '<div class="text-danger small">Erro ao carregar disciplinas</div>';
+      }
+    }
+
+    function renderDisciplinasCheckboxes(selectedIds = []) {
+      const container = document.getElementById('disciplinasContainer');
+      container.innerHTML = '';
+
+      if (!disciplinasData || disciplinasData.length === 0) {
+        container.innerHTML = '<div class="text-muted small">Nenhuma disciplina cadastrada</div>';
+        return;
+      }
+
+      disciplinasData.forEach(disciplina => {
+        const isChecked = selectedIds.includes(disciplina.id_disc) ? 'checked' : '';
+        const div = document.createElement('div');
+        div.className = 'form-check';
+        div.innerHTML = `<input class="form-check-input" type="checkbox" name="disciplinas" value="${disciplina.id_disc}" ${isChecked}> ${disciplina.sigla_disc || 'N/A'}`;
+        container.appendChild(div);
+      });
+    }
+
+    // =========== CARREGAR E RENDERIZAR TURMAS ===========
+    async function loadTurmas() {
+      try {
+        turmasData = await api.getTurmas();
+        renderTurmasCheckboxes();
+      } catch (error) {
+        console.error('Erro ao carregar turmas:', error);
+        const container = document.getElementById('turmasContainer');
+        container.innerHTML = '<div class="text-danger small">Erro ao carregar turmas</div>';
+      }
+    }
+
+    function renderTurmasCheckboxes(selectedIds = []) {
+      const container = document.getElementById('turmasContainer');
+      container.innerHTML = '';
+
+      if (!turmasData || turmasData.length === 0) {
+        container.innerHTML = '<div class="text-muted small">Nenhuma turma cadastrada</div>';
+        return;
+      }
+
+      turmasData.forEach(turma => {
+        const isChecked = selectedIds.includes(turma.id_turma) ? 'checked' : '';
+        const div = document.createElement('div');
+        div.className = 'form-check';
+        div.innerHTML = `<input class="form-check-input" type="checkbox" name="turmas" value="${turma.id_turma}" ${isChecked}> ${turma.sigla_turma || 'Turma'} - ${turma.classe_turma || ''}`;
+        container.appendChild(div);
+      });
+    }
+
+    // =========== VALIDAÇÃO ===========
+    function validateForm() {
+      let isValid = true;
+      
+      // Limpar mensagens de erro anteriores
+      document.querySelectorAll('[id*="Error"]').forEach(el => el.textContent = '');
+      
+      // Nome obrigatório
+      const profNome = document.getElementById('profNome').value.trim();
+      if (!profNome) {
+        DataLoader.showError('Nome é obrigatório');
+        isValid = false;
+      }
+      
+      // Email obrigatório
+      const profEmail = document.getElementById('profEmail').value.trim();
+      if (!profEmail) {
+        DataLoader.showError('Email é obrigatório');
+        isValid = false;
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profEmail)) {
+        DataLoader.showError('Email inválido');
+        isValid = false;
+      }
+      
+      // Telefone obrigatório
+      const profTelefone = document.getElementById('profTelefone').value.trim();
+      if (!profTelefone) {
+        DataLoader.showError('Telefone é obrigatório');
+        isValid = false;
+      }
+      
+      // Numero de BI obrigatório
+      const biNum = document.querySelector('input[name="documento_numero"]').value.trim();
+      if (!biNum) {
+        DataLoader.showError('Número de BI é obrigatório');
+        isValid = false;
+      }
+      
+      // Data de nascimento obrigatória
+      const dataNasc = document.querySelector('input[name="data_nascimento"]').value;
+      if (!dataNasc) {
+        DataLoader.showError('Data de nascimento é obrigatória');
+        isValid = false;
+      }
+      
+      // Data de emissão do BI obrigatória
+      const dataEmissao = document.querySelector('input[name="documento_emissao"]').value;
+      if (!dataEmissao) {
+        DataLoader.showError('Data de emissão do BI é obrigatória');
+        isValid = false;
+      }
+      
+      // Naturalidade obrigatória
+      const cidade = document.querySelector('input[name="cidade"]').value.trim();
+      if (!cidade) {
+        DataLoader.showError('Naturalidade é obrigatória');
+        isValid = false;
+      }
+      
+      // Endereço obrigatório (rua)
+      const rua = document.querySelector('input[name="rua"]').value.trim();
+      if (!rua) {
+        DataLoader.showError('Rua é obrigatória');
+        isValid = false;
+      }
+      
+      // Senha obrigatória apenas para novo professor
+      const profId = document.getElementById('profModalForm').getAttribute('data-id');
+      if (!profId) {
+        const profSenha = document.getElementById('profSenha').value.trim();
+        if (!profSenha) {
+          DataLoader.showError('Senha é obrigatória para novo professor');
+          isValid = false;
+        } else if (profSenha.length < 6) {
+          DataLoader.showError('Senha deve ter pelo menos 6 caracteres');
+          isValid = false;
+        }
+      }
+      
+      return isValid;
+    }
 
     // Carregar professores da API
     async function loadProfessores() {
@@ -746,36 +741,136 @@
     // Ver detalhes do professor
     function viewProfessor(id) {
       const prof = professoresData.find(p => p.id_prof == id);
-      if (prof) {
-        alert(`Professor: ${prof.nome_prof}\nEmail: ${prof.usuario?.email}\nTelefone: ${prof.telefone_prof}\nFormação: ${prof.area_formacao_prof}`);
+      if (!prof) {
+        DataLoader.showError('Professor não encontrado');
+        return;
       }
+
+      document.getElementById('profDetailNome').textContent = prof.nome_prof || '-';
+      document.getElementById('profDetailEmail').textContent = prof.usuario?.email || prof.email_prof || '-';
+      document.getElementById('profDetailTelefone').textContent = prof.telefone_prof || '-';
+      document.getElementById('profDetailFormacao').textContent = prof.area_formacao_prof || '-';
+      
+      const statusBadge = prof.status === 'ATIVO' ? '<span class="badge bg-success">Ativo</span>' : '<span class="badge bg-danger">Inativo</span>';
+      document.getElementById('profDetailStatus').innerHTML = statusBadge;
+
+      const modal = new bootstrap.Modal(document.getElementById('profDetailsModal'));
+      modal.show();
     }
 
     // Editar professor
     function editProfessor(id) {
       const prof = professoresData.find(p => p.id_prof == id);
-      if (prof) {
-        document.getElementById('profModalTitle').textContent = 'Editar Professor';
-        document.getElementById('profNome').value = prof.nome_prof || '';
-        document.getElementById('profEmail').value = prof.usuario?.email || '';
-        document.getElementById('profTelefone').value = prof.telefone_prof || '';
-        document.getElementById('profModalForm').setAttribute('data-id', id);
-        
-        const modal = new bootstrap.Modal(document.getElementById('profModal'));
-        modal.show();
+      if (!prof) {
+        DataLoader.showError('Professor não encontrado');
+        return;
       }
+
+      document.getElementById('profModalTitle').textContent = 'Editar Professor';
+      
+      // Preencher campos obrigatórios com proteção
+      const profNomeEl = document.getElementById('profNome');
+      const profEmailEl = document.getElementById('profEmail');
+      const profTelefoneEl = document.getElementById('profTelefone');
+      const profFormacaoEl = document.getElementById('profFormacao');
+      const profStatusEl = document.getElementById('profStatus');
+
+      if (profNomeEl) profNomeEl.value = prof.nome_prof || '';
+      if (profEmailEl) profEmailEl.value = prof.email_prof || prof.usuario?.email || '';
+      if (profTelefoneEl) profTelefoneEl.value = prof.telefone_prof || '';
+      if (profFormacaoEl) profFormacaoEl.value = prof.area_formacao_prof || '';
+      if (profStatusEl) profStatusEl.value = prof.status || 'ATIVO';
+      
+      // Preencher campos opcionais com proteção
+      const filiacaoEl = document.querySelector('input[name="filiacao"]');
+      if (filiacaoEl) filiacaoEl.value = prof.filiacao_prof || '';
+      
+      const dataNascEl = document.querySelector('input[name="data_nascimento"]');
+      if (dataNascEl && prof.data_nascimento_prof) {
+        const date = new Date(prof.data_nascimento_prof);
+        dataNascEl.value = date.toISOString().split('T')[0];
+      }
+      
+      const nacionalidadeEl = document.querySelector('input[name="nacionalidade"]');
+      if (nacionalidadeEl) nacionalidadeEl.value = prof.nacionalidade_prof || '';
+      
+      const biNumEl = document.querySelector('input[name="documento_numero"]');
+      if (biNumEl) biNumEl.value = prof.numero_bi_prof || '';
+      
+      const dataEmissaoEl = document.querySelector('input[name="documento_emissao"]');
+      if (dataEmissaoEl && prof.data_emissao_bi_prof) {
+        const date = new Date(prof.data_emissao_bi_prof);
+        dataEmissaoEl.value = date.toISOString().split('T')[0];
+      }
+      
+      const grauEl = document.querySelector('select[name="grau_academico"]');
+      if (grauEl) grauEl.value = prof.nivel_academico || 'LICENCIATURA';
+      
+      const anoConclusaoEl = document.querySelector('input[name="ano_conclusao"]');
+      if (anoConclusaoEl) anoConclusaoEl.value = prof.ano_conclusao_formacao || '';
+      
+      // Preencher endereço
+      const endereco = prof.endereco_fisico_prof || '';
+      const parts = endereco.split(',').map(p => p.trim());
+      
+      const ruaEl = document.querySelector('input[name="rua"]');
+      if (ruaEl) ruaEl.value = parts[0] || '';
+      
+      const bairroEl = document.querySelector('input[name="bairro"]');
+      if (bairroEl) bairroEl.value = parts[1] || '';
+      
+      const cidadeEl = document.querySelector('input[name="cidade"]');
+      if (cidadeEl) cidadeEl.value = prof.naturalidade_prof || '';
+      
+      const provinciaEl = document.querySelector('input[name="provincia"]');
+      if (provinciaEl) provinciaEl.value = parts[2] || '';
+
+      // Carregar e marcar disciplinas
+      Promise.all([loadDisciplinas(), loadTurmas()]).then(() => {
+        // Desmarcar todas as checkboxes
+        document.querySelectorAll('input[name="disciplinas"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[name="turmas"]').forEach(cb => cb.checked = false);
+
+        // Marcar disciplinas do professor
+        if (prof.disciplinas && Array.isArray(prof.disciplinas)) {
+          prof.disciplinas.forEach(disc => {
+            const checkbox = document.querySelector(`input[name="disciplinas"][value="${disc.disciplina_id}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        }
+
+        // Marcar turmas do professor
+        if (prof.turmas && Array.isArray(prof.turmas)) {
+          prof.turmas.forEach(turma => {
+            const checkbox = document.querySelector(`input[name="turmas"][value="${turma.turma_id}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        }
+      });
+      
+      document.getElementById('profModalForm').setAttribute('data-id', id);
+      
+      // Esconder campo de senha ao editar
+      const senhaGroupEl = document.getElementById('senhaGroup');
+      if (senhaGroupEl) senhaGroupEl.style.display = 'none';
+      
+      const modal = new bootstrap.Modal(document.getElementById('profModal'));
+      modal.show();
     }
 
-    // Deletar professor
+    // =========== DELETAR ===========
     async function deleteProfessor(id) {
-      if (confirm('Tem certeza que quer deletar este professor?')) {
-        try {
-          await api.deleteProfessor(id);
-          DataLoader.showSuccess('Professor deletado com sucesso!');
-          loadProfessores(); // Recarregar lista
-        } catch (error) {
-          DataLoader.showError('Erro ao deletar professor: ' + error.message);
-        }
+      if (!confirm('Tem certeza que quer deletar este professor?')) return;
+
+      try {
+        DataLoader.showLoading('Deletando professor...');
+        await api.deleteProfessor(id);
+        DataLoader.hideLoading();
+        DataLoader.showSuccess('Professor deletado com sucesso!');
+        loadProfessores();
+      } catch (error) {
+        DataLoader.hideLoading();
+        DataLoader.showError('Erro ao deletar professor: ' + error.message);
       }
     }
 
@@ -798,45 +893,94 @@
       renderProfessoresTable(filtered);
     });
 
-    // Criar novo professor
+    // =========== FORMULÁRIO SUBMIT ===========
     document.getElementById('formProfessor').addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const id = document.getElementById('profModalForm').getAttribute('data-id');
+      // Validação
+      if (!validateForm()) {
+        return;
+      }
+
+      const profId = document.getElementById('profModalForm').getAttribute('data-id');
+      
+      // Capturar TODOS os campos do formulário
+      const nivelAcademico = document.querySelector('select[name="grau_academico"]')?.value?.trim();
       const data = {
-        nome_prof: document.getElementById('profNome').value,
-        email: document.getElementById('profEmail').value,
-        telefone_prof: document.getElementById('profTelefone').value,
-        area_formacao_prof: document.getElementById('profFormacao')?.value || 'Geral'
+        nome_prof: document.getElementById('profNome')?.value.trim(),
+        email_prof: document.getElementById('profEmail')?.value.trim(),
+        telefone_prof: document.getElementById('profTelefone')?.value.trim(),
+        area_formacao_prof: document.getElementById('profFormacao')?.value?.trim() || 'Geral',
+        status: document.getElementById('profStatus')?.value || 'ATIVO',
+        filiacao_prof: document.querySelector('input[name="filiacao"]')?.value?.trim(),
+        data_nascimento_prof: document.querySelector('input[name="data_nascimento"]')?.value,
+        nacionalidade_prof: document.querySelector('input[name="nacionalidade"]')?.value?.trim(),
+        numero_bi_prof: document.querySelector('input[name="documento_numero"]')?.value?.trim(),
+        data_emissao_bi_prof: document.querySelector('input[name="documento_emissao"]')?.value,
+        naturalidade_prof: document.querySelector('input[name="cidade"]')?.value?.trim() || 'Angola',
+        nivel_academico: nivelAcademico || 'LICENCIATURA',
+        ano_conclusao_formacao: parseInt(document.querySelector('input[name="ano_conclusao"]')?.value) || null,
+        endereco_fisico_prof: [
+          document.querySelector('input[name="rua"]')?.value?.trim() || '',
+          document.querySelector('input[name="bairro"]')?.value?.trim() || '',
+          document.querySelector('input[name="provincia"]')?.value?.trim() || ''
+        ].filter(x => x).join(', ') || 'Não especificado'
       };
 
+      // Capturar disciplinas selecionadas e converter para números
+      const disciplinasSelecionadas = Array.from(document.querySelectorAll('input[name="disciplinas"]:checked')).map(cb => Number(cb.value));
+      if (disciplinasSelecionadas.length > 0) {
+        data.disciplinas = disciplinasSelecionadas;
+      }
+
+      // Capturar turmas selecionadas e converter para números
+      const turmasSelecionadas = Array.from(document.querySelectorAll('input[name="turmas"]:checked')).map(cb => Number(cb.value));
+      if (turmasSelecionadas.length > 0) {
+        data.turmas = turmasSelecionadas;
+      }
+
+      // Se for novo professor, adicionar email e password para criar usuário
+      if (!profId) {
+        data.email = document.getElementById('profEmail').value.trim();
+        data.password = document.getElementById('profSenha').value;
+        data.user_name = document.getElementById('profNome').value.trim();
+      }
+
       try {
-        if (id) {
-          // Editar
-          await api.updateProfessor(id, data);
-          DataLoader.showSuccess('Professor atualizado com sucesso!');
+        DataLoader.showLoading(profId ? 'Atualizando professor...' : 'Criando professor...');
+        
+        if (profId) {
+          await api.updateProfessor(profId, data);
         } else {
-          // Criar
           await api.createProfessor(data);
-          DataLoader.showSuccess('Professor criado com sucesso!');
         }
+
+        DataLoader.hideLoading();
+        const msg = profId ? 'Professor atualizado com sucesso!' : 'Professor criado com sucesso!';
+        DataLoader.showSuccess(msg);
 
         bootstrap.Modal.getInstance(document.getElementById('profModal')).hide();
         document.getElementById('profModalForm').removeAttribute('data-id');
         document.getElementById('formProfessor').reset();
         document.getElementById('profModalTitle').textContent = 'Novo Professor';
+        const senhaGroupResetEl = document.getElementById('senhaGroup');
+        if (senhaGroupResetEl) senhaGroupResetEl.style.display = 'block';
         
-        loadProfessores(); // Recarregar lista
+        loadProfessores();
       } catch (error) {
+        DataLoader.hideLoading();
         DataLoader.showError('Erro ao guardar professor: ' + error.message);
       }
     });
 
-    // Reset modal
+    // =========== RESET MODAL ===========
     document.getElementById('profModal').addEventListener('hidden.bs.modal', function() {
       document.getElementById('profModalTitle').textContent = 'Novo Professor';
       document.getElementById('formProfessor').reset();
       document.getElementById('profModalForm').removeAttribute('data-id');
+      const senhaGroupCloseEl = document.getElementById('senhaGroup');
+      if (senhaGroupCloseEl) senhaGroupCloseEl.style.display = 'block';
+      document.querySelectorAll('[id*="Error"]').forEach(el => el.textContent = '');
     });
 
     // Logout
@@ -850,6 +994,14 @@
     // Carregar dados iniciais
     document.addEventListener('DOMContentLoaded', function() {
       loadProfessores();
+      loadDisciplinas();
+      loadTurmas();
+
+      // Carregar disciplinas e turmas quando o modal abrir
+      document.getElementById('profModal').addEventListener('show.bs.modal', function() {
+        loadDisciplinas();
+        loadTurmas();
+      });
 
       // Update header com dados do usuário
       const headerUserName = document.querySelector('.header-user-name');
