@@ -135,9 +135,12 @@ class APIService {
     if (response.access_token) {
       this.setToken(response.access_token);
       // Armazenar dados do utilizador
-      if (response.perfil) {
-        localStorage.setItem('userRole', response.perfil); // perfil: ADMIN, PROFESSOR, ALUNO, etc
+      if (response) {
+        if (response.id_usuario) localStorage.setItem('userId', response.id_usuario);
+        if (response.id) localStorage.setItem('userId', response.id);
+        localStorage.setItem('userRole', response.perfil || 'ADMIN');
         localStorage.setItem('userName', response.user_name || 'Utilizador');
+        localStorage.setItem('userEmail', response.email || '');
       }
     }
 

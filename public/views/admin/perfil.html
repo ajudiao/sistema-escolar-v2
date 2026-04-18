@@ -351,8 +351,8 @@
                   </button>
                   <input type="file" id="photoInput" accept="image/*" style="display: none;">
                 </div>
-                <h3 class="profile-name">Administrador Geral</h3>
-                <p class="profile-role mb-0">Administração do Sistema</p>
+                <h3 id="profileName" class="profile-name">Administrador Geral</h3>
+                <p id="profileRole" class="profile-role mb-0">Administração do Sistema</p>
               </div>
               <div class="profile-body">
                 <div class="profile-info-group">
@@ -390,15 +390,11 @@
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Email Institucional</label>
-                      <input type="email" id="perfilEmail" class="form-control" value="admin@escola.med.ao" autocomplete="email">
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Telefone</label>
-                      <input type="tel" id="perfilTelefone" class="form-control" value="+244 923 000 001" autocomplete="tel">
+                      <input type="email" id="perfilEmail" class="form-control" autocomplete="email">
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Cargo</label>
-                      <input type="text" id="perfilCargo" class="form-control" value="Administrador do Sistema" readonly autocomplete="organization-title">
+                      <input type="text" id="perfilCargo" class="form-control" readonly autocomplete="organization-title">
                     </div>
                   </div>
 
@@ -479,9 +475,71 @@
   <!-- Global JS -->
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
 
   <script>
+    let usuarioData = {};
+
+    // Carregar dados do utilizador
+    async function carregarPerfil() {
+      try {
+        // Obter dados do localStorage
+        let userId = localStorage.getItem('userId');
+        const userName = localStorage.getItem('userName');
+        const userRole = localStorage.getItem('userRole');
+
+        // Se não tem userId, não podemos carregar pelo ID
+        if (!userId) {
+          console.warn('userId não encontrado no localStorage');
+          usuarioData = {
+            user_name: userName,
+            perfil: userRole,
+            email: localStorage.getItem('userEmail') || '',
+            status: 'ATIVO'
+          };
+        } else {
+          // Carregar dados completos da API
+          try {
+            usuarioData = await api.getUsuario(userId);
+          } catch (error) {
+            console.warn('Não conseguiu carregar dados completos, usando dados do localStorage');
+            usuarioData = {
+              id_usuario: userId,
+              user_name: userName,
+              perfil: userRole,
+              email: localStorage.getItem('userEmail') || '',
+              status: 'ATIVO'
+            };
+          }
+        }
+
+        // Preencher formulário
+        document.getElementById('perfilNome').value = usuarioData.user_name || 'Utilizador';
+        document.getElementById('perfilEmail').value = usuarioData.email || '';
+        document.getElementById('perfilCargo').value = AuthHelper.translateRole(usuarioData.perfil || 'ADMIN') || 'Administrador';
+        
+        // Atualizar foto de perfil (iniciais)
+        const initials = (usuarioData.user_name || 'AD').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        document.getElementById('profileInitials').textContent = initials;
+        document.getElementById('profileName').textContent = usuarioData.user_name || 'Utilizador';
+        document.getElementById('profileRole').textContent = AuthHelper.translateRole(usuarioData.perfil || 'ADMIN');
+
+        // Atualizar header
+        document.querySelector('.header-user-avatar').textContent = initials;
+        document.querySelector('.header-user-name').textContent = usuarioData.user_name || 'Utilizador';
+        document.querySelector('.header-user-role').textContent = AuthHelper.translateRole(usuarioData.perfil || 'ADMIN');
+
+      } catch (error) {
+        console.error('Erro ao carregar perfil:', error);
+        DataLoader.showError('Erro ao carregar informações do perfil');
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+      carregarPerfil();
+
       // Validação em tempo real para senhas
       const senhaNovaInput = document.getElementById('perfilSenhaNova');
       const senhaConfirmarInput = document.getElementById('perfilSenhaConfirmar');
@@ -607,92 +665,88 @@
         }
       });
 
-      // Formulário de perfil (mantido da versão anterior)
-      document.getElementById('formPerfil').addEventListener('submit', function (e) {
+      // Formulário de perfil com integração API
+      document.getElementById('formPerfil').addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        const nome = document.getElementById('perfilNome').value;
         const email = document.getElementById('perfilEmail').value;
-        const telefone = document.getElementById('perfilTelefone').value;
-        const cargo = document.getElementById('perfilCargo').value;
         const senhaAtual = document.getElementById('perfilSenhaAtual').value;
         const senhaNova = document.getElementById('perfilSenhaNova').value;
         const senhaConfirmar = document.getElementById('perfilSenhaConfirmar').value;
 
         // Validações
-        if (!email || !telefone) {
-          showFlashMessage('Por favor, preencha todos os campos obrigatórios.', 'danger');
+        if (!email) {
+          DataLoader.showError('Por favor, preencha o email.');
           return;
         }
 
         // Validação de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-          showFlashMessage('Por favor, insira um email válido.', 'danger');
+          DataLoader.showError('Por favor, insira um email válido.');
           return;
         }
 
         // Validação de senha se campos foram preenchidos
         if (senhaAtual || senhaNova || senhaConfirmar) {
           if (!senhaAtual) {
-            showFlashMessage('Por favor, insira a palavra-passe atual.', 'danger');
+            DataLoader.showError('Por favor, insira a palavra-passe atual.');
             return;
           }
           
           if (!senhaNova) {
-            showFlashMessage('Por favor, insira a nova palavra-passe.', 'danger');
+            DataLoader.showError('Por favor, insira a nova palavra-passe.');
             return;
           }
           
           if (senhaNova.length < 6) {
-            showFlashMessage('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'danger');
+            DataLoader.showError('A nova palavra-passe deve ter pelo menos 6 caracteres.');
             return;
           }
           
           if (senhaNova !== senhaConfirmar) {
-            showFlashMessage('A confirmação da palavra-passe não coincide.', 'danger');
-            return;
-          }
-
-          // Simulação de validação da senha atual
-          if (senhaAtual !== 'admin123') {
-            showFlashMessage('Palavra-passe atual incorrecta.', 'danger');
+            DataLoader.showError('A confirmação da palavra-passe não coincide.');
             return;
           }
         }
 
-        const data = {
-          nome: nome,
-          email: email,
-          telefone: telefone,
-          cargo: cargo,
-          senha_atual: senhaAtual,
-          senha_nova: senhaNova,
-          senha_confirmar: senhaConfirmar
-        };
-
-        // Simulação de loading
         const submitBtn = document.querySelector('#formPerfil button[type="submit"]');
-        const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Guardando...';
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"><span class="visually-hidden">...</span></span>Guardando...';
 
-        setTimeout(() => {
-          console.log('[API] PUT /api/perfil', data);
+        try {
+          const userId = localStorage.getItem('userId');
           
-          // Reset form se senha foi alterada
-          if (senhaNova) {
-            document.getElementById('perfilSenhaAtual').value = '';
-            document.getElementById('perfilSenhaNova').value = '';
-            document.getElementById('perfilSenhaConfirmar').value = '';
+          if (!userId) {
+            DataLoader.showError('Cão conseguido identificar o utilizador. Por favor, faça login novamente.');
+            setTimeout(() => window.location.href = '/index.html', 2000);
+            return;
           }
+
+          const data = {
+            email: email
+          };
+
+          if (senhaNova) {
+            data.password = senhaNova;
+          }
+
+          await api.put(`/usuarios/${userId}`, data);
+          DataLoader.showSuccess('Alterações guardadas com sucesso!');
           
-          // Reset button
+          // Limpar campos de senha
+          document.getElementById('perfilSenhaAtual').value = '';
+          document.getElementById('perfilSenhaNova').value = '';
+          document.getElementById('perfilSenhaConfirmar').value = '';
+          document.getElementById('senhaForca').classList.add('d-none');
+        } catch (error) {
+          console.error('Erro ao atualizar perfil:', error);
+          DataLoader.showError('Erro ao guardar alterações');
+        } finally {
           submitBtn.disabled = false;
-          submitBtn.textContent = originalText;
-          
-          showFlashMessage('Alterações guardadas com sucesso!');
-        }, 2000);
+          submitBtn.innerHTML = originalText;
+        }
       });
     });
   </script>
