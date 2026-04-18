@@ -68,6 +68,14 @@
               <span class="nav-link-text">Faltas</span>
             </a>
           </div>
+          <div class="nav-item">
+            <a href="disciplinas.html" class="nav-link" data-title="Minhas Disciplinas">
+              <span class="nav-link-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              </span>
+              <span class="nav-link-text">Minhas Disciplinas</span>
+            </a>
+          </div>
         </div>
         
         <div class="nav-group">
@@ -149,19 +157,13 @@
           <div class="card mb-4">
             <div class="card-body">
               <div class="row g-3 align-items-end">
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label class="form-label">Data</label>
                   <input type="date" class="form-control" id="dataFalta">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                   <label class="form-label">Turma</label>
                   <select class="form-control form-select" id="selectTurma">
-                    <option value="">Selecione...</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label class="form-label">Disciplina</label>
-                  <select class="form-control form-select" id="selectDisciplina">
                     <option value="">Selecione...</option>
                   </select>
                 </div>
@@ -340,43 +342,7 @@
           return;
         }
         
-        // 5. Populate disciplinas dropdown
-        const selectDisciplina = document.getElementById('selectDisciplina');
-        const todasAsDisciplinas = professor.disciplinas || [];
-        console.log('[Faltas] Disciplinas do professor:', todasAsDisciplinas);
-        console.log('[Faltas] Quantidade de disciplinas:', todasAsDisciplinas.length);
-        
-        if (todasAsDisciplinas.length > 0) {
-          todasAsDisciplinas.forEach((item, idx) => {
-            console.log(`[Faltas] Processando disciplina ${idx}:`, item);
-            
-            // The structure is: { disciplina: {...}, professor_id, disciplina_id } or just { id_disc, ... }
-            let disciplina = null;
-            
-            if (item && item.disciplina && item.disciplina.id_disc) {
-              disciplina = item.disciplina;
-              console.log('[Faltas] Disciplina encontrada em item.disciplina');
-            } else if (item && item.id_disc) {
-              disciplina = item;
-              console.log('[Faltas] Disciplina é o item direto');
-            }
-            
-            if (!disciplina) {
-              console.warn('[Faltas] Disciplina inválida, pulando:', item);
-              return;
-            }
-            
-            const option = document.createElement('option');
-            option.value = disciplina.id_disc;
-            option.textContent = disciplina.descricao_disc || disciplina.sigla_disc || `Disciplina ${disciplina.id_disc}`;
-            selectDisciplina.appendChild(option);
-            console.log('[Faltas] Disciplina adicionada:', option.textContent);
-          });
-        } else {
-          console.warn('[Faltas] AVISO: Nenhuma disciplina encontrada para o professor');
-        }
-        
-        // 6. Show content, hide spinner
+        // 5. Show content, hide spinner
         console.log('%c[Faltas] CARREGAMENTO COMPLETO COM SUCESSO', 'color: green; font-weight: bold; font-size: 12px');
         spinner.style.display = 'none';
         content.style.display = 'block';
@@ -485,15 +451,14 @@
       btnCarregar.addEventListener('click', async function() {
         const data = document.getElementById('dataFalta').value;
         const turmaId = document.getElementById('selectTurma').value;
-        const disciplinaId = document.getElementById('selectDisciplina').value;
         
         console.log('%c[Faltas] BOTÃO CARREGAR CLICADO', 'color: blue; font-weight: bold; font-size: 12px');
-        console.log('[Faltas] Data:', data, '| TurmaId:', turmaId, '| DisciplinaId:', disciplinaId);
+        console.log('[Faltas] Data:', data, '| TurmaId:', turmaId);
         
-        if (!data || !turmaId || !disciplinaId) {
+        if (!data || !turmaId) {
           console.warn('[Faltas] Validação falhou - campos vazios');
-          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data, turma e disciplina.', 'warning');
-          else alert('Selecione data, turma e disciplina.');
+          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data e turma.', 'warning');
+          else alert('Selecione data e turma.');
           return;
         }
         
@@ -563,10 +528,9 @@
       selectTurma.addEventListener('change', async function() {
         const turmaId = this.value;
         const data = document.getElementById('dataFalta').value;
-        const disciplinaId = document.getElementById('selectDisciplina').value;
         
         console.log('%c[Faltas] TURMA SELECIONADA', 'color: purple; font-weight: bold; font-size: 12px');
-        console.log('[Faltas] TurmaId:', turmaId, '| Data:', data, '| DisciplinaId:', disciplinaId);
+        console.log('[Faltas] TurmaId:', turmaId, '| Data:', data);
         
         if (!turmaId) {
           console.warn('[Faltas] Turma inválida, pulando carregamento');
@@ -620,11 +584,10 @@
       btnGuardar.addEventListener('click', async function() {
         const data = document.getElementById('dataFalta').value;
         const turmaId = document.getElementById('selectTurma').value;
-        const disciplinaId = document.getElementById('selectDisciplina').value;
 
-        if (!data || !turmaId || !disciplinaId) {
-          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data, turma e disciplina.', 'warning');
-          else alert('Selecione data, turma e disciplina.');
+        if (!data || !turmaId) {
+          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data e turma.', 'warning');
+          else alert('Selecione data e turma.');
           return;
         }
 
@@ -639,7 +602,6 @@
           if (status !== 'presente' && estudanteId) {
             return {
               estudante_id: parseInt(estudanteId),
-              disciplina_id: parseInt(disciplinaId),
               turma_id: parseInt(turmaId),
               data_falta: data,
               tipo_falta: 'INJUSTIFICADA', // default
