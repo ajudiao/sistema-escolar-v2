@@ -223,6 +223,7 @@
               <span class="header-user-role">Administração</span>
             </div>
           </div>
+          <a href="#" data-logout class="btn btn-sm btn-outline-danger ms-3">Sair</a>
         </div>
       </header>
 
@@ -244,20 +245,12 @@
                 <input id="filterUsuarioSearch" type="text" class="form-control" placeholder="Nome, email...">
               </div>
               <div class="col-md-3">
-                <label class="form-label">Perfil</label>
-                <select id="filterUsuarioPerfil" class="form-control form-select">
-                  <option value="">Todos</option>
-                  <option value="admin">Administrador</option>
-                  <option value="secretario">Secretário</option>
-                  <option value="outro">Outro</option>
-                </select>
-              </div>
-              <div class="col-md-3">
                 <label class="form-label">Estado</label>
                 <select id="filterUsuarioEstado" class="form-control form-select">
                   <option value="">Todos</option>
-                  <option value="ativo">Ativo</option>
-                  <option value="inativo">Inativo</option>
+                  <option value="ATIVO">Ativo</option>
+                  <option value="INATIVO">Inativo</option>
+                  <option value="SUSPENSO">Suspenso</option>
                 </select>
               </div>
               <div class="col-md-2">
@@ -277,33 +270,10 @@
                     <th>Email</th>
                     <th>Perfil</th>
                     <th>Estado</th>
-                    <th>Último Acesso</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>Administrador Geral</td>
-                    <td>admin@escola.med.ao</td>
-                    <td><span class="badge bg-primary">Administrador</span></td>
-                    <td><span class="badge bg-success">Ativo</span></td>
-                    <td>Hoje, 08:45</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-nome="Administrador Geral" data-email="admin@escola.med.ao" data-perfil="admin" data-estado="ativo">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete" data-nome="Administrador Geral">Eliminar</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Maria Silva</td>
-                    <td>maria.silva@escola.med.ao</td>
-                    <td><span class="badge bg-info">Secretário</span></td>
-                    <td><span class="badge bg-success">Ativo</span></td>
-                    <td>Ontem, 16:30</td>
-                    <td>
-                      <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-nome="Maria Silva" data-email="maria.silva@escola.med.ao" data-perfil="secretario" data-estado="ativo">Editar</button>
-                      <button class="btn btn-sm btn-outline-danger btn-delete" data-nome="Maria Silva">Eliminar</button>
-                    </td>
-                  </tr>
                 </tbody>
               </table>
             </div>
@@ -322,39 +292,32 @@
                 <input type="hidden" id="usuarioId">
                 <div class="modal-body">
                   <div class="row g-3">
-                    <div class="col-md-6">
-                      <label class="form-label">Nome Completo</label>
-                      <input type="text" id="usuarioNome" class="form-control" name="nome_completo" required>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Email</label>
-                      <input type="email" id="usuarioEmail" class="form-control" name="email" required>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Telefone</label>
-                      <input type="tel" id="usuarioTelefone" class="form-control" name="telefone">
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Perfil</label>
-                      <select id="usuarioPerfil" class="form-control form-select" name="perfil" required>
-                        <option value="">Selecione...</option>
-                        <option value="admin">Administrador</option>
-                        <option value="secretario">Secretário</option>
-                        <option value="outro">Outro</option>
-                      </select>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Senha Inicial</label>
-                      <input type="password" id="usuarioSenha" class="form-control" name="senha" autocomplete="new-password" required>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Estado</label>
-                      <select id="usuarioEstado" class="form-control form-select" name="estado" required>
-                        <option value="ativo">Ativo</option>
-                        <option value="inativo">Inativo</option>
-                      </select>
-                    </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Nome de Usuário</label>
+                    <input type="text" id="usuarioNome" class="form-control" name="user_name" required>
                   </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="usuarioEmail" class="form-control" name="email" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Perfil</label>
+                    <input type="text" class="form-control" value="Administrador" disabled>
+                    <small class="text-muted">Todos os usuários criados são Administradores</small>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Senha</label>
+                    <input type="password" id="usuarioSenha" class="form-control" name="password" autocomplete="new-password" required>
+                  </div>
+                  <div class="col-md-12 d-none" id="usuarioEstadoSection">
+                    <label class="form-label">Estado</label>
+                    <select id="usuarioEstado" class="form-control form-select" required>
+                      <option value="ATIVO">Ativo</option>
+                      <option value="INATIVO">Inativo</option>
+                      <option value="SUSPENSO">Suspenso</option>
+                    </select>
+                  </div>
+              </div>
                 </div>
                 <div class="modal-footer">
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -371,113 +334,279 @@
     </main>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Edit usuario
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-edit');
-        if (!btn) return;
+    let usuariosData = [];
 
-        const nome = btn.getAttribute('data-nome');
-        const email = btn.getAttribute('data-email');
-        const perfil = btn.getAttribute('data-perfil');
-        const estado = btn.getAttribute('data-estado');
+    // Carregar usuários da API
+    async function loadUsuarios() {
+      try {
+        DataLoader.showLoading('Carregando usuários...');
+        usuariosData = await api.getUsuarios();
+        DataLoader.hideLoading();
+        renderUsuariosTable(usuariosData);
+      } catch (error) {
+        DataLoader.hideLoading();
+        DataLoader.showError('Erro ao carregar usuários: ' + error.message);
+      }
+    }
 
-        document.getElementById('usuarioId').value = 'simulated-id';
-        document.getElementById('usuarioNome').value = nome;
-        document.getElementById('usuarioEmail').value = email;
-        document.getElementById('usuarioPerfil').value = perfil;
-        document.getElementById('usuarioEstado').value = estado;
-        document.getElementById('usuarioSenha').value = ''; // Don't prefill password
-        document.getElementById('usuarioTelefone').value = '';
+    // Renderizar tabela de usuários
+    function renderUsuariosTable(usuarios) {
+      const tbody = document.querySelector('table tbody');
+      tbody.innerHTML = '';
+
+      if (!usuarios || usuarios.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Nenhum usuário encontrado</td></tr>';
+        return;
+      }
+
+      usuarios.forEach(usuario => {
+        const perfilMap = {
+          'ADMIN': { label: 'Administrador', color: 'primary' },
+          'SECRETARIA': { label: 'Secretária', color: 'info' },
+          'PROFESSOR': { label: 'Professor', color: 'warning' },
+          'ESTUDANTE': { label: 'Estudante', color: 'secondary' }
+        };
+        const perfilInfo = perfilMap[usuario.perfil] || { label: usuario.perfil, color: 'secondary' };
+        
+        const statusMap = {
+          'ATIVO': { label: 'Ativo', color: 'success' },
+          'INATIVO': { label: 'Inativo', color: 'danger' },
+          'SUSPENSO': { label: 'Suspenso', color: 'warning' }
+        };
+        const statusInfo = statusMap[usuario.status] || { label: usuario.status, color: 'secondary' };
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong>${usuario.user_name || '-'}</strong></td>
+          <td>${usuario.email || '-'}</td>
+          <td><span class="badge bg-${perfilInfo.color}">${perfilInfo.label}</span></td>
+          <td><span class="badge bg-${statusInfo.color}">${statusInfo.label}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline-secondary me-1 btn-edit" data-id="${usuario.id_usuario}">Editar</button>
+            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${usuario.id_usuario}" data-name="${usuario.user_name}">Deletar</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Adicionar listeners aos botões
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          this.disabled = true;
+          const originalText = this.innerHTML;
+          this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+          setTimeout(() => {
+            editUsuario(id);
+            this.disabled = false;
+            this.innerHTML = originalText;
+          }, 300);
+        });
+      });
+
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const id = this.getAttribute('data-id');
+          const nome = this.getAttribute('data-name');
+          this.disabled = true;
+          const originalText = this.innerHTML;
+          this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+          deleteUsuario(id, nome).finally(() => {
+            this.disabled = false;
+            this.innerHTML = originalText;
+          });
+        });
+      });
+    }
+
+    // Editar usuário
+    function editUsuario(id) {
+      const usuario = usuariosData.find(u => u.id_usuario == id);
+      if (usuario) {
+        document.getElementById('usuarioId').value = usuario.id_usuario;
+        document.getElementById('usuarioNome').value = usuario.user_name || '';
+        document.getElementById('usuarioEmail').value = usuario.email || '';
+        document.getElementById('usuarioEstado').value = usuario.status || 'ATIVO';
+        document.getElementById('usuarioSenha').value = '';
+        
+        // Mostrar campo de estado em modo edição
+        document.getElementById('usuarioEstadoSection').classList.remove('d-none');
 
         document.getElementById('usuarioModalTitle').textContent = 'Editar Usuário';
         document.getElementById('usuarioSubmitBtn').textContent = 'Atualizar Usuário';
 
         const modal = new bootstrap.Modal(document.getElementById('usuarioModal'));
         modal.show();
-      });
+      }
+    }
 
-      // Delete usuario
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-delete');
-        if (!btn) return;
-
-        const nome = btn.getAttribute('data-nome');
-        if (confirm('Tem certeza que deseja eliminar o usuário "' + nome + '"?')) {
-          const data = { nome: nome };
-          setTimeout(() => {
-            console.log('[API] DELETE /api/usuarios-sistema', data);
-            console.log('Notificação: Usuário "' + nome + '" eliminado com sucesso!');
-            // Remove row
-            btn.closest('tr').remove();
-          }, 1000);
+    // Deletar usuário
+    async function deleteUsuario(id, nome) {
+      if (confirm(`Tem certeza que deseja deletar o usuário "${nome}"?`)) {
+        try {
+          DataLoader.showLoading('Deletando usuário...');
+          await api.deleteUsuario(id);
+          DataLoader.hideLoading();
+          DataLoader.showSuccess('Usuário deletado com sucesso!');
+          loadUsuarios();
+        } catch (error) {
+          DataLoader.hideLoading();
+          DataLoader.showError('Erro ao deletar usuário: ' + error.message);
         }
-      });
+      }
+    }
 
-      // Reset modal
-      document.getElementById('usuarioModal').addEventListener('hidden.bs.modal', function () {
-        document.getElementById('usuarioModalTitle').textContent = 'Novo Usuário';
-        document.getElementById('usuarioSubmitBtn').textContent = 'Criar Usuário';
-        document.getElementById('formUsuario').reset();
-        document.getElementById('usuarioId').value = '';
-      });
+    // Reset modal
+    document.getElementById('usuarioModal').addEventListener('hidden.bs.modal', function () {
+      document.getElementById('usuarioModalTitle').textContent = 'Novo Usuário';
+      document.getElementById('usuarioSubmitBtn').textContent = 'Criar Usuário';
+      document.getElementById('formUsuario').reset();
+      document.getElementById('usuarioId').value = '';
+      document.getElementById('usuarioEstadoSection').classList.add('d-none');
+    });
 
-      // Form submit
-      document.getElementById('formUsuario').addEventListener('submit', function (e) {
-        e.preventDefault();
+    // Form submit
+    document.getElementById('formUsuario').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
-        const id = document.getElementById('usuarioId').value;
-        const nome = document.getElementById('usuarioNome').value;
-        const email = document.getElementById('usuarioEmail').value;
-        const telefone = document.getElementById('usuarioTelefone').value;
-        const perfil = document.getElementById('usuarioPerfil').value;
-        const senha = document.getElementById('usuarioSenha').value;
-        const estado = document.getElementById('usuarioEstado').value;
+      const id = document.getElementById('usuarioId').value;
+      const user_name = document.getElementById('usuarioNome').value;
+      const email = document.getElementById('usuarioEmail').value;
+      const password = document.getElementById('usuarioSenha').value;
 
-        const data = {
-          id: id || null,
-          nome_completo: nome,
-          email: email,
-          telefone: telefone,
-          perfil: perfil,
-          senha: senha,
-          estado: estado
-        };
+      // Validações
+      if (!user_name || !email) {
+        DataLoader.showError('Nome de usuário e email são obrigatórios');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+        return;
+      }
 
-        setTimeout(() => {
-          console.log(id ? '[API] PUT /api/usuarios-sistema' : '[API] POST /api/usuarios-sistema', data);
-          console.log('Notificação: Usuário "' + nome + '" ' + (id ? 'atualizado' : 'criado') + ' com sucesso!');
-          bootstrap.Modal.getInstance(document.getElementById('usuarioModal')).hide();
-        }, 1000);
-      });
+      const data = {
+        user_name: user_name,
+        email: email
+      };
 
-      // Filter usuarios
-      document.getElementById('btnFilterUsuario').addEventListener('click', function () {
+      // Para edição
+      if (id) {
+        const status = document.getElementById('usuarioEstado').value;
+        data.status = status;
+        if (password) {
+          data.password = password;
+        }
+      } else {
+        // Para criação
+        if (!password) {
+          DataLoader.showError('Senha é obrigatória para novos usuários');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+          return;
+        }
+        data.password = password;
+        data.perfil = 'ADMIN';
+      }
+
+      try {
+        if (id) {
+          await api.updateUsuario(id, data);
+          DataLoader.showSuccess('Usuário atualizado com sucesso!');
+        } else {
+          data.password = password;
+          await api.createUsuario(data);
+          DataLoader.showSuccess('Usuário criado com sucesso!');
+        }
+
+        bootstrap.Modal.getInstance(document.getElementById('usuarioModal')).hide();
+        loadUsuarios();
+      } catch (error) {
+        DataLoader.showError('Erro ao guardar usuário: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
+    });
+
+    // Filter usuarios
+    document.getElementById('btnFilterUsuario').addEventListener('click', function() {
+      const btn = this;
+      btn.disabled = true;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Filtrando...';
+      
+      setTimeout(() => {
         const q = document.getElementById('filterUsuarioSearch').value.trim().toLowerCase();
-        const perfil = document.getElementById('filterUsuarioPerfil').value;
         const estado = document.getElementById('filterUsuarioEstado').value;
 
-        document.querySelectorAll('table tbody tr').forEach(tr => {
-          const cols = tr.children;
-          const nome = (cols[0]?.textContent || '').toLowerCase();
-          const email = (cols[1]?.textContent || '').toLowerCase();
-          const perfilTd = cols[2]?.querySelector('.badge')?.textContent.toLowerCase() || '';
-          const estadoTd = cols[3]?.querySelector('.badge')?.textContent.toLowerCase() || '';
+        const filtered = usuariosData.filter(usuario => {
+          const userName = (usuario.user_name || '').toLowerCase();
+          const userEmail = (usuario.email || '').toLowerCase();
+          const userStatus = usuario.status || '';
 
           let matches = true;
-          if (q) matches = matches && (nome.includes(q) || email.includes(q));
-          if (perfil) {
-            const perfilMap = { 'admin': 'administrador', 'secretario': 'secretário', 'outro': 'outro' };
-            matches = matches && perfilTd.includes(perfilMap[perfil] || perfil);
-          }
-          if (estado) matches = matches && estadoTd.includes(estado);
+          if (q) matches = matches && (userName.includes(q) || userEmail.includes(q));
+          if (estado) matches = matches && userStatus === estado;
 
-          tr.style.display = matches ? '' : 'none';
+          return matches;
+        });
+
+        renderUsuariosTable(filtered);
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }, 200);
+    });
+
+    // Adicionar spinner ao botão "Novo Usuário"
+    const btnNovoUsuario = document.querySelector('button[data-bs-target="#usuarioModal"]');
+    if (btnNovoUsuario) {
+      btnNovoUsuario.addEventListener('click', function() {
+        this.disabled = true;
+        const originalText = this.innerHTML;
+        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Abrindo...';
+        setTimeout(() => {
+          this.disabled = false;
+          this.innerHTML = originalText;
+        }, 300);
+      });
+    }
+
+    // Carregar dados iniciais
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUsuarios();
+
+      // Logout handler
+      document.querySelectorAll('[data-logout]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          btn.disabled = true;
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saindo...';
+          setTimeout(() => {
+            AuthHelper.logout();
+          }, 300);
         });
       });
+
+      // Update header
+      const headerUserName = document.querySelector('.header-user-name');
+      const headerUserRole = document.querySelector('.header-user-role');
+      
+      if (headerUserName) {
+        headerUserName.textContent = api.getUserName() || 'Administrador';
+      }
+      if (headerUserRole) {
+        headerUserRole.textContent = AuthHelper.translateRole(api.getUserRole());
+      }
     });
   </script>
 </body>
