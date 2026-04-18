@@ -552,8 +552,9 @@
       }
 
       turmas.forEach(turma => {
-        const cursoDesc = cursosDisponives.find(c => c.id_curso === turma.curso_id)?.descricao_curso || '--';
-        const profNome = professoresDisponives.find(p => p.id_prof === turma.diretor_turma)?.nome_prof || 'N/A';
+        const cursoDesc = turma.curso ? turma.curso.descricao_curso : '--';
+        const profNome = turma.diretor ? turma.diretor.nome_prof : 'N/A';
+        const numAlunos = turma._count?.estudantes || 0;
         
         const row = document.createElement('tr');
         row.setAttribute('data-turma-id', turma.id_turma);
@@ -564,7 +565,7 @@
           <td>${turma.sala_turma || '-'}</td>
           <td>${turma.ano_lectivo_turma || '-'}</td>
           <td>${profNome}</td>
-          <td>${turma.numero_aluno_turma || '0'}</td>
+          <td><span class="badge bg-primary">${numAlunos} alunos</span></td>
           <td>
             <button class="btn btn-sm btn-outline-info me-1 btn-view" data-id="${turma.id_turma}">Ver</button>
             <button class="btn btn-sm btn-outline-warning me-1 btn-edit" data-id="${turma.id_turma}">Editar</button>
@@ -578,21 +579,41 @@
       document.querySelectorAll('.btn-view').forEach(btn => {
         btn.addEventListener('click', function() {
           const id = this.getAttribute('data-id');
+          this.disabled = true;
+          const originalText = this.innerHTML;
+          this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
           viewTurma(id);
+          setTimeout(() => {
+            this.disabled = false;
+            this.innerHTML = originalText;
+          }, 300);
         });
       });
 
       document.querySelectorAll('.btn-edit').forEach(btn => {
         btn.addEventListener('click', function() {
           const id = this.getAttribute('data-id');
+          this.disabled = true;
+          const originalText = this.innerHTML;
+          this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
           editTurma(id);
+          setTimeout(() => {
+            this.disabled = false;
+            this.innerHTML = originalText;
+          }, 300);
         });
       });
 
       document.querySelectorAll('.btn-delete').forEach(btn => {
         btn.addEventListener('click', function() {
           const id = this.getAttribute('data-id');
-          deleteTurma(id);
+          this.disabled = true;
+          const originalText = this.innerHTML;
+          this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+          deleteTurma(id).finally(() => {
+            this.disabled = false;
+            this.innerHTML = originalText;
+          });
         });
       });
     }
@@ -601,8 +622,9 @@
     function viewTurma(id) {
       const turma = turmasData.find(t => t.id_turma == id);
       if (turma) {
-        const cursoDesc = cursosDisponives.find(c => c.id_curso === turma.curso_id)?.descricao_curso || '--';
-        const profNome = professoresDisponives.find(p => p.id_prof === turma.diretor_turma)?.nome_prof || 'N/A';
+        const cursoDesc = turma.curso ? turma.curso.descricao_curso : '--';
+        const profNome = turma.diretor ? turma.diretor.nome_prof : 'N/A';
+        const numAlunos = turma._count?.estudantes || 0;
         
         document.getElementById('turmaDetailCodigo').textContent = turma.sigla_turma || '-';
         document.getElementById('turmaDetailCurso').textContent = cursoDesc;
@@ -610,7 +632,7 @@
         document.getElementById('turmaDetailSala').textContent = turma.sala_turma || '-';
         document.getElementById('turmaDetailAno').textContent = turma.ano_lectivo_turma || '-';
         document.getElementById('turmaDetailProf').textContent = profNome;
-        document.getElementById('turmaDetailNum').textContent = turma.numero_aluno_turma || '0';
+        document.getElementById('turmaDetailNum').textContent = numAlunos;
 
         const modal = new bootstrap.Modal(document.getElementById('turmaDetailsModal'));
         modal.show();
@@ -653,34 +675,48 @@
 
     // Filtrar turmas
     document.getElementById('btnFilterTurma').addEventListener('click', function() {
-      const q = document.getElementById('filterTurmaSearch').value.trim().toLowerCase();
-      const classe = document.getElementById('filterTurmaCiclo').value;
-      const sala = document.getElementById('filterTurmaSala').value.trim().toLowerCase();
-      const ano = document.getElementById('filterTurmaAno').value;
+      const btnFilter = this;
+      btnFilter.disabled = true;
+      const originalText = btnFilter.innerHTML;
+      btnFilter.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Filtrando...';
+      
+      setTimeout(() => {
+        const q = document.getElementById('filterTurmaSearch').value.trim().toLowerCase();
+        const classe = document.getElementById('filterTurmaCiclo').value;
+        const sala = document.getElementById('filterTurmaSala').value.trim().toLowerCase();
+        const ano = document.getElementById('filterTurmaAno').value;
 
-      const filtered = turmasData.filter(turma => {
-        const sigla = (turma.sigla_turma || '').toLowerCase();
-        const cursoDesc = (cursosDisponives.find(c => c.id_curso === turma.curso_id)?.descricao_curso || '').toLowerCase();
-        const classeTurma = (turma.classe_turma || '').toLowerCase();
-        const salaTurma = (turma.sala_turma || '').toLowerCase();
-        const anoTurma = String(turma.ano_lectivo_turma || '');
-        const profNome = (professoresDisponives.find(p => p.id_prof === turma.diretor_turma)?.nome_prof || '').toLowerCase();
+        const filtered = turmasData.filter(turma => {
+          const sigla = (turma.sigla_turma || '').toLowerCase();
+          const cursoDesc = turma.curso ? (turma.curso.descricao_curso || '').toLowerCase() : '';
+          const classeTurma = (turma.classe_turma || '').toLowerCase();
+          const salaTurma = (turma.sala_turma || '').toLowerCase();
+          const anoTurma = String(turma.ano_lectivo_turma || '');
+          const profNome = turma.diretor ? (turma.diretor.nome_prof || '').toLowerCase() : '';
 
-        let matches = true;
-        if (q) matches = matches && (sigla.includes(q) || cursoDesc.includes(q) || profNome.includes(q));
-        if (classe) matches = matches && (classeTurma.includes(classe.toLowerCase()));
-        if (sala) matches = matches && salaTurma.includes(sala);
-        if (ano) matches = matches && (anoTurma === ano);
+          let matches = true;
+          if (q) matches = matches && (sigla.includes(q) || cursoDesc.includes(q) || profNome.includes(q));
+          if (classe) matches = matches && (classeTurma.includes(classe.toLowerCase()));
+          if (sala) matches = matches && salaTurma.includes(sala);
+          if (ano) matches = matches && (anoTurma === ano);
 
-        return matches;
-      });
+          return matches;
+        });
 
-      renderTurmasTable(filtered);
+        renderTurmasTable(filtered);
+        btnFilter.disabled = false;
+        btnFilter.innerHTML = originalText;
+      }, 200);
     });
 
     // Criar/Editar turma
     document.getElementById('formTurma').addEventListener('submit', async function(e) {
       e.preventDefault();
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
       const id = document.getElementById('turmaModalForm').getAttribute('data-id');
       const turmaCodigo = document.getElementById('turmaCodigo').value.trim();
@@ -695,30 +731,44 @@
       // Validações
       if (!turmaCodigo) {
         DataLoader.showError('Por favor, preencha o código da turma');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
         return;
       }
       if (!turmaAno) {
         DataLoader.showError('Por favor, selecione o ano letivo');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
         return;
       }
       if (!turmaTurno) {
         DataLoader.showError('Por favor, selecione o turno');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
         return;
       }
       if (!turmaClasse) {
         DataLoader.showError('Por favor, selecione a classe');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
         return;
       }
       if (!turmaSala) {
         DataLoader.showError('Por favor, preencha a sala');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
         return;
       }
       if (!turmaProfVal) {
         DataLoader.showError('Por favor, selecione o diretor de turma');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
         return;
       }
       if (!turmaNumVal) {
         DataLoader.showError('Por favor, preencha o número máximo de alunos');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
         return;
       }
 
@@ -751,6 +801,9 @@
         loadTurmas();
       } catch (error) {
         DataLoader.showError('Erro ao guardar turma: ' + error.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
       }
     });
 
@@ -765,7 +818,12 @@
     document.querySelectorAll('[data-logout]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        AuthHelper.logout();
+        btn.disabled = true;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saindo...';
+        setTimeout(() => {
+          AuthHelper.logout();
+        }, 300);
       });
     });
 
@@ -774,6 +832,20 @@
       loadTurmas();
       loadCursosModal();
       loadProfessoresModal();
+
+      // Adicionar spinner ao botão "Nova Turma"
+      const btnNovoTurma = document.querySelector('button[data-bs-target="#turmaModal"]');
+      if (btnNovoTurma) {
+        btnNovoTurma.addEventListener('click', function() {
+          this.disabled = true;
+          const originalText = this.innerHTML;
+          this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Abrindo...';
+          setTimeout(() => {
+            this.disabled = false;
+            this.innerHTML = originalText;
+          }, 300);
+        });
+      }
 
       // Update header com dados do usuário
       const headerUserName = document.querySelector('.header-user-name');
