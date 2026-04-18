@@ -208,6 +208,16 @@
       </header>
       
       <div class="page-content">
+        <!-- Spinner de carregamento -->
+        <div id="loadingSpinner" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="text-muted mt-2">Carregando perfil...</p>
+        </div>
+
+        <!-- Conteúdo (oculto enquanto carrega) -->
+        <div id="pageContent" style="display: none;">
         <div class="row g-4">
           <!-- Profile Card -->
           <div class="col-lg-4">
@@ -225,28 +235,26 @@
                   </button>
                   <input type="file" id="photoInput" accept="image/*" style="display: none;">
                 </div>
-                <h4 class="mt-3 mb-1">João Manuel Ferreira</h4>
+                <h4 class="mt-3 mb-1" id="nomeHeader">Carregando...</h4>
                 <p class="text-muted mb-3">Professor</p>
-                <div class="d-flex justify-content-center gap-2 mb-3">
-                  <span class="badge badge-primary">Matemática</span>
-                  <span class="badge badge-info">Física</span>
+                <div class="d-flex justify-content-center gap-2 mb-3" id="disciplinasBadges">
                 </div>
                 <hr>
                 <div class="perfil-info-item">
-                  <span class="perfil-info-label">Agente N.</span>
-                  <span class="perfil-info-value">AG-2026-001234</span>
-                </div>
-                <div class="perfil-info-item">
                   <span class="perfil-info-label">BI</span>
-                  <span class="perfil-info-value">000123456LA789</span>
+                  <span class="perfil-info-value" id="biDisplay">-</span>
                 </div>
                 <div class="perfil-info-item">
                   <span class="perfil-info-label">Email</span>
-                  <span class="perfil-info-value">joao.ferreira@escola.med.ao</span>
+                  <span class="perfil-info-value" id="emailDisplay">-</span>
                 </div>
                 <div class="perfil-info-item">
                   <span class="perfil-info-label">Telefone</span>
-                  <span class="perfil-info-value" id="phoneDisplay">+244 923 456 789</span>
+                  <span class="perfil-info-value" id="phoneDisplay">-</span>
+                </div>
+                <div class="perfil-info-item">
+                  <span class="perfil-info-label">Naturalidade</span>
+                  <span class="perfil-info-value" id="naturalidadeDisplay">-</span>
                 </div>
               </div>
             </div>
@@ -260,28 +268,28 @@
                 <div class="perfil-stat">
                   <div class="perfil-stat-info">
                     <span class="perfil-stat-label">Turmas Atribuidas</span>
-                    <span class="perfil-stat-value">4</span>
+                    <span class="perfil-stat-value" id="turmasCount">0</span>
                   </div>
                   <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-primary" style="width: 80%"></div>
+                    <div class="progress-bar bg-primary" id="turmasProgress" style="width: 0%"></div>
                   </div>
                 </div>
                 <div class="perfil-stat">
                   <div class="perfil-stat-info">
                     <span class="perfil-stat-label">Total de Alunos</span>
-                    <span class="perfil-stat-value">125</span>
+                    <span class="perfil-stat-value" id="alunosCount">0</span>
                   </div>
                   <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-success" style="width: 65%"></div>
+                    <div class="progress-bar bg-success" id="alunosProgress" style="width: 0%"></div>
                   </div>
                 </div>
                 <div class="perfil-stat">
                   <div class="perfil-stat-info">
-                    <span class="perfil-stat-label">Media Geral</span>
-                    <span class="perfil-stat-value">13.8</span>
+                    <span class="perfil-stat-label">Disciplinas</span>
+                    <span class="perfil-stat-value" id="disciplinasCount">0</span>
                   </div>
                   <div class="progress" style="height: 6px;">
-                    <div class="progress-bar bg-info" style="width: 69%"></div>
+                    <div class="progress-bar bg-info" id="disciplinasProgress" style="width: 0%"></div>
                   </div>
                 </div>
               </div>
@@ -299,27 +307,27 @@
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label">Nome Completo</label>
-                      <input type="text" class="form-control" value="Joao Manuel Ferreira" readonly>
+                      <input type="text" class="form-control" id="nomeInput" readonly>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Data de Nascimento</label>
-                      <input type="date" class="form-control" value="1985-03-15" readonly>
-                    </div>
-                    <div class="col-md-6">
-                      <label class="form-label">Sexo</label>
-                      <input type="text" class="form-control" value="Masculino" readonly>
+                      <input type="date" class="form-control" id="dataNascimentoInput" readonly>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Naturalidade</label>
-                      <input type="text" class="form-control" value="Luanda" readonly>
+                      <input type="text" class="form-control" id="naturalidadeInput" readonly>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Numero do BI</label>
-                      <input type="text" class="form-control" value="000123456LA789" readonly>
+                      <input type="text" class="form-control" id="biInput" readonly>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Numero de Agente</label>
-                      <input type="text" class="form-control" value="AG-2026-001234" readonly>
+                      <label class="form-label">Nível Académico</label>
+                      <input type="text" class="form-control" id="nivelAcademicoInput" readonly>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Área de Formação</label>
+                      <input type="text" class="form-control" id="areaFormacaoInput" readonly>
                     </div>
                   </div>
                 </form>
@@ -336,15 +344,15 @@
                   <div class="row g-3">
                     <div class="col-md-6">
                       <label class="form-label">Email Institucional</label>
-                      <input type="email" class="form-control" value="joao.ferreira@escola.med.ao" readonly>
+                      <input type="email" class="form-control" id="emailInput" readonly>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Telefone</label>
-                      <input type="tel" class="form-control" id="phoneInput" value="+244 923 456 789" required>
+                      <input type="tel" class="form-control" id="phoneInput" required>
                     </div>
                     <div class="col-12">
                       <label class="form-label">Endereço</label>
-                      <textarea class="form-control" id="addressInput" rows="2" required>Rua da Escola, N. 123, Maianga, Luanda</textarea>
+                      <textarea class="form-control" id="addressInput" rows="2" required></textarea>
                     </div>
                   </div>
                   <div class="mt-3">
@@ -383,6 +391,7 @@
             </div>
           </div>
         </div>
+        </div>
       </div>
       
       <footer class="main-footer">
@@ -393,10 +402,112 @@
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
+  <script src="../../js/api-service.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script src="js/professor.js"></script>
   <script>
+    // ========== CARREGAR DADOS INICIAIS ==========
+    async function carregarDados() {
+      const spinner = document.getElementById('loadingSpinner');
+      const content = document.getElementById('pageContent');
+      
+      try {
+        console.log('%c[PERFIL] Carregando dados do professor...', 'color: blue; font-weight: bold;');
+        
+        const usuarioId = localStorage.getItem('userId');
+        const professor = await api.getProfessorByUsuario(usuarioId);
+        
+        console.log('%c[PERFIL] Professor carregado:', 'color: green;', professor);
+        
+        // Atualizar header
+        const headerName = document.querySelector('.header-user-name');
+        const headerAvatar = document.querySelector('.header-user-avatar');
+        const nomeHeader = document.getElementById('nomeHeader');
+        
+        headerName.textContent = professor.nome_prof || 'Professor';
+        nomeHeader.textContent = professor.nome_prof || 'Professor';
+        headerAvatar.textContent = professor.nome_prof
+          ? professor.nome_prof.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+          : 'JF';
+        
+        // Preencher campos do formulário
+        document.getElementById('nomeInput').value = professor.nome_prof || '';
+        document.getElementById('emailInput').value = professor.email_prof || '';
+        document.getElementById('biInput').value = professor.numero_bi_prof || '';
+        document.getElementById('phoneInput').value = professor.telefone_prof || '';
+        document.getElementById('naturalidadeInput').value = professor.naturalidade_prof || '';
+        document.getElementById('areaFormacaoInput').value = professor.area_formacao_prof || '';
+        document.getElementById('nivelAcademicoInput').value = professor.nivel_academico || '';
+        
+        if (professor.data_nascimento_prof) {
+          const data = new Date(professor.data_nascimento_prof).toISOString().split('T')[0];
+          document.getElementById('dataNascimentoInput').value = data;
+        }
+        
+        // Atualizar display de informações
+        document.getElementById('biDisplay').textContent = professor.numero_bi_prof || '-';
+        document.getElementById('emailDisplay').textContent = professor.email_prof || '-';
+        document.getElementById('phoneDisplay').textContent = professor.telefone_prof || '-';
+        document.getElementById('naturalidadeDisplay').textContent = professor.naturalidade_prof || '-';
+        
+        // Atualizar disciplinas (badges)
+        const disciplinasBadges = document.getElementById('disciplinasBadges');
+        disciplinasBadges.innerHTML = '';
+        
+        if (professor.disciplinas && professor.disciplinas.length > 0) {
+          const cores = ['badge-primary', 'badge-info', 'badge-success', 'badge-warning', 'badge-danger'];
+          professor.disciplinas.forEach((disc, index) => {
+            const nomeDis = disc.disciplina?.descricao_disc || disc.descricao_disc || 'Disciplina';
+            const badge = document.createElement('span');
+            badge.className = `badge ${cores[index % cores.length]}`;
+            badge.textContent = nomeDis;
+            disciplinasBadges.appendChild(badge);
+          });
+          
+          document.getElementById('disciplinasCount').textContent = professor.disciplinas.length;
+          document.getElementById('disciplinasProgress').style.width = '100%';
+        }
+        
+        // Atualizar turmas
+        let totalTurmas = 0;
+        if (professor.turmas && professor.turmas.length > 0) {
+          totalTurmas += professor.turmas.length;
+        }
+        if (professor.turmas_dirigidas && professor.turmas_dirigidas.length > 0) {
+          totalTurmas += professor.turmas_dirigidas.length;
+        }
+        
+        document.getElementById('turmasCount').textContent = totalTurmas;
+        document.getElementById('turmasProgress').style.width = Math.min(totalTurmas * 25, 100) + '%';
+        
+        // Calcular total de alunos
+        let totalAlunos = 0;
+        const turmas = [...(professor.turmas || []), ...(professor.turmas_dirigidas || [])];
+        for (const turma of turmas) {
+          const turmaCompleta = await api.getTurma(turma.id_turma);
+          if (turmaCompleta.estudantes) {
+            totalAlunos += turmaCompleta.estudantes.length;
+          }
+        }
+        
+        document.getElementById('alunosCount').textContent = totalAlunos;
+        document.getElementById('alunosProgress').style.width = Math.min((totalAlunos / 150) * 100, 100) + '%';
+        
+        spinner.style.display = 'none';
+        content.style.display = 'block';
+        
+        console.log('%c[PERFIL] Dados carregados com sucesso!', 'color: green; font-weight: bold;');
+        
+      } catch (erro) {
+        console.error('%c[PERFIL] Erro ao carregar dados:', 'color: red;', erro);
+        spinner.innerHTML = `<div class="alert alert-danger">Erro ao carregar perfil: ${erro.message}</div>`;
+      }
+    }
+
+    // ========== EVENT LISTENERS ==========
     document.addEventListener('DOMContentLoaded', function () {
+      carregarDados();
+      
       // Elementos
       const photoUploadBtn = document.getElementById('photoUploadBtn');
       const photoInput = document.getElementById('photoInput');
@@ -404,11 +515,9 @@
       const profileInitials = document.getElementById('profileInitials');
       const contactForm = document.getElementById('contactForm');
       const passwordForm = document.getElementById('passwordForm');
-      const phoneDisplay = document.getElementById('phoneDisplay');
 
       // Função para mostrar mensagens flash
       function showFlashMessage(message, type = 'success') {
-        // Remover mensagem anterior se existir
         const existingFlash = document.querySelector('.alert');
         if (existingFlash) {
           existingFlash.remove();
@@ -455,7 +564,6 @@
             profilePhoto.style.display = 'block';
             profileInitials.style.display = 'none';
 
-            // Simulação de upload
             console.log('Simulando upload de foto de perfil...');
             console.log('Arquivo:', file.name);
             console.log('Tamanho:', (file.size / 1024 / 1024).toFixed(2) + ' MB');
@@ -477,47 +585,88 @@
         const phone = document.getElementById('phoneInput').value;
         const address = document.getElementById('addressInput').value;
 
-        // Simulação de atualização
         console.log('Atualizando informações de contato...');
         console.log('Telefone:', phone);
         console.log('Endereço:', address);
 
         setTimeout(() => {
           console.log('Informações de contato atualizadas com sucesso!');
-          phoneDisplay.textContent = phone;
+          document.getElementById('phoneDisplay').textContent = phone;
           showFlashMessage('Informações de contato atualizadas com sucesso!');
         }, 1500);
       });
 
-      // Alteração de senha
-      passwordForm.addEventListener('submit', function (e) {
+      // Alteração de senha com API
+      passwordForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         const currentPassword = document.getElementById('currentPassword').value;
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-        // Validações básicas
-        if (newPassword !== confirmPassword) {
-          showFlashMessage('As novas palavras-passe não coincidem.', 'danger');
+        // Validação de senha se campos foram preenchidos
+        if (currentPassword || newPassword || confirmPassword) {
+          if (!currentPassword) {
+            showFlashMessage('Por favor, insira a palavra-passe atual.', 'danger');
+            return;
+          }
+          
+          if (!newPassword) {
+            showFlashMessage('Por favor, insira a nova palavra-passe.', 'danger');
+            return;
+          }
+          
+          if (newPassword.length < 6) {
+            showFlashMessage('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'danger');
+            return;
+          }
+          
+          if (newPassword !== confirmPassword) {
+            showFlashMessage('A confirmação da palavra-passe não coincide.', 'danger');
+            return;
+          }
+        } else {
+          showFlashMessage('Por favor, preencha todos os campos de palavra-passe.', 'danger');
           return;
         }
 
-        if (newPassword.length < 6) {
-          showFlashMessage('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'danger');
-          return;
-        }
+        const submitBtn = passwordForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"><span class="visually-hidden">...</span></span>Guardando...';
 
-        // Simulação de alteração de senha
-        console.log('Alterando palavra-passe...');
-        console.log('Palavra-passe atual fornecida');
-        console.log('Nova palavra-passe definida');
+        try {
+          const usuarioId = localStorage.getItem('userId');
+          
+          if (!usuarioId) {
+            showFlashMessage('Não conseguido identificar o utilizador. Por favor, faça login novamente.', 'danger');
+            setTimeout(() => window.location.href = '/index.html', 2000);
+            return;
+          }
 
-        setTimeout(() => {
-          console.log('Palavra-passe alterada com sucesso!');
-          passwordForm.reset();
+          console.log('%c[PERFIL] Alterando palavra-passe para usuário:', 'color: blue;', usuarioId);
+          
+          const data = {
+            password: newPassword
+          };
+
+          await api.put(`/usuarios/${usuarioId}`, data);
+          
+          console.log('%c[PERFIL] Palavra-passe alterada com sucesso!', 'color: green;');
           showFlashMessage('Palavra-passe alterada com sucesso!');
-        }, 2000);
+          
+          // Limpar campos de senha
+          document.getElementById('currentPassword').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmPassword').value = '';
+          
+        } catch (error) {
+          console.error('%c[PERFIL] Erro ao alterar palavra-passe:', 'color: red;', error);
+          showFlashMessage('Erro ao guardar alterações: ' + error.message, 'danger');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
       });
     });
   </script>
