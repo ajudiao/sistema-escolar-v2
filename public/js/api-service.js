@@ -529,6 +529,62 @@ class APIService {
     return this.delete(`/avisos/${id}`);
   }
 
+  // ============= NOTAS ENDPOINTS =============
+
+  /**
+   * Criar nova nota
+   */
+  async createNota(data) {
+    return this.post('/notas', data);
+  }
+
+  /**
+   * Listar notas com filtros
+   */
+  async getNotas(estudanteId = null, disciplinaId = null, turmaId = null, anoLetivo = null) {
+    let endpoint = '/notas';
+    const params = [];
+    
+    if (estudanteId) params.push(`estudanteId=${estudanteId}`);
+    if (disciplinaId) params.push(`disciplinaId=${disciplinaId}`);
+    if (turmaId) params.push(`turmaId=${turmaId}`);
+    if (anoLetivo) params.push(`anoLetivo=${anoLetivo}`);
+    
+    if (params.length > 0) {
+      endpoint += '?' + params.join('&');
+    }
+    
+    return this.get(endpoint);
+  }
+
+  /**
+   * Obter nota por ID
+   */
+  async getNota(id) {
+    return this.get(`/notas/${id}`);
+  }
+
+  /**
+   * Obter boletim de um estudante
+   */
+  async getBoletim(estudanteId, anoLetivo) {
+    return this.get(`/notas/boletim/${estudanteId}?anoLetivo=${anoLetivo}`);
+  }
+
+  /**
+   * Atualizar nota
+   */
+  async updateNota(id, data) {
+    return this.put(`/notas/${id}`, data);
+  }
+
+  /**
+   * Deletar nota
+   */
+  async deleteNota(id) {
+    return this.delete(`/notas/${id}`);
+  }
+
   // ============= VERIFICAR AUTENTICAÇÃO =============
 
   /**

@@ -176,7 +176,16 @@
           </div>
           <div class="card-body">
             <div class="row g-3 align-items-end">
-              <div class="col-md-3">
+              <div class="col-md-2">
+                <label class="form-label">Trimestre</label>
+                <select class="form-control form-select" id="trimestreSelect">
+                  <option value="">Selecione...</option>
+                  <option value="1">I Trimestre</option>
+                  <option value="2">II Trimestre</option>
+                  <option value="3">III Trimestre</option>
+                </select>
+              </div>
+              <div class="col-md-2">
                 <label class="form-label">Turma</label>
                 <select class="form-control form-select" id="turmaSelect">
                   <option value="">Selecione...</option>
@@ -192,7 +201,7 @@
                 <label class="form-label">Data</label>
                 <input type="date" class="form-control" id="dataAvaliacao">
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <button class="btn btn-primary w-100" id="btnCarregarAlunos">Carregar Alunos</button>
               </div>
             </div>
@@ -205,19 +214,25 @@
           </div>
           <div class="card-body">
                 <div class="row g-3 mb-4">
-              <div class="col-md-4">
+              <div class="col-md-3">
+                <div class="p-3 rounded bg-light border">
+                  <small class="text-uppercase text-muted">Trimestre</small>
+                  <div class="h4 mb-0 mt-2" id="trimestreInfo">-</div>
+                </div>
+              </div>
+              <div class="col-md-3">
                 <div class="p-3 rounded bg-light border">
                   <small class="text-uppercase text-muted">Turma</small>
                   <div class="h4 mb-0 mt-2" id="turmaInfo">-</div>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="p-3 rounded bg-light border">
                   <small class="text-uppercase text-muted">Disciplina</small>
                   <div class="h4 mb-0 mt-2" id="disciplinaInfo">-</div>
                 </div>
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <div class="p-3 rounded bg-light border">
                   <small class="text-uppercase text-muted">Média da turma</small>
                   <div class="h4 mb-0 mt-2" id="mediaTurma">0.0</div>
@@ -344,13 +359,29 @@
         disciplinaSelect.innerHTML = '<option value="">Selecione...</option>';
         
         if (professor.disciplinas && professor.disciplinas.length > 0) {
+          console.log('%c[NOTAS] Estrutura de disciplinas:', 'color: purple;', professor.disciplinas);
+          
           professor.disciplinas.forEach(disc => {
             const option = document.createElement('option');
-            option.value = disc.id_disciplina;
-            option.textContent = disc.descricao_disc || `Disciplina ${disc.id_disciplina}`;
+            
+            // O ID correto é disciplina_id (da relação ProfessorDisciplina)
+            const disciplinaId = disc.disciplina_id;
+            
+            // O nome vem do objeto disciplina aninhado
+            const nomeDisciplina = disc.disciplina?.descricao_disc || disc.disciplina?.sigla_disc || `Disciplina ${disciplinaId}`;
+            
+            option.value = disciplinaId;
+            option.textContent = nomeDisciplina;
+            option.dataset.nomeDisciplina = nomeDisciplina;
+            option.dataset.disciplinaId = disciplinaId;
+            
             disciplinaSelect.appendChild(option);
+            
+            console.log(`%c[NOTAS] Disciplina adicionada: ID=${disciplinaId}, Nome=${nomeDisciplina}`, 'color: teal;', disc);
           });
-          console.log('%c[NOTAS] Disciplinas carregadas:', 'color: green;', professor.disciplinas);
+          console.log('%c[NOTAS] Disciplinas carregadas com sucesso!', 'color: green;');
+        } else {
+          console.warn('%c[NOTAS] Nenhuma disciplina encontrada para o professor', 'color: orange;');
         }
         
         // Definir data de hoje
@@ -372,12 +403,23 @@
 
     // ========== CARREGAR ALUNOS ==========
     async function carregarAlunos() {
+      const trimestreValue = document.getElementById('trimestreSelect').value;
       const turmaId = document.getElementById('turmaSelect').value;
       const disciplinaId = document.getElementById('disciplinaSelect').value;
       const data = document.getElementById('dataAvaliacao').value;
       
+      if (!trimestreValue) {
+        showFlashMessage('Selecione um trimestre', 'warning');
+        return;
+      }
+      
       if (!turmaId) {
         showFlashMessage('Selecione uma turma', 'warning');
+        return;
+      }
+      
+      if (!disciplinaId) {
+        showFlashMessage('Selecione uma disciplina', 'warning');
         return;
       }
       
@@ -399,15 +441,18 @@
           return;
         }
         
-        // Atualizar info
+        // Atualizar info com trimestre
+        const trimestreText = `${trimestreValue}º`;
+        document.getElementById('trimestreInfo').textContent = trimestreText;
         document.getElementById('turmaInfo').textContent = turma.sigla_turma || `Turma ${turmaId}`;
-        if (disciplinaId) {
-          const disciplinaSelect = document.getElementById('disciplinaSelect');
-          const disciplinaOption = disciplinaSelect.options[disciplinaSelect.selectedIndex];
-          document.getElementById('disciplinaInfo').textContent = disciplinaOption.text;
-        } else {
-          document.getElementById('disciplinaInfo').textContent = '-';
-        }
+        
+        // Pegar nome da disciplina do select
+        const disciplinaSelect = document.getElementById('disciplinaSelect');
+        const disciplinaOption = disciplinaSelect.options[disciplinaSelect.selectedIndex];
+        const nomeDisciplina = disciplinaOption.dataset.nomeDisciplina || disciplinaOption.text;
+        document.getElementById('disciplinaInfo').textContent = nomeDisciplina || '-';
+        
+        console.log('%c[NOTAS] Disciplina exibida:', 'color: purple;', nomeDisciplina);
         
         // Popular tabela
         const tbody = document.getElementById('tabelaAlunosNotas');
@@ -415,6 +460,7 @@
         
         turma.estudantes.forEach((estudante, index) => {
           const tr = document.createElement('tr');
+          tr.dataset.estudanteId = estudante.id_estudante;
           tr.innerHTML = `
             <td>${index + 1}</td>
             <td>${estudante.nome_estudante}</td>
@@ -446,7 +492,7 @@
     }
 
     // ========== SALVAR NOTAS ==========
-    function salvarNotas() {
+    async function salvarNotas() {
       const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
       
       if (rows.length === 0) {
@@ -454,35 +500,124 @@
         return;
       }
       
+      const trimestreValue = document.getElementById('trimestreSelect').value;
       const turmaId = document.getElementById('turmaSelect').value;
       const data = document.getElementById('dataAvaliacao').value;
-      const disciplinaId = document.getElementById('disciplinaSelect').value;
+      const disciplinaIdValue = document.getElementById('disciplinaSelect').value;
+      const anoLetivo = new Date().getFullYear();
       
-      // Coletar dados
-      const lancamentos = rows.map((row, index) => {
-        const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
-        const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
-        const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
-        const mt = ((mac + npp + npt) / 3).toFixed(1);
+      try {
+        console.log('%c[NOTAS] Iniciando salvamento de notas...', 'color: blue; font-weight: bold;');
+        console.log('%c[NOTAS] Valores capturados:', 'color: teal;', {
+          trimestre: trimestreValue,
+          turmaId: turmaId,
+          disciplinaId: disciplinaIdValue,
+          data: data,
+          anoLetivo: anoLetivo
+        });
         
-        return {
-          numero: index + 1,
-          mac,
-          npp,
-          npt,
-          mt
-        };
-      });
-      
-      console.log('%c[NOTAS] Lançamentos a salvar:', 'color: blue;', {
-        turmaId,
-        disciplinaId,
-        data,
-        lancamentos
-      });
-      
-      showFlashMessage('Notas salvas com sucesso!');
-      document.getElementById('divLancarNotas').style.display = 'none';
+        // Validar valores antes de converter
+        if (!trimestreValue || !turmaId || !disciplinaIdValue || !data) {
+          showFlashMessage('Erro: Faltam dados. Trimestre, Turma, Disciplina e Data são obrigatórios.', 'danger');
+          console.error('%c[NOTAS] Validação falhou:', 'color: red;', {
+            trimestre: trimestreValue ? 'OK' : 'VAZIO',
+            turmaId: turmaId ? 'OK' : 'VAZIO',
+            disciplinaId: disciplinaIdValue ? 'OK' : 'VAZIO',
+            data: data ? 'OK' : 'VAZIO'
+          });
+          return;
+        }
+        
+        let notasSalvas = 0;
+        let erros = 0;
+        
+        // Iterar sobre cada estudante e salvar suas notas
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const numeroAluno = row.querySelector('td:nth-child(1)').textContent;
+          const nomeAluno = row.querySelector('td:nth-child(2)').textContent;
+          
+          const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
+          const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
+          const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
+          
+          // Pular se nenhuma nota foi inserida
+          if (mac === 0 && npp === 0 && npt === 0) {
+            console.log(`%c[NOTAS] Pulando ${nomeAluno} - nenhuma nota inserida`, 'color: orange;');
+            continue;
+          }
+          
+          try {
+            // Obter ID do estudante da tabela
+            const estudanteId = row.dataset.estudanteId;
+            
+            if (!estudanteId) {
+              console.warn(`%c[NOTAS] ID de estudante não encontrado para ${nomeAluno}`, 'color: orange;');
+              continue;
+            }
+            
+            // Converter para números com validação
+            const disciplinaIdNum = parseInt(disciplinaIdValue);
+            const turmaIdNum = parseInt(turmaId);
+            const trimestreNum = parseInt(trimestreValue);
+            const estudanteIdNum = parseInt(estudanteId);
+            
+            if (isNaN(disciplinaIdNum) || isNaN(turmaIdNum) || isNaN(trimestreNum) || isNaN(estudanteIdNum)) {
+              console.warn(`%c[NOTAS] Erro de conversão para ${nomeAluno}:`, 'color: orange;', {
+                estudanteId: estudanteIdNum,
+                disciplinaId: disciplinaIdNum,
+                turmaId: turmaIdNum,
+                trimestre: trimestreNum
+              });
+              erros++;
+              continue;
+            }
+            
+            const notaData = {
+              estudante_id: estudanteIdNum,
+              disciplina_id: disciplinaIdNum,
+              turma_id: turmaIdNum,
+              trimestre_nota: trimestreNum,
+              data_nota: data,
+              mac_notas: mac,
+              pp_notas: npp,
+              pt_notas: npt,
+              ano_letivo: anoLetivo
+            };
+            
+            console.log(`%c[NOTAS] Salvando nota para ${nomeAluno}:`, 'color: teal;', notaData);
+            
+            await api.createNota(notaData);
+            notasSalvas++;
+            
+            console.log(`%c✓ Nota de ${nomeAluno} salva com sucesso!`, 'color: green;');
+            
+          } catch (erro) {
+            erros++;
+            console.error(`%c[NOTAS] Erro ao salvar nota de ${nomeAluno}:`, 'color: red;', erro);
+          }
+        }
+        
+        // Mostrar resultado final
+        const mensagem = erros === 0 
+          ? `${notasSalvas} nota(s) salva(s) com sucesso!`
+          : `${notasSalvas} salva(s), ${erros} erro(s)`;
+        
+        showFlashMessage(mensagem, erros === 0 ? 'success' : 'warning');
+        
+        console.log('%c[NOTAS] Salvamento concluído!', 'color: green; font-weight: bold;');
+        
+        if (erros === 0) {
+          // Limpar tabela após sucesso
+          setTimeout(() => {
+            document.getElementById('divLancarNotas').style.display = 'none';
+          }, 2000);
+        }
+        
+      } catch (erro) {
+        console.error('%c[NOTAS] Erro geral ao salvar notas:', 'color: red;', erro);
+        showFlashMessage(`Erro ao salvar notas: ${erro.message}`, 'danger');
+      }
     }
 
     // ========== EVENT LISTENERS ==========
