@@ -86,7 +86,7 @@
               <span class="nav-link-text">Minhas Disciplinas</span>
             </a>
           </div>
-          
+
         </div>
         
         <!-- Comunicação -->
@@ -149,7 +149,7 @@
           <div class="header-user">
             <div class="header-user-avatar">JF</div>
             <div class="header-user-info">
-              <span class="header-user-name">João Ferreira</span>
+              <span class="header-user-name">Carregando...</span>
               <span class="header-user-role">Professor</span>
             </div>
           </div>
@@ -158,6 +158,16 @@
       
       <!-- Page Content -->
       <div class="page-content">
+        <!-- Spinner de carregamento inicial -->
+        <div id="loadingSpinner" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="text-muted mt-2">Carregando dados...</p>
+        </div>
+
+        <!-- Conteúdo (oculto enquanto carrega) -->
+        <div id="pageContent" style="display: none;">
         <div id="flashMessage" class="alert" style="display: none;" role="alert"></div>
 
         <div class="card mb-4">
@@ -166,38 +176,21 @@
           </div>
           <div class="card-body">
             <div class="row g-3 align-items-end">
-              <div class="col-md-2">
-                <label class="form-label">Trimestre</label>
-                <select class="form-control form-select" id="trimestreSelect">
-                  <option value="">Selecione...</option>
-                  <option value="1">I Trimestre</option>
-                  <option value="2">II Trimestre</option>
-                  <option value="3">III Trimestre</option>
-                </select>
-              </div>
-              <div class="col-md-2">
+              <div class="col-md-3">
                 <label class="form-label">Turma</label>
                 <select class="form-control form-select" id="turmaSelect">
                   <option value="">Selecione...</option>
-                  <option value="10A">10A</option>
-                  <option value="10B">10B</option>
-                  <option value="11A">11A</option>
                 </select>
               </div>
-              <div class="col-md-2">
+              <div class="col-md-3">
                 <label class="form-label">Disciplina</label>
                 <select class="form-control form-select" id="disciplinaSelect">
                   <option value="">Selecione...</option>
-                  <option value="Matemática">Matemática</option>
-                  <option value="Física">Física</option>
-                  <option value="Química">Química</option>
-                  <option value="Biologia">Biologia</option>
-                  <option value="Português">Português</option>
                 </select>
               </div>
               <div class="col-md-2">
                 <label class="form-label">Data</label>
-                <input type="date" class="form-control" id="dataAvaliacao" value="2026-04-07">
+                <input type="date" class="form-control" id="dataAvaliacao">
               </div>
               <div class="col-md-4">
                 <button class="btn btn-primary w-100" id="btnCarregarAlunos">Carregar Alunos</button>
@@ -212,25 +205,19 @@
           </div>
           <div class="card-body">
                 <div class="row g-3 mb-4">
-              <div class="col-md-3">
-                <div class="p-3 rounded bg-light border">
-                  <small class="text-uppercase text-muted">Trimestre</small>
-                  <div class="h4 mb-0 mt-2" id="trimestreInfo">-</div>
-                </div>
-              </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="p-3 rounded bg-light border">
                   <small class="text-uppercase text-muted">Turma</small>
                   <div class="h4 mb-0 mt-2" id="turmaInfo">-</div>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="p-3 rounded bg-light border">
                   <small class="text-uppercase text-muted">Disciplina</small>
                   <div class="h4 mb-0 mt-2" id="disciplinaInfo">-</div>
                 </div>
               </div>
-              <div class="col-md-3">
+              <div class="col-md-4">
                 <div class="p-3 rounded bg-light border">
                   <small class="text-uppercase text-muted">Média da turma</small>
                   <div class="h4 mb-0 mt-2" id="mediaTurma">0.0</div>
@@ -279,141 +266,230 @@
   
   <!-- Global JS -->
   <script src="../../js/global.js"></script>
+  <script src="../../js/api-service.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      function showFlashMessage(message, type = 'success') {
-        const flash = document.getElementById('flashMessage');
-        flash.textContent = message;
-        flash.className = `alert alert-${type}`;
-        flash.style.display = 'block';
-        setTimeout(() => {
-          flash.style.display = 'none';
-        }, 5000);
+    // ========== FUNÇÕES UTILITÁRIAS ==========
+    function showFlashMessage(message, type = 'success') {
+      const flash = document.getElementById('flashMessage');
+      flash.textContent = message;
+      flash.className = `alert alert-${type}`;
+      flash.style.display = 'block';
+      setTimeout(() => {
+        flash.style.display = 'none';
+      }, 5000);
+    }
+
+    function updateMediaLinha(row) {
+      const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
+      const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
+      const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
+      const media = ((mac + npp + npt) / 3).toFixed(1);
+      row.querySelector('.media-valor').textContent = media;
+    }
+
+    function updateResumo() {
+      const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
+      const medias = rows.map(row => parseFloat(row.querySelector('.media-valor').textContent) || 0);
+      const mediaTurma = medias.length ? (medias.reduce((sum, value) => sum + value, 0) / medias.length).toFixed(1) : '0.0';
+      document.getElementById('mediaTurma').textContent = mediaTurma;
+    }
+
+    // ========== CARREGAMENTO INICIALIZADO ==========
+    async function carregarDados() {
+      const spinner = document.getElementById('loadingSpinner');
+      const content = document.getElementById('pageContent');
+      
+      try {
+        console.log('%c[NOTAS] Iniciando carregamento de dados...', 'color: blue; font-weight: bold;');
+        
+        const usuarioId = localStorage.getItem('userId');
+        const professor = await api.getProfessorByUsuario(usuarioId);
+        
+        console.log('%c[NOTAS] Professor carregado:', 'color: green;', professor);
+        
+        // Atualizar header
+        const headerName = document.querySelector('.header-user-name');
+        const headerAvatar = document.querySelector('.header-user-avatar');
+        
+        headerName.textContent = professor.nome_prof || 'Professor';
+        headerAvatar.textContent = professor.nome_prof
+          ? professor.nome_prof.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+          : 'JF';
+        
+        // Preencher dropdown de turmas
+        const turmaSelect = document.getElementById('turmaSelect');
+        turmaSelect.innerHTML = '<option value="">Selecione...</option>';
+        
+        if (professor.turmas && professor.turmas.length > 0) {
+          professor.turmas.forEach(turma => {
+            const option = document.createElement('option');
+            option.value = turma.id_turma;
+            option.textContent = turma.sigla_turma || `Turma ${turma.id_turma}`;
+            turmaSelect.appendChild(option);
+          });
+          console.log('%c[NOTAS] Turmas carregadas:', 'color: green;', professor.turmas);
+        } else if (professor.turmas_dirigidas && professor.turmas_dirigidas.length > 0) {
+          professor.turmas_dirigidas.forEach(turma => {
+            const option = document.createElement('option');
+            option.value = turma.id_turma;
+            option.textContent = turma.sigla_turma || `Turma ${turma.id_turma}`;
+            turmaSelect.appendChild(option);
+          });
+          console.log('%c[NOTAS] Turmas dirigidas carregadas:', 'color: green;', professor.turmas_dirigidas);
+        }
+        
+        // Preencher dropdown de disciplinas
+        const disciplinaSelect = document.getElementById('disciplinaSelect');
+        disciplinaSelect.innerHTML = '<option value="">Selecione...</option>';
+        
+        if (professor.disciplinas && professor.disciplinas.length > 0) {
+          professor.disciplinas.forEach(disc => {
+            const option = document.createElement('option');
+            option.value = disc.id_disciplina;
+            option.textContent = disc.descricao_disc || `Disciplina ${disc.id_disciplina}`;
+            disciplinaSelect.appendChild(option);
+          });
+          console.log('%c[NOTAS] Disciplinas carregadas:', 'color: green;', professor.disciplinas);
+        }
+        
+        // Definir data de hoje
+        const dataAvaliacao = document.getElementById('dataAvaliacao');
+        const today = new Date().toISOString().split('T')[0];
+        dataAvaliacao.value = today;
+        
+        // Esconder spinner e mostrar conteúdo
+        spinner.style.display = 'none';
+        content.style.display = 'block';
+        
+        console.log('%c[NOTAS] Dados carregados com sucesso!', 'color: green; font-weight: bold;');
+        
+      } catch (erro) {
+        console.error('%c[NOTAS] Erro ao carregar dados:', 'color: red;', erro);
+        spinner.innerHTML = `<div class="alert alert-danger">Erro ao carregar dados: ${erro.message}</div>`;
       }
+    }
 
-      function getAlunosMock(turma, trimestre, disciplina) {
-        const alunosPorTurma = {
-          '10A': [
-            { nome: 'Ana Pereira', mac: 15, npp: 14, npt: 16 },
-            { nome: 'Pedro Santos', mac: 12, npp: '', npt: 13 },
-            { nome: 'João Costa', mac: 18, npp: 17, npt: 19 },
-            { nome: 'Luana Martins', mac: '', npp: '', npt: '' }
-          ],
-          '10B': [
-            { nome: 'Maria Silva', mac: 14, npp: 15, npt: 13 },
-            { nome: 'Luís Gomes', mac: 8, npp: 9, npt: 10 },
-            { nome: 'Rita Alves', mac: 16, npp: '', npt: 15 },
-            { nome: 'Samuel Costa', mac: '', npp: '', npt: '' }
-          ],
-          '11A': [
-            { nome: 'Carlos Mendes', mac: '', npp: '', npt: '' },
-            { nome: 'Sofia Ribeiro', mac: '', npp: '', npt: '' },
-            { nome: 'Miguel Sousa', mac: '', npp: '', npt: '' },
-            { nome: 'Paula Reis', mac: '', npp: '', npt: '' }
-          ]
-        };
-        return alunosPorTurma[turma] || [];
+    // ========== CARREGAR ALUNOS ==========
+    async function carregarAlunos() {
+      const turmaId = document.getElementById('turmaSelect').value;
+      const disciplinaId = document.getElementById('disciplinaSelect').value;
+      const data = document.getElementById('dataAvaliacao').value;
+      
+      if (!turmaId) {
+        showFlashMessage('Selecione uma turma', 'warning');
+        return;
       }
-
-      function updateMediaLinha(row) {
-        const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
-        const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
-        const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
-        const media = ((mac + npp + npt) / 3).toFixed(1);
-        row.querySelector('.media-valor').textContent = media;
+      
+      if (!data) {
+        showFlashMessage('Selecione uma data', 'warning');
+        return;
       }
-
-      function updateResumo() {
-        const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
-        const medias = rows.map(row => parseFloat(row.querySelector('.media-valor').textContent) || 0);
-        const mediaTurma = medias.length ? (medias.reduce((sum, value) => sum + value, 0) / medias.length).toFixed(1) : '0.0';
-        document.getElementById('alunosCount').textContent = medias.length;
-        document.getElementById('mediaTurma').textContent = mediaTurma;
-      }
-
-      function definirInfoSelecionada(trimestre, turma, disciplina) {
-        document.getElementById('trimestreInfo').textContent = trimestre ? `${trimestre}º` : '-';
-        document.getElementById('turmaInfo').textContent = turma || '-';
-        document.getElementById('disciplinaInfo').textContent = disciplina || '-';
-      }
-
-      function carregarTabelaNotas() {
-        const trimestre = document.getElementById('trimestreSelect').value;
-        const turma = document.getElementById('turmaSelect').value;
-        const disciplina = document.getElementById('disciplinaSelect').value;
-        const data = document.getElementById('dataAvaliacao').value;
-
-        if (!trimestre || !turma || !disciplina || !data) {
-          showFlashMessage('Selecione trimestre, turma, disciplina e data.', 'warning');
+      
+      try {
+        console.log('%c[NOTAS] Carregando alunos da turma:', 'color: blue;', turmaId);
+        
+        const turma = await api.getTurma(turmaId);
+        
+        console.log('%c[NOTAS] Turma carregada:', 'color: green;', turma);
+        
+        if (!turma.estudantes || turma.estudantes.length === 0) {
+          showFlashMessage('Nenhum aluno encontrado nesta turma', 'info');
+          document.getElementById('divLancarNotas').style.display = 'none';
           return;
         }
-
-        definirInfoSelecionada(trimestre, turma, disciplina);
-
-        const alunos = getAlunosMock(turma, trimestre, disciplina);
+        
+        // Atualizar info
+        document.getElementById('turmaInfo').textContent = turma.sigla_turma || `Turma ${turmaId}`;
+        if (disciplinaId) {
+          const disciplinaSelect = document.getElementById('disciplinaSelect');
+          const disciplinaOption = disciplinaSelect.options[disciplinaSelect.selectedIndex];
+          document.getElementById('disciplinaInfo').textContent = disciplinaOption.text;
+        } else {
+          document.getElementById('disciplinaInfo').textContent = '-';
+        }
+        
+        // Popular tabela
         const tbody = document.getElementById('tabelaAlunosNotas');
         tbody.innerHTML = '';
-
-        alunos.forEach((aluno, index) => {
+        
+        turma.estudantes.forEach((estudante, index) => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${index + 1}</td>
-            <td>${aluno.nome}</td>
-            <td><input type="number" class="form-control form-control-sm text-center" data-field="mac" min="0" max="20" step="0.1" placeholder="0" value="${aluno.mac || ''}"></td>
-            <td><input type="number" class="form-control form-control-sm text-center" data-field="npp" min="0" max="20" step="0.1" placeholder="0" value="${aluno.npp || ''}"></td>
-            <td><input type="number" class="form-control form-control-sm text-center" data-field="npt" min="0" max="20" step="0.1" placeholder="0" value="${aluno.npt || ''}"></td>
+            <td>${estudante.nome_estudante}</td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="mac" min="0" max="20" step="0.1" placeholder="0"></td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="npp" min="0" max="20" step="0.1" placeholder="0"></td>
+            <td><input type="number" class="form-control form-control-sm text-center" data-field="npt" min="0" max="20" step="0.1" placeholder="0"></td>
             <td class="text-center"><strong class="media-valor">0.0</strong></td>
           `;
           tbody.appendChild(tr);
-        });
-
-        document.getElementById('divLancarNotas').style.display = 'block';
-
-        tbody.querySelectorAll('input[data-field="mac"], input[data-field="npp"], input[data-field="npt"]').forEach(input => {
-          input.addEventListener('input', function () {
-            const row = this.closest('tr');
-            updateMediaLinha(row);
-            updateResumo();
+          
+          // Adicionar evento de input para recalcular média
+          tr.querySelectorAll('input[data-field]').forEach(input => {
+            input.addEventListener('input', function() {
+              updateMediaLinha(tr);
+              updateResumo();
+            });
           });
         });
-
-        // Update all medias initially
-        tbody.querySelectorAll('tr').forEach(row => {
-          updateMediaLinha(row);
-        });
-
+        
+        document.getElementById('divLancarNotas').style.display = 'block';
         updateResumo();
-        showFlashMessage('Alunos carregados com sucesso!');
+        
+        showFlashMessage(`${turma.estudantes.length} alunos carregados com sucesso!`);
+        
+      } catch (erro) {
+        console.error('%c[NOTAS] Erro ao carregar alunos:', 'color: red;', erro);
+        showFlashMessage(`Erro ao carregar alunos: ${erro.message}`, 'danger');
       }
+    }
 
-      function salvarNotas() {
-        const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
-        if (rows.length === 0) {
-          showFlashMessage('Carregue o trimestre, a turma e a disciplina antes de salvar.', 'danger');
-          return;
-        }
-
-        const trimestre = document.getElementById('trimestreSelect').value;
-        const turma = document.getElementById('turmaSelect').value;
-        const disciplina = document.getElementById('disciplinaSelect').value;
-        const data = document.getElementById('dataAvaliacao').value;
-
-        const lancamentos = rows.map(row => {
-          const aluno = row.children[1].textContent.trim();
-          const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
-          const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
-          const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
-          const mt = parseFloat(((mac + npp + npt) / 3).toFixed(1));
-          return { aluno, mac, npp, npt, mt };
-        });
-
-        console.log('Notas lançadas:', { trimestre, turma, disciplina, data, lancamentos });
-        showFlashMessage('Notas lançadas com sucesso!');
-        document.getElementById('divLancarNotas').style.display = 'none';
+    // ========== SALVAR NOTAS ==========
+    function salvarNotas() {
+      const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
+      
+      if (rows.length === 0) {
+        showFlashMessage('Carregue os alunos antes de salvar', 'danger');
+        return;
       }
+      
+      const turmaId = document.getElementById('turmaSelect').value;
+      const data = document.getElementById('dataAvaliacao').value;
+      const disciplinaId = document.getElementById('disciplinaSelect').value;
+      
+      // Coletar dados
+      const lancamentos = rows.map((row, index) => {
+        const mac = parseFloat(row.querySelector('[data-field="mac"]').value) || 0;
+        const npp = parseFloat(row.querySelector('[data-field="npp"]').value) || 0;
+        const npt = parseFloat(row.querySelector('[data-field="npt"]').value) || 0;
+        const mt = ((mac + npp + npt) / 3).toFixed(1);
+        
+        return {
+          numero: index + 1,
+          mac,
+          npp,
+          npt,
+          mt
+        };
+      });
+      
+      console.log('%c[NOTAS] Lançamentos a salvar:', 'color: blue;', {
+        turmaId,
+        disciplinaId,
+        data,
+        lancamentos
+      });
+      
+      showFlashMessage('Notas salvas com sucesso!');
+      document.getElementById('divLancarNotas').style.display = 'none';
+    }
 
-      document.getElementById('btnCarregarAlunos').addEventListener('click', carregarTabelaNotas);
+    // ========== EVENT LISTENERS ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      carregarDados();
+      
+      document.getElementById('btnCarregarAlunos').addEventListener('click', carregarAlunos);
       document.getElementById('btnLancarNotas').addEventListener('click', salvarNotas);
     });
   </script>
