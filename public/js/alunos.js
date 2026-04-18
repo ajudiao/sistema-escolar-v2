@@ -46,14 +46,16 @@ document.addEventListener('DOMContentLoaded', function () {
     alunos.forEach(aluno => {
       try {
         const row = document.createElement('tr');
+        const curso = aluno.turma?.curso?.descricao_curso || '-';
         row.innerHTML = `
           <td>${aluno.nome_estudante || '-'}</td>
+          <td>${curso}</td>
           <td>${aluno.turma?.sigla_turma || '-'}</td>
           <td>${aluno.telefone_estudante || '-'}</td>
           <td>
-            <button class="btn btn-sm btn-outline-info me-1 btn-view" data-id="${aluno.id_estudante}" data-nome="${aluno.nome_estudante}" data-turma="${aluno.turma?.sigla_turma || ''}">Ver</button>
-            <button class="btn btn-sm btn-outline-warning me-1 btn-edit" data-id="${aluno.id_estudante}" data-nome="${aluno.nome_estudante}">Editar</button>
-            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${aluno.id_estudante}" data-nome="${aluno.nome_estudante}">Deletar</button>
+            <button class="btn btn-sm btn-outline-info me-1 btn-view" data-id="${aluno.id_estudante}" data-bs-toggle="modal" data-bs-target="#alunoDetailsModal">Ver</button>
+            <button class="btn btn-sm btn-outline-warning me-1 btn-edit" data-id="${aluno.id_estudante}" data-name="${aluno.nome_estudante}">Editar</button>
+            <button class="btn btn-sm btn-outline-danger btn-delete" data-id="${aluno.id_estudante}" data-name="${aluno.nome_estudante}">Deletar</button>
           </td>
         `;
         tbody.appendChild(row);
@@ -155,6 +157,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const alunoModalEl = document.getElementById('alunoModal');
   if (alunoModalEl) {
     alunoModalEl.addEventListener('show.bs.modal', function() {
+      const alunoId = document.getElementById('alunoId').value;
+      const action = document.getElementById('alunoAction').value;
+      
+      // Se for novo aluno, mostrar seção de senha/email
+      if (!alunoId || action === 'add') {
+        const senhaSection = document.getElementById('alunoSenha')?.parentElement?.parentElement;
+        if (senhaSection) senhaSection.style.display = 'block';
+      }
+      
       loadCursos();
       loadTurmas();
     });
@@ -170,9 +181,10 @@ document.addEventListener('DOMContentLoaded', function () {
     alunoModalEl.addEventListener('hidden.bs.modal', function () {
       document.getElementById('alunoModalTitle').textContent = 'Novo Aluno';
       document.getElementById('formAluno').reset();
+      document.getElementById('alunoId').value = '';
       document.getElementById('alunoAction').value = 'add';
-      const escolaAnterior = document.getElementById('escolaAnterior');
-      if (escolaAnterior) escolaAnterior.style.display = 'none';
+      const senhaSection = document.getElementById('alunoSenha')?.parentElement?.parentElement;
+      if (senhaSection) senhaSection.style.display = 'block';
     });
   }
 
@@ -184,26 +196,79 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!btn) return;
       
       const id = btn.getAttribute('data-id');
-      const nome = btn.getAttribute('data-nome');
-      if (!id || !nome) return;
+      if (!id) return;
       
       if (btn.classList.contains('btn-view')) {
-        // Ver detalhes
-        const turma = btn.getAttribute('data-turma') || '';
-        document.getElementById('detailNome').textContent = nome;
-        document.getElementById('detailTurma').textContent = turma;
-        console.log('[ALUNOS] Ver detalhes de:', nome);
-      } else if (btn.classList.contains('btn-edit')) {
-        // Editar
-        document.getElementById('alunoModalTitle').textContent = 'Editar Aluno';
-        document.getElementById('alunoId').value = id;
-        document.getElementById('alunoAction').value = 'edit';
+        // Ver detalhes - buscar dados completos do servidor
+        console.log('[ALUNOS] Carregando detalhes do aluno ID:', id);
+        DataLoader.showLoading('Carregando detalhes...');
         
-        const nomeInput = document.getElementById('alunoNome');
-        if (nomeInput) nomeInput.value = nome;
-        console.log('[ALUNOS] Editando aluno ID:', id);
+        api.getEstudante(id)
+          .then(alunoData => {
+            DataLoader.hideLoading();
+            
+            const curso = alunoData.turma?.curso?.descricao_curso || '-';
+            const turma = alunoData.turma?.sigla_turma || '-';
+            
+            document.getElementById('detailNome').textContent = alunoData.nome_estudante || '-';
+            document.getElementById('detailCurso').textContent = curso;
+            document.getElementById('detailTurma').textContent = turma;
+            document.getElementById('detailTelefone').textContent = alunoData.telefone_estudante || '-';
+            
+            console.log('[ALUNOS] Detalhes carregados:', alunoData);
+          })
+          .catch(error => {
+            DataLoader.hideLoading();
+            DataLoader.showError('Erro ao carregar detalhes: ' + error.message);
+            console.error('[ALUNOS] Erro ao carregar detalhes:', error);
+          });
+      } else if (btn.classList.contains('btn-edit')) {
+        // Editar - carregar dados do aluno
+        console.log('[ALUNOS] Carregando dados para edição, ID:', id);
+        DataLoader.showLoading('Carregando dados...');
+        
+        api.getEstudante(id)
+          .then(alunoData => {
+            DataLoader.hideLoading();
+            
+            document.getElementById('alunoModalTitle').textContent = 'Editar Aluno';
+            document.getElementById('alunoId').value = id;
+            document.getElementById('alunoAction').value = 'edit';
+            
+            // Preencher formulário com dados do aluno
+            document.getElementById('alunoNome').value = alunoData.nome_estudante || '';
+            document.getElementById('alunoDataNascimento').value = alunoData.data_nascimento ? alunoData.data_nascimento.split('T')[0] : '';
+            document.getElementById('alunoIdentidade').value = alunoData.numero_bi_estudante || '';
+            document.getElementById('alunoTelefone').value = alunoData.telefone_estudante || '';
+            document.getElementById('alunoNaturalidade').value = alunoData.naturalidade_estudante || '';
+            document.getElementById('encarregadoNome').value = alunoData.encarregado_estudante || '';
+            
+            // Definir curso e turma
+            if (alunoData.turma?.curso?.id_curso) {
+              document.getElementById('alunoCurso').value = alunoData.turma.curso.id_curso;
+            }
+            if (alunoData.turma?.id_turma) {
+              document.getElementById('alunoTurma').value = alunoData.turma.id_turma;
+            }
+            
+            // Ocultar campo de email e senha em modo edição
+            const senhaSection = document.getElementById('alunoSenha')?.parentElement?.parentElement;
+            if (senhaSection) senhaSection.style.display = 'none';
+            
+            // Abrir modal manualmente
+            const modal = new bootstrap.Modal(document.getElementById('alunoModal'));
+            modal.show();
+            
+            console.log('[ALUNOS] Dados carregados para edição:', alunoData);
+          })
+          .catch(error => {
+            DataLoader.hideLoading();
+            DataLoader.showError('Erro ao carregar aluno: ' + error.message);
+            console.error('[ALUNOS] Erro ao carregar aluno:', error);
+          });
       } else if (btn.classList.contains('btn-delete')) {
-        // Deletar
+        // Deletar com confirmação
+        const nome = btn.getAttribute('data-name');
         if (confirm(`Deseja realmente deletar o aluno ${nome}?`)) {
           console.log('[ALUNOS] Deletando aluno ID:', id);
           DataLoader.showLoading('Deletando aluno...');

@@ -300,18 +300,14 @@
                     <input id="cursoNome" class="form-control" placeholder="Ex: Informática" required>
                   </div>
                   <div class="mb-3">
-                    <label class="form-label">Duração</label>
-                    <input id="cursoDuracao" class="form-control" placeholder="Ex: 3 anos" required>
+                    <label class="form-label">Duração (em semestres)</label>
+                    <input id="cursoDuracao" class="form-control" type="number" placeholder="Ex: 6" min="1">
                   </div>
                   <div class="mb-3">
                     <label class="form-label">Disciplinas do Curso</label>
-                    <div id="disciplinasCheckboxes" class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
-                      <!-- Disciplinas carregadas dinamicamente -->
+                    <div id="cursoDisciplinas" class="border rounded p-3" style="max-height: 250px; overflow-y: auto;">
+                      <!-- Checkboxes de disciplinas carregadas dinamicamente -->
                     </div>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Descrição</label>
-                    <textarea id="cursoDesc" class="form-control" rows="3" placeholder="Descrição do curso..." required></textarea>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -319,6 +315,45 @@
                   <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal: Ver Detalhes do Curso -->
+        <div class="modal fade" id="cursoDetailsModal" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Curso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Código</label>
+                    <p id="detailCodigo" class="text-muted">-</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Duração</label>
+                    <p id="detailDuracao" class="text-muted">-</p>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-md-12">
+                    <label class="form-label fw-bold">Nome do Curso</label>
+                    <p id="detailNome" class="text-muted">-</p>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-md-12">
+                    <label class="form-label fw-bold">Disciplinas</label>
+                    <p id="detailDisciplinas" class="text-muted">-</p>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+              </div>
             </div>
           </div>
         </div>
@@ -334,6 +369,7 @@
   <script src="../../js/data-loader.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
+  <script src="../../js/curso.js"></script>
   <script>
     // Proteger página para ADMIN
     AuthHelper.checkRole(['ADMIN']);
