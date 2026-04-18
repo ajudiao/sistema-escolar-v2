@@ -249,6 +249,13 @@ class APIService {
   }
 
   /**
+   * Obter professor por usuário ID (para o professor logado)
+   */
+  async getProfessorByUsuario(usuarioId) {
+    return this.get(`/professores/usuario/${usuarioId}`);
+  }
+
+  /**
    * Criar novo professor
    */
   async createProfessor(data) {
@@ -304,6 +311,13 @@ class APIService {
    */
   async deleteTurma(id) {
     return this.delete(`/turmas/${id}`);
+  }
+
+  /**
+   * Obter turmas de um professor
+   */
+  async getTurmasProfessor(professorId) {
+    return this.get(`/turmas/professor/${professorId}`);
   }
 
   // ============= DISCIPLINAS ENDPOINTS =============

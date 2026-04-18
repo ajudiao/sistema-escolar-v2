@@ -154,7 +154,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             <div>
               <strong>Bem-vindo, Prof. João Ferreira!</strong>
-              <p class="mb-0 mt-1">Ano Lectivo 2026/2025 - I Trimestre em curso. Data limite para entrega das mini-pautas: 30 de Abril.</p>
+              <p class="mb-0 mt-1">Ano Lectivo 2025/2026 - I Trimestre em curso. Data limite para entrega das mini-pautas: 30 de Abril.</p>
             </div>
           </div>
         </div>
@@ -166,7 +166,9 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">3</div>
+              <div class="stat-value" data-stat="turmas">
+                <span class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Carregando...</span></span>
+              </div>
               <div class="stat-label">Turmas Atribuídas</div>
             </div>
           </div>
@@ -176,7 +178,9 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">37</div>
+              <div class="stat-value" data-stat="alunos">
+                <span class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Carregando...</span></span>
+              </div>
               <div class="stat-label">Total de Alunos</div>
             </div>
           </div>
@@ -186,7 +190,9 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">2</div>
+              <div class="stat-value" data-stat="disciplinas">
+                <span class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Carregando...</span></span>
+              </div>
               <div class="stat-label">Disciplinas</div>
             </div>
           </div>
@@ -196,7 +202,9 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">1</div>
+              <div class="stat-value" data-stat="pautas">
+                <span class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Carregando...</span></span>
+              </div>
               <div class="stat-label">Pauta Pendente</div>
             </div>
           </div>
@@ -264,7 +272,7 @@
                   <div class="turma-card" onclick="location.href='turma-detalhes.html'">
                     <div class="turma-card-header">
                       <div class="turma-icon">
-                        <svg x  mlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                       </div>
                       <div class="turma-info">
                         <h5>ELE-12AD</h5>
@@ -294,28 +302,13 @@
                 <h5 class="card-title mb-0">Avisos</h5>
                 <a href="avisos.html" class="btn btn-sm btn-outline-primary">Ver todos</a>
               </div>
-              <div class="card-body p-0">
-                <div class="list-group list-group-flush">
-                  <div class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                      <strong class="small">Entrega das Mini-Pautas</strong>
-                      <small class="text-muted">15/04</small>
+              <div class="card-body p-0" id="avisosContainer">
+                <div class="list-group list-group-flush" id="avisosList">
+                  <div class="list-group-item text-center py-4">
+                    <div class="spinner-border spinner-border-sm mb-2" role="status">
+                      <span class="visually-hidden">Carregando...</span>
                     </div>
-                    <p class="mb-0 text-muted small mt-1">Data limite: 30 de Abril de 2026.</p>
-                  </div>
-                  <div class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                      <strong class="small">Provas Trimestrais</strong>
-                      <small class="text-muted">10/04</small>
-                    </div>
-                    <p class="mb-0 text-muted small mt-1">De 22 a 26 de Abril de 2026.</p>
-                  </div>
-                  <div class="list-group-item">
-                    <div class="d-flex justify-content-between">
-                      <strong class="small">Reunião de Coordenação</strong>
-                      <small class="text-muted">05/04</small>
-                    </div>
-                    <p class="mb-0 text-muted small mt-1">Sábado, 20 de Abril às 9h00.</p>
+                    <p class="mb-0 text-muted small">Carregando avisos...</p>
                   </div>
                 </div>
               </div>
@@ -393,18 +386,235 @@
   <script>
     // Proteger página para PROFESSOR
     AuthHelper.checkRole(['PROFESSOR']);
-    
+
+    // Cache de dados
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+    function obterDoCache(chave) {
+      const data = localStorage.getItem(`professor_cache_${chave}`);
+      if (!data) return null;
+
+      const { valor, timestamp } = JSON.parse(data);
+      if (Date.now() - timestamp > CACHE_DURATION) {
+        localStorage.removeItem(`professor_cache_${chave}`);
+        return null;
+      }
+
+      return valor;
+    }
+
+    function guardarEmCache(chave, valor) {
+      localStorage.setItem(`professor_cache_${chave}`, JSON.stringify({
+        valor,
+        timestamp: Date.now()
+      }));
+    }
+
+    async function carregarDashboard() {
+      try {
+        const usuarioId = localStorage.getItem('userId');
+        if (!usuarioId) {
+          console.error('Usuário não identificado');
+          return;
+        }
+
+        // Carregar professor
+        let professor = obterDoCache('professor');
+        if (!professor) {
+          professor = await api.getProfessorByUsuario(usuarioId);
+          guardarEmCache('professor', professor);
+        }
+
+        // Carregar turmas
+        let turmas = obterDoCache('turmas');
+        if (!turmas) {
+          turmas = await api.getTurmasProfessor(professor.id_prof);
+          guardarEmCache('turmas', turmas);
+        }
+
+        // Carregar avisos para PROFESSORES
+        let avisos = obterDoCache('avisos');
+        if (!avisos) {
+          const todosAvisos = await api.getAvisos();
+          avisos = todosAvisos.filter(a => a.destinatarios === 'PROFESSORES' || a.destinatarios === 'TODOS');
+          guardarEmCache('avisos', avisos);
+        }
+
+        // Calcular estatísticas
+        const totalAlunos = turmas.reduce((acc, turma) => acc + (turma._count?.estudantes || 0), 0);
+        const totalDisciplinas = new Set(professor.disciplinas?.map(d => d.disciplina_id) || []).size;
+        const pautasPendentes = turmas.filter(t => !t.pauta_finalizada).length || 0;
+
+        // Atualizar header
+        const headerUserName = document.querySelector('.header-user-name');
+        const headerUserAvatar = document.querySelector('.header-user-avatar');
+
+        if (headerUserName) {
+          headerUserName.textContent = `Prof. ${professor.nome_prof}`;
+        }
+        if (headerUserAvatar) {
+          const initials = professor.nome_prof.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+          headerUserAvatar.textContent = initials;
+        }
+
+        // Update alert de boas-vindas - CORRIGIDO
+        const alertStrong = document.querySelector('.alert-info strong');
+        if (alertStrong) {
+          alertStrong.textContent = `Bem-vindo, Prof. ${professor.nome_prof}!`;
+        }
+
+        const alertParagraph = document.querySelector('.alert-info p');
+        if (alertParagraph) {
+          alertParagraph.textContent = `Ano Lectivo 2026/2025 - I Trimestre em curso. Tem ${avisos.length} aviso(s) para ler. Data limite para entrega das mini-pautas: 30 de Abril.`;
+        }
+
+        // Atualizar badge de avisos no navbar
+        const avisoBadge = document.querySelector('.nav-badge');
+        if (avisoBadge) {
+          avisoBadge.textContent = avisos.length;
+        }
+
+        // Atualizar cards de estatísticas
+        document.querySelectorAll('[data-stat="turmas"]').forEach(el => {
+          el.textContent = turmas.length;
+        });
+        document.querySelectorAll('[data-stat="alunos"]').forEach(el => {
+          el.textContent = totalAlunos;
+        });
+        document.querySelectorAll('[data-stat="disciplinas"]').forEach(el => {
+          el.textContent = totalDisciplinas;
+        });
+        document.querySelectorAll('[data-stat="pautas"]').forEach(el => {
+          el.textContent = pautasPendentes;
+        });
+
+        // Renderizar turmas
+        renderizarTurmas(turmas, professor);
+
+        // Renderizar avisos
+        renderizarAvisos(avisos);
+
+      } catch (error) {
+        console.error('Erro ao carregar dashboard:', error);
+      }
+    }
+
+    function renderizarAvisos(avisos) {
+      const avisosList = document.getElementById('avisosList');
+      if (!avisosList) return;
+
+      // Limpar lista
+      avisosList.innerHTML = '';
+
+      if (!avisos || avisos.length === 0) {
+        avisosList.innerHTML = `
+          <div class="list-group-item text-center py-4">
+            <p class="mb-0 text-muted">Nenhum aviso no momento</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Mostrar apenas os 3 últimos avisos
+      const ultimosavisos = avisos.slice(0, 3);
+
+      ultimosavisos.forEach(aviso => {
+        const dataPublication = new Date(aviso.data_publicacao);
+        const dataFormatada = dataPublication.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit' });
+        
+        // Colorir badge de prioridade
+        let classePrioridade = 'bg-secondary';
+        if (aviso.prioridade === 'ALTA') classePrioridade = 'bg-warning';
+        if (aviso.prioridade === 'URGENTE') classePrioridade = 'bg-danger';
+        if (aviso.prioridade === 'MEDIA') classePrioridade = 'bg-info';
+        if (aviso.prioridade === 'BAIXA') classePrioridade = 'bg-success';
+
+        const item = document.createElement('div');
+        item.className = 'list-group-item';
+        item.style.cursor = 'pointer';
+        item.onclick = () => location.href = 'avisos.html';
+
+        item.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start">
+            <div style="flex: 1;">
+              <strong class="small">${aviso.titulo}</strong>
+              <small class="badge ${classePrioridade} ms-2">${aviso.prioridade}</small>
+              <p class="mb-0 text-muted small mt-1" style="max-height: 40px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                ${aviso.conteudo}
+              </p>
+            </div>
+            <small class="text-muted ms-2">${dataFormatada}</small>
+          </div>
+        `;
+
+        avisosList.appendChild(item);
+      });
+
+      // Se houver mais avisos, adicionar mensagem
+      if (avisos.length > 3) {
+        const item = document.createElement('div');
+        item.className = 'list-group-item text-center py-2';
+        item.style.cursor = 'pointer';
+        item.onclick = () => location.href = 'avisos.html';
+        item.innerHTML = `<small class="text-primary">+${avisos.length - 3} aviso(s) mais...</small>`;
+        avisosList.appendChild(item);
+      }
+    }
+
+    function renderizarTurmas(turmas, professor) {
+      const turmasGrid = document.querySelector('.turmas-grid');
+      if (!turmasGrid) return;
+
+      // Limpar grid existente (manter apenas os ids data-*)
+      const cardsExistentes = turmasGrid.querySelectorAll('.turma-card');
+      cardsExistentes.forEach(card => card.remove());
+
+      // Renderizar turmas de verdade
+      turmas.forEach(turma => {
+        const card = document.createElement('div');
+        card.className = 'turma-card';
+        card.style.cursor = 'pointer';
+        card.onclick = () => location.href = `turma-detalhes.html?id=${turma.id_turma}`;
+
+        const totalAlunos = turma._count?.estudantes || 0;
+        const ehDiretor = professor.id_prof === turma.diretor_turma;
+
+        card.innerHTML = `
+          <div class="turma-card-header">
+            <div class="turma-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="turma-info">
+              <h5>${turma.sigla_turma}</h5>
+              <span>${turma.classe_turma}ª Classe</span>
+              ${ehDiretor ? '<span class="badge bg-primary ms-2">Diretor</span>' : ''}
+            </div>
+          </div>
+          <div class="turma-card-body">
+            <div class="turma-stat">
+              <div class="turma-stat-value">${totalAlunos}</div>
+              <div class="turma-stat-label">Alunos</div>
+            </div>
+            <div class="turma-stat">
+              <div class="turma-stat-value">${turma.turno_turma}</div>
+              <div class="turma-stat-label">Período</div>
+            </div>
+            <div class="turma-stat">
+              <div class="turma-stat-value">${turma.curso?.sigla_curso || 'N/A'}</div>
+              <div class="turma-stat-label">Curso</div>
+            </div>
+          </div>
+        `;
+
+        turmasGrid.appendChild(card);
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-      // Update header com dados do usuário
-      const headerUserName = document.querySelector('.header-user-name');
-      const headerUserRole = document.querySelector('.header-user-role');
-      
-      if (headerUserName) {
-        headerUserName.textContent = api.getUserName() || 'Professor';
-      }
-      if (headerUserRole) {
-        headerUserRole.textContent = AuthHelper.translateRole(api.getUserRole());
-      }
+      // Carregar dados do dashboard
+      carregarDashboard();
 
       // Logout
       document.querySelectorAll('[data-logout]').forEach(btn => {
