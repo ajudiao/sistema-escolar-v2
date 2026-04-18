@@ -125,9 +125,9 @@
         </div>
         <div class="header-right">
           <div class="header-user">
-            <div class="header-user-avatar">JF</div>
+            <div class="header-user-avatar">PR</div>
             <div class="header-user-info">
-              <span class="header-user-name">Joao Ferreira</span>
+              <span class="header-user-name">Carregando...</span>
               <span class="header-user-role">Professor</span>
             </div>
           </div>
@@ -135,42 +135,44 @@
       </header>
       
       <div class="page-content">
-        <!-- Filters -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="row g-3 align-items-end">
-              <div class="col-md-4">
-                <label class="form-label">Data</label>
-                <input type="date" class="form-control" id="dataFalta" value="2026-11-15">
+        <!-- Spinner de carregamento inicial -->
+        <div id="loadingSpinner" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+          <p class="text-muted mt-2">Carregando dados...</p>
+        </div>
+
+        <!-- Conteúdo (oculto enquanto carrega) -->
+        <div id="pageContent" style="display: none;">
+          <!-- Filters -->
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                  <label class="form-label">Data</label>
+                  <input type="date" class="form-control" id="dataFalta">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Turma</label>
+                  <select class="form-control form-select" id="selectTurma">
+                    <option value="">Selecione...</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">Disciplina</label>
+                  <select class="form-control form-select" id="selectDisciplina">
+                    <option value="">Selecione...</option>
+                  </select>
+                </div>
               </div>
-              <div class="col-md-4">
-                <label class="form-label">Turma</label>
-                <select class="form-control form-select" id="selectTurma">
-                  <option value="">Selecione...</option>
-                  <option value="10A">10A</option>
-                  <option value="10B">10B</option>
-                  <option value="11A">11A</option>
-                </select>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label">Disciplina</label>
-                <select class="form-control form-select" id="selectDisciplina">
-                  <option value="">Selecione...</option>
-                  <option value="Matemática">Matemática</option>
-                  <option value="Física">Física</option>
-                  <option value="Química">Química</option>
-                  <option value="Biologia">Biologia</option>
-                  <option value="Português">Português</option>
-                </select>
-              </div>
-            </div>
-            <div class="row mt-3">
-              <div class="col-12">
-                <button class="btn btn-primary" id="btnCarregar">Carregar Alunos</button>
+              <div class="row mt-3">
+                <div class="col-12">
+                  <button class="btn btn-primary" id="btnCarregar">Carregar Alunos</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
         
         <!-- Attendance Summary -->
         <div class="row g-4 mb-4">
@@ -180,7 +182,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
               </div>
               <div class="stat-content">
-                <span class="stat-value">32</span>
+                <span class="stat-value" id="totalAlunos">0</span>
                 <span class="stat-label">Total Alunos</span>
               </div>
             </div>
@@ -191,7 +193,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
               <div class="stat-content">
-                <span class="stat-value" id="totalPresentes">30</span>
+                <span class="stat-value" id="totalPresentes">0</span>
                 <span class="stat-label">Presentes</span>
               </div>
             </div>
@@ -202,7 +204,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </div>
               <div class="stat-content">
-                <span class="stat-value" id="totalFaltas">2</span>
+                <span class="stat-value" id="totalFaltas">0</span>
                 <span class="stat-label">Faltas</span>
               </div>
             </div>
@@ -240,49 +242,7 @@
                   </tr>
                 </thead>
                 <tbody id="tabelaPresenca">
-                  <!-- sample rows (will be replaced when loading turma) -->
-                  <tr>
-                    <td>1</td>
-                    <td>Ana Maria dos Santos</td>
-                    <td class="text-center">
-                        <select class="form-select form-select-sm status-select" data-aluno="1">
-                        <option value="presente" selected>Presente</option>
-                        <option value="falta">Falta</option>
-                        <option value="atraso">Atraso</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input type="text" class="form-control form-control-sm" placeholder="Observacao...">
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>2</td>
-                    <td>Carlos Alberto Menezes</td>
-                    <td class="text-center">
-                      <select class="form-select form-select-sm status-select" data-aluno="2">
-                        <option value="presente" selected>Presente</option>
-                        <option value="falta">Falta</option>
-                        <option value="atraso">Atraso</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input type="text" class="form-control form-control-sm" placeholder="Observacao...">
-                    </td>
-                  </tr>
-                  <tr class="table-danger">
-                    <td>3</td>
-                    <td>Domingas Joana Paulo</td>
-                    <td class="text-center">
-                      <select class="form-select form-select-sm status-select" data-aluno="3">
-                        <option value="presente">Presente</option>
-                        <option value="falta" selected>Falta</option>
-                        <option value="atraso">Atraso</option>
-                      </select>
-                    </td>
-                    <td>
-                      <input type="text" class="form-control form-control-sm" placeholder="Observacao..." value="Doente - informado pelo encarregado">
-                    </td>
-                  </tr>
+                  <!-- Alunos carregados dinamicamente quando turma é selecionada -->
                 </tbody>
               </table>
             </div>
@@ -295,6 +255,7 @@
             </button>
           </div>
         </div>
+        </div>
       </div>
       
       <footer class="main-footer">
@@ -305,10 +266,132 @@
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
+  <script src="../../js/api-service.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script src="js/professor.js"></script>
   <script>
+    // Carregamento inicial de dados
+    async function carregarDados() {
+      const spinner = document.getElementById('loadingSpinner');
+      const content = document.getElementById('pageContent');
+      
+      try {
+        console.log('%c[Faltas] INICIANDO CARREGAMENTO', 'color: blue; font-weight: bold; font-size: 12px');
+        console.log('[Faltas] window.api:', typeof window.api);
+        console.log('[Faltas] typeof api (sem window):', typeof api);
+        
+        // Check if api exists
+        if (typeof api === 'undefined') {
+          throw new Error('Objeto API não inicializado. Verifique se api-service.js foi carregado.');
+        }
+        
+        // 1. Set today's date
+        const hoje = new Date().toISOString().split('T')[0];
+        document.getElementById('dataFalta').value = hoje;
+        console.log('[Faltas] Data hoje:', hoje);
+        
+        // 2. Load professor
+        const usuarioId = localStorage.getItem('userId');
+        console.log('[Faltas] UserId do localStorage:', usuarioId);
+        
+        if (!usuarioId) {
+          throw new Error('Usuário não encontrado em localStorage. Faça login primeiro.');
+        }
+        
+        console.log('[Faltas] Chamando api.getProfessorByUsuario...');
+        const professor = await api.getProfessorByUsuario(usuarioId);
+        console.log('%c[Faltas] PROFESSOR RECEBIDO COM SUCESSO', 'color: green; font-size: 12px');
+        console.log('[Faltas] Estrutura completa:', JSON.stringify(professor, null, 2));
+        
+        // 3. Update professor name in header
+        document.querySelector('.header-user-name').textContent = professor.nome_prof;
+        console.log('[Faltas] Nome professor atualizado:', professor.nome_prof);
+        
+        // 4. Populate turmas dropdown
+        const selectTurma = document.getElementById('selectTurma');
+        const todasAsTurmas = professor.turmas_dirigidas || professor.turmas || [];
+        console.log('[Faltas] Turmas disponíveis (turmas_dirigidas ou turmas):', todasAsTurmas);
+        console.log('[Faltas] Quantidade de turmas:', todasAsTurmas.length);
+        
+        if (todasAsTurmas.length > 0) {
+          todasAsTurmas.forEach((item, idx) => {
+            console.log(`[Faltas] Processando turma ${idx}:`, item);
+            
+            // Try different possible structures
+            let turma = null;
+            if (item && item.id_turma) {
+              turma = item;
+            }
+            
+            if (!turma) {
+              console.warn('[Faltas] Turma inválida, pulando:', item);
+              return;
+            }
+            
+            const option = document.createElement('option');
+            option.value = turma.id_turma;
+            option.textContent = turma.sigla_turma || `Turma ${turma.id_turma}`;
+            selectTurma.appendChild(option);
+            console.log('[Faltas] Turma adicionada:', turma.sigla_turma);
+          });
+        } else {
+          console.warn('[Faltas] AVISO: Nenhuma turma encontrada para o professor');
+          spinner.innerHTML = `<div class="alert alert-warning">Nenhuma turma encontrada para este professor. Entre em contato com o administrador.</div>`;
+          return;
+        }
+        
+        // 5. Populate disciplinas dropdown
+        const selectDisciplina = document.getElementById('selectDisciplina');
+        const todasAsDisciplinas = professor.disciplinas || [];
+        console.log('[Faltas] Disciplinas do professor:', todasAsDisciplinas);
+        console.log('[Faltas] Quantidade de disciplinas:', todasAsDisciplinas.length);
+        
+        if (todasAsDisciplinas.length > 0) {
+          todasAsDisciplinas.forEach((item, idx) => {
+            console.log(`[Faltas] Processando disciplina ${idx}:`, item);
+            
+            // The structure is: { disciplina: {...}, professor_id, disciplina_id } or just { id_disc, ... }
+            let disciplina = null;
+            
+            if (item && item.disciplina && item.disciplina.id_disc) {
+              disciplina = item.disciplina;
+              console.log('[Faltas] Disciplina encontrada em item.disciplina');
+            } else if (item && item.id_disc) {
+              disciplina = item;
+              console.log('[Faltas] Disciplina é o item direto');
+            }
+            
+            if (!disciplina) {
+              console.warn('[Faltas] Disciplina inválida, pulando:', item);
+              return;
+            }
+            
+            const option = document.createElement('option');
+            option.value = disciplina.id_disc;
+            option.textContent = disciplina.descricao_disc || disciplina.sigla_disc || `Disciplina ${disciplina.id_disc}`;
+            selectDisciplina.appendChild(option);
+            console.log('[Faltas] Disciplina adicionada:', option.textContent);
+          });
+        } else {
+          console.warn('[Faltas] AVISO: Nenhuma disciplina encontrada para o professor');
+        }
+        
+        // 6. Show content, hide spinner
+        console.log('%c[Faltas] CARREGAMENTO COMPLETO COM SUCESSO', 'color: green; font-weight: bold; font-size: 12px');
+        spinner.style.display = 'none';
+        content.style.display = 'block';
+        
+      } catch (erro) {
+        console.error('%c[Faltas] ERRO CRÍTICO:', 'color: red; font-weight: bold; font-size: 12px', erro);
+        console.error('Stack:', erro.stack);
+        spinner.innerHTML = `<div class="alert alert-danger"><strong>Erro:</strong> ${erro.message}</div>`;
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('[Faltas] DOMContentLoaded disparado');
+      
+      // Definir todas as variáveis ANTES de chamar carregarDados()
       const btnCarregar = document.getElementById('btnCarregar');
       const tabela = document.getElementById('tabelaPresenca');
       const btnMarcarTodos = document.getElementById('btnMarcarTodos');
@@ -316,22 +399,29 @@
       const totalFaltasEl = document.getElementById('totalFaltas');
       const totalAtrasosEl = document.getElementById('totalAtrasos');
       const btnGuardar = document.getElementById('btnGuardarFaltas');
-
-      function gerarAlunosExemplo(turma) {
-        const nomes = ['Ana Pereira','Pedro Santos','João Costa','Maria Silva','Luís Gomes','Rita Alves','Carlos Mendes','Sofia Ribeiro','Miguel Sousa','Paula Rocha','Bruno Dias','Inês Matos'];
-        return nomes.map((n, i) => ({
-          numero: i + 1,
-          nome: n + ' ' + turma
-        }));
-      }
+      
+      console.log('[Faltas] Elementos carregados:', {
+        btnCarregar: !!btnCarregar,
+        tabela: !!tabela,
+        btnMarcarTodos: !!btnMarcarTodos,
+        totalPresentesEl: !!totalPresentesEl,
+        totalFaltasEl: !!totalFaltasEl,
+        totalAtrasosEl: !!totalAtrasosEl,
+        btnGuardar: !!btnGuardar
+      });
+      
+      // AGORA chamar carregarDados()
+      carregarDados();
 
       function criarLinhaAluno(aluno) {
+        console.log('[Faltas] Criando linha para aluno:', aluno);
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${aluno.numero}</td>
           <td>${aluno.nome}</td>
           <td class="text-center">
-            <select class="form-select form-select-sm status-select" data-aluno="${aluno.numero}">
+            <select class="form-select form-select-sm status-select" data-aluno="${aluno.numero}" data-aluno-id="${aluno.id || ''}">
               <option value="presente" selected>Presente</option>
               <option value="falta">Falta</option>
               <option value="atraso">Atraso</option>
@@ -342,7 +432,10 @@
 
         // events
         const select = tr.querySelector('.status-select');
-        select.addEventListener('change', () => atualizarLinha(tr));
+        select.addEventListener('change', function() {
+          console.log('[Faltas] Select mudou para:', this.value);
+          atualizarLinha(tr);
+        });
 
         return tr;
       }
@@ -350,6 +443,8 @@
       function atualizarLinha(tr) {
         const select = tr.querySelector('.status-select');
         const status = select.value;
+        console.log('[Faltas] Atualizando linha, novo status:', status);
+        
         if (status === 'presente') {
           tr.classList.remove('table-danger');
         } else if (status === 'falta') {
@@ -362,34 +457,99 @@
 
       function atualizarTotais() {
         const rows = Array.from(tabela.querySelectorAll('tr'));
+        console.log('[Faltas] Atualizando totais, linhas na tabela:', rows.length);
+        
         let presentes = 0, faltas = 0, atrasos = 0;
-        rows.forEach(r => {
+        rows.forEach((r, idx) => {
           const sel = r.querySelector('.status-select');
-          if (!sel) return;
+          if (!sel) {
+            console.warn('[Faltas] Linha', idx, 'sem select');
+            return;
+          }
           const v = sel.value;
+          console.log('[Faltas] Linha', idx, 'status:', v);
+          
           if (v === 'presente') presentes++;
           if (v === 'falta') faltas++;
           if (v === 'atraso') atrasos++;
         });
+        
+        console.log('[Faltas] Totais - Alunos:', rows.length, 'Presentes:', presentes, 'Faltas:', faltas, 'Atrasos:', atrasos);
+        
+        document.getElementById('totalAlunos').textContent = rows.length;
         totalPresentesEl.textContent = presentes;
         totalFaltasEl.textContent = faltas;
         totalAtrasosEl.textContent = atrasos;
       }
 
-      btnCarregar.addEventListener('click', function() {
+      btnCarregar.addEventListener('click', async function() {
         const data = document.getElementById('dataFalta').value;
-        const turma = document.getElementById('selectTurma').value;
-        const disciplina = document.getElementById('selectDisciplina').value;
-        if (!data || !turma || !disciplina) {
+        const turmaId = document.getElementById('selectTurma').value;
+        const disciplinaId = document.getElementById('selectDisciplina').value;
+        
+        console.log('%c[Faltas] BOTÃO CARREGAR CLICADO', 'color: blue; font-weight: bold; font-size: 12px');
+        console.log('[Faltas] Data:', data, '| TurmaId:', turmaId, '| DisciplinaId:', disciplinaId);
+        
+        if (!data || !turmaId || !disciplinaId) {
+          console.warn('[Faltas] Validação falhou - campos vazios');
           if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data, turma e disciplina.', 'warning');
           else alert('Selecione data, turma e disciplina.');
           return;
         }
-        const alunos = gerarAlunosExemplo(turma);
-        tabela.innerHTML = '';
-        alunos.forEach(a => tabela.appendChild(criarLinhaAluno(a)));
-        atualizarTotais();
-        if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Alunos carregados (exemplo).', 'success');
+        
+        try {
+          console.log('[Faltas] Chamando api.getTurma com turmaId:', turmaId);
+          const turma = await api.getTurma(turmaId);
+          console.log('%c[Faltas] TURMA RECEBIDA COM SUCESSO', 'color: green; font-size: 12px');
+          console.log('[Faltas] Estrutura completa da turma:', JSON.stringify(turma, null, 2));
+          
+          console.log('[Faltas] Verificando campo "estudantes":', turma.estudantes);
+          console.log('[Faltas] Tipo:', Array.isArray(turma.estudantes) ? 'array' : typeof turma.estudantes);
+          
+          if (!turma.estudantes) {
+            console.warn('[Faltas] AVISO: Campo "estudantes" não encontrado na turma');
+            console.log('[Faltas] Campos disponíveis na turma:', Object.keys(turma));
+          }
+          
+          // Clear table
+          tabela.innerHTML = '';
+          
+          // Check if estudantes exist and is an array
+          if (turma.estudantes && Array.isArray(turma.estudantes) && turma.estudantes.length > 0) {
+            console.log('[Faltas] Encontrados', turma.estudantes.length, 'estudantes');
+            turma.estudantes.forEach((estudante, idx) => {
+              console.log(`[Faltas] Processando estudante ${idx}:`, estudante);
+              
+              const aluno = {
+                numero: idx + 1,
+                nome: estudante.nome_estudante || 'Nome desconhecido',
+                id: estudante.id_estudante || estudante.id || null
+              };
+              
+              if (!aluno.id) {
+                console.warn('[Faltas] AVISO: Estudante sem ID:', estudante);
+              }
+              
+              console.log('[Faltas] Adicionando aluno:', aluno);
+              const linha = criarLinhaAluno(aluno);
+              tabela.appendChild(linha);
+            });
+            
+            console.log('[Faltas] Todas as linhas adicionadas à tabela');
+            atualizarTotais();
+            if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao(`${turma.estudantes.length} alunos carregados com sucesso.`, 'success');
+          } else {
+            console.warn('[Faltas] Turma sem estudantes ou estudantes inválido');
+            tabela.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Nenhum estudante encontrado nesta turma</td></tr>';
+            if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Nenhum estudante encontrado nesta turma.', 'info');
+          }
+          
+        } catch (erro) {
+          console.error('%c[Faltas] ERRO AO CARREGAR ALUNOS', 'color: red; font-weight: bold; font-size: 12px', erro);
+          console.error('Stack:', erro.stack);
+          tabela.innerHTML = `<tr><td colspan="4" class="text-danger"><strong>Erro:</strong> ${erro.message}</td></tr>`;
+          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Erro ao carregar alunos: ' + erro.message, 'danger');
+        }
       });
 
       btnMarcarTodos.addEventListener('click', function() {
@@ -398,62 +558,129 @@
         atualizarTotais();
       });
 
-      // submit to backend
-      btnGuardar.addEventListener('click', function() {
+      // Listener para carregar alunos automaticamente quando turma muda
+      const selectTurma = document.getElementById('selectTurma');
+      selectTurma.addEventListener('change', async function() {
+        const turmaId = this.value;
         const data = document.getElementById('dataFalta').value;
-        const turma = document.getElementById('selectTurma').value;
-        const disciplina = document.getElementById('selectDisciplina').value;
+        const disciplinaId = document.getElementById('selectDisciplina').value;
+        
+        console.log('%c[Faltas] TURMA SELECIONADA', 'color: purple; font-weight: bold; font-size: 12px');
+        console.log('[Faltas] TurmaId:', turmaId, '| Data:', data, '| DisciplinaId:', disciplinaId);
+        
+        if (!turmaId) {
+          console.warn('[Faltas] Turma inválida, pulando carregamento');
+          return;
+        }
+        
+        try {
+          console.log('[Faltas] Carregando estudantes da turma automaticamente...');
+          const turma = await api.getTurma(turmaId);
+          console.log('%c[Faltas] TURMA CARREGADA AUTOMATICAMENTE', 'color: teal; font-size: 12px');
+          console.log('[Faltas] Turma:', JSON.stringify(turma, null, 2));
+          
+          // Clear table
+          tabela.innerHTML = '';
+          
+          // Check if estudantes exist and is an array
+          if (turma.estudantes && Array.isArray(turma.estudantes) && turma.estudantes.length > 0) {
+            console.log('[Faltas] Encontrados', turma.estudantes.length, 'estudantes');
+            turma.estudantes.forEach((estudante, idx) => {
+              console.log(`[Faltas] Processando estudante ${idx}:`, estudante);
+              
+              const aluno = {
+                numero: idx + 1,
+                nome: estudante.nome_estudante || 'Nome desconhecido',
+                id: estudante.id_estudante || estudante.id || null
+              };
+              
+              if (!aluno.id) {
+                console.warn('[Faltas] AVISO: Estudante sem ID:', estudante);
+              }
+              
+              const linha = criarLinhaAluno(aluno);
+              tabela.appendChild(linha);
+            });
+            
+            console.log('[Faltas] Estudantes carregados e adicionados à tabela');
+            atualizarTotais();
+            if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao(`${turma.estudantes.length} alunos carregados automaticamente.`, 'success');
+          } else {
+            console.warn('[Faltas] Turma sem estudantes');
+            tabela.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Nenhum estudante encontrado nesta turma</td></tr>';
+          }
+          
+        } catch (erro) {
+          console.error('%c[Faltas] ERRO AO CARREGAR AUTOMATICAMENTE', 'color: red; font-weight: bold; font-size: 12px', erro);
+          tabela.innerHTML = `<tr><td colspan="4" class="text-danger"><strong>Erro:</strong> ${erro.message}</td></tr>`;
+        }
+      });
 
-        const rows = Array.from(tabela.querySelectorAll('tr'));
-        const registros = rows.map(r => {
-          const numero = r.querySelector('td:first-child') ? r.querySelector('td:first-child').textContent.trim() : '';
-          const nome = r.querySelector('td:nth-child(2)') ? r.querySelector('td:nth-child(2)').textContent.trim() : '';
-          const status = r.querySelector('.status-select') ? r.querySelector('.status-select').value : '';
-          const observacao = r.querySelector('.obs-input') ? r.querySelector('.obs-input').value : '';
-          return { numero, nome, data, status, observacao };
-        }).filter(x => x.nome);
+      // submit to backend
+      btnGuardar.addEventListener('click', async function() {
+        const data = document.getElementById('dataFalta').value;
+        const turmaId = document.getElementById('selectTurma').value;
+        const disciplinaId = document.getElementById('selectDisciplina').value;
 
-        const payload = { data, turma, disciplina, registros };
-        console.log('Enviando faltas payload:', payload);
-
-        // endpoint configurável: defina window.FALTAS_API_ENDPOINT antes do script se necessário
-        const endpoint = window.FALTAS_API_ENDPOINT || (window.location.origin + '/api/faltas');
-        console.log('Usando endpoint:', endpoint);
-
-        // Detectar se a página está a correr via file:// ou origin é 'null' — nesses casos não tente fetch (evita erro CORS local)
-        const isFileProtocol = window.location.protocol === 'file:' || (window.location.origin === 'null');
-        if (isFileProtocol || endpoint.startsWith('file:') || endpoint.includes('null')) {
-          console.warn('Página servido via file:// ou endpoint inválido — submissão será simulada. Defina window.FALTAS_API_ENDPOINT para ativar envio real.');
-          console.log('Payload (simulado):', payload);
-          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Submissão simulada: página carregada localmente. Configure window.FALTAS_API_ENDPOINT para enviar ao backend.', 'info');
+        if (!data || !turmaId || !disciplinaId) {
+          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data, turma e disciplina.', 'warning');
+          else alert('Selecione data, turma e disciplina.');
           return;
         }
 
-        fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        }).then(async res => {
-          const text = await res.text().catch(() => '');
-          if (res.ok) {
-            console.log('Resposta do servidor:', res.status, text);
-            if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Registo de faltas enviado com sucesso.', 'success');
-            else alert('Registo de faltas enviado com sucesso.');
-          } else {
-            console.error('Erro HTTP ao enviar registos:', res.status, text);
-            if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Erro ao enviar: ' + (text || res.statusText + ' (' + res.status + ')'), 'danger');
-            else alert('Erro ao enviar: ' + (text || res.statusText + ' (' + res.status + ')'));
+        // Carregar apenas os registos com "falta" ou "atraso"
+        const rows = Array.from(tabela.querySelectorAll('tr'));
+        const faltasParaEnviar = rows.map(r => {
+          const statusSelect = r.querySelector('.status-select');
+          const estudanteId = statusSelect ? statusSelect.getAttribute('data-aluno-id') : '';
+          const status = statusSelect ? statusSelect.value : '';
+          const observacao = r.querySelector('.obs-input') ? r.querySelector('.obs-input').value : '';
+          
+          if (status !== 'presente' && estudanteId) {
+            return {
+              estudante_id: parseInt(estudanteId),
+              disciplina_id: parseInt(disciplinaId),
+              turma_id: parseInt(turmaId),
+              data_falta: data,
+              tipo_falta: 'INJUSTIFICADA', // default
+              observacao: observacao || null
+            };
           }
-        }).catch(err => {
-          console.error('Falha network ao enviar registos:', err);
-          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Erro de rede ao enviar registos. Ver console para mais detalhes.', 'danger');
-          else alert('Erro de rede ao enviar registos. Ver console para mais detalhes.');
-        });
-      });
+          return null;
+        }).filter(x => x !== null);
 
-      // attach change listeners for existing sample rows
-      tabela.querySelectorAll('.status-select').forEach(s => s.addEventListener('change', () => atualizarTotais()));
-      atualizarTotais();
+        if (faltasParaEnviar.length === 0) {
+          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Nenhuma falta para registar.', 'info');
+          else alert('Nenhuma falta para registar.');
+          return;
+        }
+
+        console.log('Enviando faltas:', faltasParaEnviar);
+
+        try {
+          // Enviar cada falta individualmente usando a API service
+          const promessas = faltasParaEnviar.map(falta => api.createFalta(falta));
+
+          const respostas = await Promise.allSettled(promessas);
+          const sucessos = respostas.filter(r => r.status === 'fulfilled').length;
+          const falhas = respostas.filter(r => r.status === 'rejected').length;
+
+          if (falhas === 0) {
+            console.log('Todas as faltas foram enviadas com sucesso');
+            if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao(`${sucessos} falta(s) registada(s) com sucesso.`, 'success');
+            // Limpar tabela
+            tabela.innerHTML = '';
+            atualizarTotais();
+          } else {
+            console.error(`${sucessos} faltas registadas, ${falhas} falharam`);
+            if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao(`${sucessos} faltas registadas, ${falhas} falharam.`, 'warning');
+          }
+        } catch (err) {
+          console.error('Erro ao enviar faltas:', err);
+          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Erro ao enviar faltas: ' + err.message, 'danger');
+          else alert('Erro ao enviar faltas: ' + err.message);
+        }
+      });
     });
   </script>
 </body>
