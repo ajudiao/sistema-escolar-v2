@@ -402,112 +402,10 @@
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
-  <script src="../../js/api-service.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script src="js/professor.js"></script>
   <script>
-    // ========== CARREGAR DADOS INICIAIS ==========
-    async function carregarDados() {
-      const spinner = document.getElementById('loadingSpinner');
-      const content = document.getElementById('pageContent');
-      
-      try {
-        console.log('%c[PERFIL] Carregando dados do professor...', 'color: blue; font-weight: bold;');
-        
-        const usuarioId = localStorage.getItem('userId');
-        const professor = await api.getProfessorByUsuario(usuarioId);
-        
-        console.log('%c[PERFIL] Professor carregado:', 'color: green;', professor);
-        
-        // Atualizar header
-        const headerName = document.querySelector('.header-user-name');
-        const headerAvatar = document.querySelector('.header-user-avatar');
-        const nomeHeader = document.getElementById('nomeHeader');
-        
-        headerName.textContent = professor.nome_prof || 'Professor';
-        nomeHeader.textContent = professor.nome_prof || 'Professor';
-        headerAvatar.textContent = professor.nome_prof
-          ? professor.nome_prof.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-          : 'JF';
-        
-        // Preencher campos do formulário
-        document.getElementById('nomeInput').value = professor.nome_prof || '';
-        document.getElementById('emailInput').value = professor.email_prof || '';
-        document.getElementById('biInput').value = professor.numero_bi_prof || '';
-        document.getElementById('phoneInput').value = professor.telefone_prof || '';
-        document.getElementById('naturalidadeInput').value = professor.naturalidade_prof || '';
-        document.getElementById('areaFormacaoInput').value = professor.area_formacao_prof || '';
-        document.getElementById('nivelAcademicoInput').value = professor.nivel_academico || '';
-        
-        if (professor.data_nascimento_prof) {
-          const data = new Date(professor.data_nascimento_prof).toISOString().split('T')[0];
-          document.getElementById('dataNascimentoInput').value = data;
-        }
-        
-        // Atualizar display de informações
-        document.getElementById('biDisplay').textContent = professor.numero_bi_prof || '-';
-        document.getElementById('emailDisplay').textContent = professor.email_prof || '-';
-        document.getElementById('phoneDisplay').textContent = professor.telefone_prof || '-';
-        document.getElementById('naturalidadeDisplay').textContent = professor.naturalidade_prof || '-';
-        
-        // Atualizar disciplinas (badges)
-        const disciplinasBadges = document.getElementById('disciplinasBadges');
-        disciplinasBadges.innerHTML = '';
-        
-        if (professor.disciplinas && professor.disciplinas.length > 0) {
-          const cores = ['badge-primary', 'badge-info', 'badge-success', 'badge-warning', 'badge-danger'];
-          professor.disciplinas.forEach((disc, index) => {
-            const nomeDis = disc.disciplina?.descricao_disc || disc.descricao_disc || 'Disciplina';
-            const badge = document.createElement('span');
-            badge.className = `badge ${cores[index % cores.length]}`;
-            badge.textContent = nomeDis;
-            disciplinasBadges.appendChild(badge);
-          });
-          
-          document.getElementById('disciplinasCount').textContent = professor.disciplinas.length;
-          document.getElementById('disciplinasProgress').style.width = '100%';
-        }
-        
-        // Atualizar turmas
-        let totalTurmas = 0;
-        if (professor.turmas && professor.turmas.length > 0) {
-          totalTurmas += professor.turmas.length;
-        }
-        if (professor.turmas_dirigidas && professor.turmas_dirigidas.length > 0) {
-          totalTurmas += professor.turmas_dirigidas.length;
-        }
-        
-        document.getElementById('turmasCount').textContent = totalTurmas;
-        document.getElementById('turmasProgress').style.width = Math.min(totalTurmas * 25, 100) + '%';
-        
-        // Calcular total de alunos
-        let totalAlunos = 0;
-        const turmas = [...(professor.turmas || []), ...(professor.turmas_dirigidas || [])];
-        for (const turma of turmas) {
-          const turmaCompleta = await api.getTurma(turma.id_turma);
-          if (turmaCompleta.estudantes) {
-            totalAlunos += turmaCompleta.estudantes.length;
-          }
-        }
-        
-        document.getElementById('alunosCount').textContent = totalAlunos;
-        document.getElementById('alunosProgress').style.width = Math.min((totalAlunos / 150) * 100, 100) + '%';
-        
-        spinner.style.display = 'none';
-        content.style.display = 'block';
-        
-        console.log('%c[PERFIL] Dados carregados com sucesso!', 'color: green; font-weight: bold;');
-        
-      } catch (erro) {
-        console.error('%c[PERFIL] Erro ao carregar dados:', 'color: red;', erro);
-        spinner.innerHTML = `<div class="alert alert-danger">Erro ao carregar perfil: ${erro.message}</div>`;
-      }
-    }
-
-    // ========== EVENT LISTENERS ==========
     document.addEventListener('DOMContentLoaded', function () {
-      carregarDados();
-      
       // Elementos
       const photoUploadBtn = document.getElementById('photoUploadBtn');
       const photoInput = document.getElementById('photoInput');
@@ -515,9 +413,11 @@
       const profileInitials = document.getElementById('profileInitials');
       const contactForm = document.getElementById('contactForm');
       const passwordForm = document.getElementById('passwordForm');
+      const phoneDisplay = document.getElementById('phoneDisplay');
 
       // Função para mostrar mensagens flash
       function showFlashMessage(message, type = 'success') {
+        // Remover mensagem anterior se existir
         const existingFlash = document.querySelector('.alert');
         if (existingFlash) {
           existingFlash.remove();
@@ -564,6 +464,7 @@
             profilePhoto.style.display = 'block';
             profileInitials.style.display = 'none';
 
+            // Simulação de upload
             console.log('Simulando upload de foto de perfil...');
             console.log('Arquivo:', file.name);
             console.log('Tamanho:', (file.size / 1024 / 1024).toFixed(2) + ' MB');
@@ -585,88 +486,47 @@
         const phone = document.getElementById('phoneInput').value;
         const address = document.getElementById('addressInput').value;
 
+        // Simulação de atualização
         console.log('Atualizando informações de contato...');
         console.log('Telefone:', phone);
         console.log('Endereço:', address);
 
         setTimeout(() => {
           console.log('Informações de contato atualizadas com sucesso!');
-          document.getElementById('phoneDisplay').textContent = phone;
+          phoneDisplay.textContent = phone;
           showFlashMessage('Informações de contato atualizadas com sucesso!');
         }, 1500);
       });
 
-      // Alteração de senha com API
-      passwordForm.addEventListener('submit', async function (e) {
+      // Alteração de senha
+      passwordForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const currentPassword = document.getElementById('currentPassword').value;
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
-        // Validação de senha se campos foram preenchidos
-        if (currentPassword || newPassword || confirmPassword) {
-          if (!currentPassword) {
-            showFlashMessage('Por favor, insira a palavra-passe atual.', 'danger');
-            return;
-          }
-          
-          if (!newPassword) {
-            showFlashMessage('Por favor, insira a nova palavra-passe.', 'danger');
-            return;
-          }
-          
-          if (newPassword.length < 6) {
-            showFlashMessage('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'danger');
-            return;
-          }
-          
-          if (newPassword !== confirmPassword) {
-            showFlashMessage('A confirmação da palavra-passe não coincide.', 'danger');
-            return;
-          }
-        } else {
-          showFlashMessage('Por favor, preencha todos os campos de palavra-passe.', 'danger');
+        // Validações básicas
+        if (newPassword !== confirmPassword) {
+          showFlashMessage('As novas palavras-passe não coincidem.', 'danger');
           return;
         }
 
-        const submitBtn = passwordForm.querySelector('button[type="submit"]');
-        submitBtn.disabled = true;
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"><span class="visually-hidden">...</span></span>Guardando...';
-
-        try {
-          const usuarioId = localStorage.getItem('userId');
-          
-          if (!usuarioId) {
-            showFlashMessage('Não conseguido identificar o utilizador. Por favor, faça login novamente.', 'danger');
-            setTimeout(() => window.location.href = '/index.html', 2000);
-            return;
-          }
-
-          console.log('%c[PERFIL] Alterando palavra-passe para usuário:', 'color: blue;', usuarioId);
-          
-          const data = {
-            password: newPassword
-          };
-
-          await api.put(`/usuarios/${usuarioId}`, data);
-          
-          console.log('%c[PERFIL] Palavra-passe alterada com sucesso!', 'color: green;');
-          showFlashMessage('Palavra-passe alterada com sucesso!');
-          
-          // Limpar campos de senha
-          document.getElementById('currentPassword').value = '';
-          document.getElementById('newPassword').value = '';
-          document.getElementById('confirmPassword').value = '';
-          
-        } catch (error) {
-          console.error('%c[PERFIL] Erro ao alterar palavra-passe:', 'color: red;', error);
-          showFlashMessage('Erro ao guardar alterações: ' + error.message, 'danger');
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = originalText;
+        if (newPassword.length < 6) {
+          showFlashMessage('A nova palavra-passe deve ter pelo menos 6 caracteres.', 'danger');
+          return;
         }
+
+        // Simulação de alteração de senha
+        console.log('Alterando palavra-passe...');
+        console.log('Palavra-passe atual fornecida');
+        console.log('Nova palavra-passe definida');
+
+        setTimeout(() => {
+          console.log('Palavra-passe alterada com sucesso!');
+          passwordForm.reset();
+          showFlashMessage('Palavra-passe alterada com sucesso!');
+        }, 2000);
       });
     });
   </script>
