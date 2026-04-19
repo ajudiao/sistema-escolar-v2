@@ -428,6 +428,13 @@ class APIService {
   }
 
   /**
+   * Lançar ou atualizar nota (UPSERT)
+   */
+  async upsertNota(data) {
+    return this.post('/notas/upsert', data);
+  }
+
+  /**
    * Atualizar nota
    */
   async updateNota(id, data) {

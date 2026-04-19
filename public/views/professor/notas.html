@@ -528,46 +528,157 @@
       }
     }
 
+    // ========== CARREGAR NOTAS EXISTENTES ==========
+    async function carregarNotasExistentes(disciplinaId, turmaId, trimestre, anoLetivo, estudantes) {
+      try {
+        console.log('%c[NOTAS] ========== INICIANDO CARREGAMENTO DE NOTAS ==========', 'color: blue; font-weight: bold;');
+        console.log('%c[NOTAS] Filtros aplicados:', 'color: blue;', {
+          disciplinaId, turmaId, trimestre, anoLetivo
+        });
+        
+        // Buscar todas as notas da disciplina
+        const notas = await api.getNotas(null, disciplinaId);
+        console.log('%c[NOTAS] Total de notas retornadas pela API:', 'color: green;', notas ? notas.length : 0);
+        
+        if (notas && notas.length > 0) {
+          console.log('%c[NOTAS] Primeira nota retornada (estrutura):', 'color: purple;', notas[0]);
+          console.log('%c[NOTAS] Propriedades disponíveis:', 'color: purple;', Object.keys(notas[0]));
+        }
+        
+        if (!notas || notas.length === 0) {
+          console.log('%c[NOTAS] ⚠️ Nenhuma nota encontrada para esta disciplina', 'color: orange;');
+          return;
+        }
+
+        // Filtrar notas pelo trimestre, turma e ano letivo selecionados
+        console.log('%c[NOTAS] Aplicando filtros:', 'color: cyan;', `trimestre=${trimestre}, turma=${turmaId}, ano=${anoLetivo}`);
+        
+        const notasFiltradas = notas.filter(nota => {
+          const trimMatch = nota.trimestre_nota == trimestre;
+          const turmaMatch = nota.turma_id === turmaId;
+          const anoMatch = nota.ano_letivo === anoLetivo;
+          
+          if (!trimMatch || !turmaMatch || !anoMatch) {
+            console.log(`%c[NOTAS] ✗ Nota rejeitada - Est: ${nota.estudante_id}, Tri: ${nota.trimestre_nota}(${trimMatch}), Turma: ${nota.turma_id}(${turmaMatch}), Ano: ${nota.ano_letivo}(${anoMatch})`, 'color: orange;');
+            return false;
+          }
+          return true;
+        });
+
+        console.log(`%c[NOTAS] ✓ Notas filtradas: ${notasFiltradas.length} de ${notas.length}`, 'color: cyan;');
+        
+        if (notasFiltradas.length > 0) {
+          console.log('%c[NOTAS] Primeira nota filtrada:', 'color: purple;', notasFiltradas[0]);
+        }
+
+        // Criar mapa de notas por estudante para busca rápida
+        const notasPorEstudante = {};
+        notasFiltradas.forEach(nota => {
+          const key = nota.estudante_id;
+          notasPorEstudante[key] = nota;
+        });
+
+        console.log(`%c[NOTAS] Mapa criado com ${Object.keys(notasPorEstudante).length} estudantes`, 'color: purple;');
+
+        // Preencher os campos com as notas existentes
+        const rows = document.querySelectorAll('#tabelaAlunosNotas tr');
+        let notasPreenchidas = 0;
+        
+        console.log('%c[NOTAS] Iniciando preenchimento de campos...', 'color: teal;');
+        
+        rows.forEach((row, idx) => {
+          const estudanteId = parseInt(row.dataset.estudanteId);
+          const nota = notasPorEstudante[estudanteId];
+
+          console.log(`%c[NOTAS] Linha ${idx}: Est ID ${estudanteId} - ${nota ? '✓ ENCONTRADA' : '✗ NÃO ENCONTRADA'}`, nota ? 'color: green;' : 'color: orange;');
+
+          if (nota) {
+            console.log(`%c[NOTAS]   Valores: MAC=${nota.mac_notas}, NPP=${nota.pp_notas}, NPT=${nota.pt_notas}`, 'color: teal;');
+            
+            // Preencher os campos se tiverem valores
+            const inputMac = row.querySelector('input[data-field="mac"]');
+            const inputNpp = row.querySelector('input[data-field="npp"]');
+            const inputNpt = row.querySelector('input[data-field="npt"]');
+
+            if (inputMac && nota.mac_notas !== undefined && nota.mac_notas !== null) {
+              inputMac.value = parseFloat(nota.mac_notas);
+              console.log(`%c[NOTAS]     ✓ MAC preenchido`, 'color: green;');
+            }
+            if (inputNpp && nota.pp_notas !== undefined && nota.pp_notas !== null) {
+              inputNpp.value = parseFloat(nota.pp_notas);
+              console.log(`%c[NOTAS]     ✓ NPP preenchido`, 'color: green;');
+            }
+            if (inputNpt && nota.pt_notas !== undefined && nota.pt_notas !== null) {
+              inputNpt.value = parseFloat(nota.pt_notas);
+              console.log(`%c[NOTAS]     ✓ NPT preenchido`, 'color: green;');
+            }
+
+            notasPreenchidas++;
+          }
+        });
+
+        // Recalcular médias após preencher
+        document.querySelectorAll('#tabelaAlunosNotas tr').forEach(row => {
+          updateMediaLinha(row);
+        });
+        updateResumo();
+
+        console.log(`%c[NOTAS] ✓ ${notasPreenchidas}/${rows.length} notas preenchidas com sucesso!`, notasPreenchidas > 0 ? 'color: green; font-weight: bold;' : 'color: orange; font-weight: bold;');
+        console.log('%c[NOTAS] ========== FIM DO CARREGAMENTO DE NOTAS ==========', 'color: blue; font-weight: bold;');
+
+      } catch (erro) {
+        console.error('%c[NOTAS] ✗ Erro ao carregar notas existentes:', 'color: red;', erro);
+        console.warn('%c[NOTAS] Continuando sem carregar notas anteriores...', 'color: orange;');
+      }
+    }
+
     // ========== CARREGAR ALUNOS ==========
     async function carregarAlunos() {
-      const trimestreValue = document.getElementById('trimestreSelect').value;
-      const turmaId = document.getElementById('turmaSelect').value;
-      const disciplinaId = document.getElementById('disciplinaSelect').value;
-      const data = document.getElementById('dataAvaliacao').value;
+      const btnCarregar = document.getElementById('btnCarregarAlunos');
       
-      console.log('%c[NOTAS] DEBUG - Iniciando carregarAlunos com valores:', 'color: cyan;', {
-        trimestre: trimestreValue,
-        turmaId: turmaId,
-        disciplinaId: disciplinaId,
-        data: data
-      });
-      
-      // Validações (devem estar preenchidos)
-      if (!trimestreValue || trimestreValue === '') {
-        console.warn('%c[NOTAS] Validação falhou: Trimestre vazio', 'color: orange;');
-        showFlashMessage('Selecione um trimestre', 'warning');
-        return;
-      }
-      
-      if (!turmaId || turmaId === '') {
-        console.warn('%c[NOTAS] Validação falhou: Turma vazia', 'color: orange;');
-        showFlashMessage('Selecione uma turma', 'warning');
-        return;
-      }
-      
-      if (!disciplinaId || disciplinaId === '') {
-        console.warn('%c[NOTAS] Validação falhou: Disciplina vazia', 'color: orange;');
-        showFlashMessage('Selecione uma disciplina', 'warning');
-        return;
-      }
-      
-      if (!data || data === '') {
-        console.warn('%c[NOTAS] Validação falhou: Data vazia', 'color: orange;');
-        showFlashMessage('Selecione uma data', 'warning');
-        return;
-      }
+      // Iniciar spinner
+      btnCarregar.disabled = true;
+      const textoBtnOriginal = btnCarregar.innerHTML;
+      btnCarregar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Carregando...';
       
       try {
+        const trimestreValue = document.getElementById('trimestreSelect').value;
+        const turmaId = document.getElementById('turmaSelect').value;
+        const disciplinaId = document.getElementById('disciplinaSelect').value;
+        const data = document.getElementById('dataAvaliacao').value;
+        
+        console.log('%c[NOTAS] DEBUG - Iniciando carregarAlunos com valores:', 'color: cyan;', {
+          trimestre: trimestreValue,
+          turmaId: turmaId,
+          disciplinaId: disciplinaId,
+          data: data
+        });
+        
+        // Validações (devem estar preenchidos)
+        if (!trimestreValue || trimestreValue === '') {
+          console.warn('%c[NOTAS] Validação falhou: Trimestre vazio', 'color: orange;');
+          showFlashMessage('Selecione um trimestre', 'warning');
+          return;
+        }
+        
+        if (!turmaId || turmaId === '') {
+          console.warn('%c[NOTAS] Validação falhou: Turma vazia', 'color: orange;');
+          showFlashMessage('Selecione uma turma', 'warning');
+          return;
+        }
+        
+        if (!disciplinaId || disciplinaId === '') {
+          console.warn('%c[NOTAS] Validação falhou: Disciplina vazia', 'color: orange;');
+          showFlashMessage('Selecione uma disciplina', 'warning');
+          return;
+        }
+        
+        if (!data || data === '') {
+          console.warn('%c[NOTAS] Validação falhou: Data vazia', 'color: orange;');
+          showFlashMessage('Selecione uma data', 'warning');
+          return;
+        }
+        
         console.log('%c[NOTAS] ✓ Todas as validações passaram, carregando alunos da turma:', 'color: blue;', turmaId);
         
         // Converter turmaId para número e validar
@@ -629,30 +740,50 @@
         document.getElementById('divLancarNotas').style.display = 'block';
         updateResumo();
         
+        // Carregar notas já existentes com filtros precisos
+        await carregarNotasExistentes(
+          parseInt(disciplinaId), 
+          parseInt(turmaId),
+          parseInt(trimestreValue),
+          new Date().getFullYear(),
+          turma.estudantes
+        );
+        
         console.log(`%c✓ [NOTAS] ${turma.estudantes.length} alunos carregados com sucesso!`, 'color: green;');
         
       } catch (erro) {
         console.error('%c[NOTAS] ✗ Erro ao carregar alunos:', 'color: red;', erro);
         showFlashMessage(`Erro ao carregar alunos: ${erro.message}`, 'danger');
+      } finally {
+        // Remover spinner
+        btnCarregar.disabled = false;
+        btnCarregar.innerHTML = textoBtnOriginal;
       }
     }
 
     // ========== SALVAR NOTAS ==========
     async function salvarNotas() {
-      const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
+      const btnSalvar = document.getElementById('btnLancarNotas');
       
-      if (rows.length === 0) {
-        showFlashMessage('Carregue os alunos antes de salvar', 'danger');
-        return;
-      }
-      
-      const trimestreValue = document.getElementById('trimestreSelect').value;
-      const turmaId = document.getElementById('turmaSelect').value;
-      const data = document.getElementById('dataAvaliacao').value;
-      const disciplinaIdValue = document.getElementById('disciplinaSelect').value;
-      const anoLetivo = new Date().getFullYear();
+      // Iniciar spinner
+      btnSalvar.disabled = true;
+      const textoBtnOriginal = btnSalvar.innerHTML;
+      btnSalvar.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Salvando...';
       
       try {
+        const rows = Array.from(document.querySelectorAll('#tabelaAlunosNotas tr'));
+        
+        if (rows.length === 0) {
+          showFlashMessage('Carregue os alunos antes de salvar', 'danger');
+          return;
+        }
+        
+        const trimestreValue = document.getElementById('trimestreSelect').value;
+        const turmaId = document.getElementById('turmaSelect').value;
+        const data = document.getElementById('dataAvaliacao').value;
+        const disciplinaIdValue = document.getElementById('disciplinaSelect').value;
+        const anoLetivo = new Date().getFullYear();
+        
         console.log('%c[NOTAS] Iniciando salvamento de notas...', 'color: blue; font-weight: bold;');
         console.log('%c[NOTAS] Valores capturados:', 'color: teal;', {
           trimestre: trimestreValue,
@@ -731,12 +862,12 @@
               ano_letivo: anoLetivo
             };
             
-            console.log(`%c[NOTAS] Salvando nota para ${nomeAluno}:`, 'color: teal;', notaData);
+            console.log(`%c[NOTAS] Salvando/atualizando nota para ${nomeAluno}:`, 'color: teal;', notaData);
             
-            await api.createNota(notaData);
+            await api.upsertNota(notaData);
             notasSalvas++;
             
-            console.log(`%c✓ Nota de ${nomeAluno} salva com sucesso!`, 'color: green;');
+            console.log(`%c✓ Nota de ${nomeAluno} salva/atualizada com sucesso!`, 'color: green;');
             
           } catch (erro) {
             erros++;
@@ -763,6 +894,10 @@
       } catch (erro) {
         console.error('%c[NOTAS] Erro geral ao salvar notas:', 'color: red;', erro);
         showFlashMessage(`Erro ao salvar notas: ${erro.message}`, 'danger');
+      } finally {
+        // Remover spinner
+        btnSalvar.disabled = false;
+        btnSalvar.innerHTML = textoBtnOriginal;
       }
     }
 
