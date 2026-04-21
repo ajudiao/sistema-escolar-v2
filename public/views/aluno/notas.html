@@ -377,7 +377,7 @@
       // ========== FUNÇÃO: CARREGAR TURMA COM DISCIPLINAS ==========
       async function loadTurmaComDisciplinas(turmaId) {
         try {
-          console.log('[NOTAS] Carregando turma e disciplinas da turma:', turmaId);
+          console.log('[NOTAS] Carregando turma e TODAS as disciplinas da turma:', turmaId);
           
           // Buscar turma
           const turma = await api.getTurma(turmaId);
@@ -391,30 +391,50 @@
           }
 
           // Buscar disciplinas DO CURSO desta turma
+          let disciplinasDosCurso = [];
           if (turma && turma.curso_id) {
             console.log('[NOTAS] Buscando disciplinas do curso ID:', turma.curso_id);
             try {
-              const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
-              console.log('[NOTAS] Disciplinas do curso carregadas:', disciplinas?.length ?? 0);
-              console.log('[NOTAS] Lista de disciplinas:', disciplinas);
-              
-              if (disciplinas && disciplinas.length > 0) {
-                disciplinasData = disciplinas;
-                console.log('[NOTAS] Usando disciplinas do curso');
-              } else {
-                console.warn('[NOTAS] Nenhuma disciplina encontrada para curso:', turma.curso_id);
-                disciplinasData = [];
-              }
+              disciplinasDosCurso = await api.getDisciplinasCurso(turma.curso_id) || [];
+              console.log('[NOTAS] Disciplinas do curso carregadas:', disciplinasDosCurso?.length ?? 0);
             } catch (courseError) {
               console.error('[NOTAS] Erro ao buscar disciplinas do curso:', courseError);
-              disciplinasData = [];
+              disciplinasDosCurso = [];
             }
-          } else {
-            console.warn('[NOTAS] Turma sem curso associado');
-            disciplinasData = [];
           }
 
-          console.log('[NOTAS] Total de disciplinas carregadas:', disciplinasData?.length ?? 0);
+          // Buscar TODAS as disciplinas como fallback/suplemento
+          let todasAsDisciplinas = [];
+          try {
+            todasAsDisciplinas = await api.getDisciplinas() || [];
+            console.log('[NOTAS] Todas as disciplinas carregadas:', todasAsDisciplinas?.length ?? 0);
+          } catch (allError) {
+            console.error('[NOTAS] Erro ao buscar todas as disciplinas:', allError);
+            todasAsDisciplinas = [];
+          }
+
+          // Combinar as duas listas, priorizando disciplinas do curso
+          const disciplinasMap = {};
+          
+          // Primeiro adicionar as do curso
+          disciplinasDosCurso.forEach(disc => {
+            const id = disc.id_disc || disc.id;
+            disciplinasMap[id] = disc;
+          });
+          
+          // Depois adicionar as que não estão (do sistema geral)
+          todasAsDisciplinas.forEach(disc => {
+            const id = disc.id_disc || disc.id;
+            if (!disciplinasMap[id]) {
+              disciplinasMap[id] = disc;
+            }
+          });
+
+          // Converter mapa para array
+          disciplinasData = Object.values(disciplinasMap);
+          
+          console.log('[NOTAS] Total de disciplinas após merge:', disciplinasData?.length ?? 0);
+          console.log('[NOTAS] Lista de disciplinas:', disciplinasData.map(d => d.descricao_disc || d.sigla_disc));
           
           // Atualizar selector de disciplinas
           updateDisciplinaSelector();
@@ -450,17 +470,22 @@
 
       // ========== FUNÇÃO: COMBINAR DISCIPLINAS COM NOTAS ==========
       function combinarDisciplinasComNotas() {
-        console.log('[NOTAS] Combinando:', disciplinasData?.length ?? 0, 'disciplinas com', (notasData || []).length, 'notas');
+        console.log('[NOTAS] === COMBINAR DISCIPLINAS COM NOTAS ===');
+        console.log('[NOTAS] disciplinasData:', disciplinasData);
+        console.log('[NOTAS] disciplinasData.length:', disciplinasData?.length ?? 0);
+        console.log('[NOTAS] notasData.length:', (notasData || []).length ?? 0);
 
         if (!disciplinasData || disciplinasData.length === 0) {
-          console.warn('[NOTAS] Nenhuma disciplina disponível');
+          console.warn('[NOTAS] ⚠️ PROBLEMA: Nenhuma disciplina disponível!');
+          console.warn('[NOTAS] disciplinasData value:', disciplinasData);
           // Se não houver disciplinas carregadas, extrair dos dados de notas
           if (!notasData || notasData.length === 0) {
-            console.warn('[NOTAS] Também sem notas. Retornando vazio.');
+            console.warn('[NOTAS] ⚠️ PROBLEMA: Também sem notas. Retornando vazio.');
             notasCombinadas = [];
             return;
           }
           // Usar disciplinas das notas que existem
+          console.warn('[NOTAS] ⚠️ FALLBACK: Usando apenas as notas disponíveis como resultado');
           notasCombinadas = notasData; // Retornar as notas que temos
           return;
         }
@@ -470,15 +495,21 @@
         (notasData || []).forEach(nota => {
           const key = nota.disciplina_id;
           notasPorDisciplina[key] = nota;
+          console.log('[NOTAS] Mapeando nota: disciplina_id=' + key);
         });
 
+        console.log('[NOTAS] Total de disciplinas com notas encontradas no mapa:', Object.keys(notasPorDisciplina).length);
+
         // Para cada disciplina, usar nota existente ou criar com zero
-        const resultado = disciplinasData.map(disciplina => {
+        console.log('[NOTAS] Iniciando map sobre', disciplinasData.length, 'disciplinas...');
+        const resultado = disciplinasData.map((disciplina, index) => {
           const notaId = disciplina.id_disc || disciplina.id;
+          console.log('[NOTAS] [' + (index+1) + '/' + disciplinasData.length + '] Disciplina:', disciplina.descricao_disc || disciplina.sigla_disc, '(id=' + notaId + ')');
+          
           const nota = notasPorDisciplina[notaId];
           
           if (nota) {
-            console.log('[NOTAS] Disciplina com nota:', disciplina.descricao_disc || disciplina.sigla_disc);
+            console.log('[NOTAS]   ✓ Nota encontrada:', nota);
             // Retornar a nota mas SEMPRE incluindo a disciplina completa
             return {
               ...nota,
@@ -487,7 +518,7 @@
             };
           } else {
             // Criar nota padrão com zero
-            console.log('[NOTAS] Disciplina SEM nota (preenchendo com zero):', disciplina.descricao_disc || disciplina.sigla_disc);
+            console.log('[NOTAS]   ✗ PREENCHENDO COM ZERO');
             return {
               id_nota: null,
               estudante_id: estudanteId,
@@ -503,11 +534,12 @@
           }
         });
 
+        console.log('[NOTAS] ✓ Mapeamento concluído. Resultado tem', resultado.length, 'itens');
+
         notasCombinadas = resultado;
-        console.log('[NOTAS] Notas combinadas:', notasCombinadas.length, 'disciplinas');
-        
-        // Debug: listar todas as disciplinas carregadas
-        console.log('[NOTAS] Disciplinas no resultado:', notasCombinadas.map(n => n.disciplina?.descricao_disc || 'N/A'));
+        console.log('[NOTAS] ✓ notasCombinadas atualizado com', notasCombinadas.length, 'disciplinas');
+        console.log('[NOTAS] Lista final:', notasCombinadas.map(n => n.disciplina?.descricao_disc || 'N/A'));
+        console.log('[NOTAS] === FIM COMBINAR DISCIPLINAS COM NOTAS ===');
       }
 
       // ========== FUNÇÃO: ATUALIZAR SELECTOR DE DISCIPLINAS ==========
