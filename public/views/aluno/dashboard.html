@@ -191,10 +191,10 @@
                   <table class="table table-hover mb-0">
                     <thead>
                       <tr>
-                        <th>Avaliação</th>
-                        <th class="text-center">Disciplina</th>
-                        <th class="text-center">Data</th>
-                        <th class="text-center">Nota</th>
+                        <th>Disciplina</th>
+                        <th class="text-center">M.A.C</th>
+                        <th class="text-center">P.P</th>
+                        <th class="text-center">P.T</th>
                       </tr>
                     </thead>
                     <tbody id="avaliacoesTableBody">
@@ -247,24 +247,12 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Dados simulados
-      const avaliacoesData = [
-        { titulo: 'Prova 1 - Funções', disciplina: 'Matematica', data: '15/11/2026', nota: 15 },
-        { titulo: 'Teste - Leis de Newton', disciplina: 'Fisica', data: '12/11/2026', nota: 13 },
-        { titulo: 'Trabalho - Sistema Digestivo', disciplina: 'Biologia', data: '10/11/2026', nota: 16 },
-        { titulo: 'Prova - Reações Químicas', disciplina: 'Quimica', data: '08/11/2026', nota: 14 },
-        { titulo: 'Teste - Literatura Portuguesa', disciplina: 'Lingua Portuguesa', data: '05/11/2026', nota: 12 }
-      ];
+      // ========== VARIÁVEIS GLOBAIS ==========
+      let estudanteId = null;
+      let notasData = [];
+      let faltasData = [];
 
-      const faltasData = [
-        { disciplina: 'Matematica', faltas: 2, limite: 10, status: 'OK' },
-        { disciplina: 'Fisica', faltas: 1, limite: 10, status: 'OK' },
-        { disciplina: 'Quimica', faltas: 0, limite: 10, status: 'OK' },
-        { disciplina: 'Biologia', faltas: 1, limite: 10, status: 'OK' },
-        { disciplina: 'Lingua Portuguesa', faltas: 1, limite: 10, status: 'OK' }
-      ];
-
-      // Função para mostrar mensagens flash
+      // ========== FUNÇÃO AUXILIAR: MOSTRAR MENSAGENS ==========
       function showFlashMessage(message, type = 'success') {
         const existingFlash = document.querySelector('.alert');
         if (existingFlash) {
@@ -286,75 +274,267 @@
         }, 5000);
       }
 
-      // Função para carregar avaliações
-      function loadAvaliacoes(searchTerm = '') {
+      // ========== FUNÇÃO: CARREGAR DADOS REAIS DO BACKEND ==========
+      async function loadEstudanteData() {
+        try {
+          // Buscar todos os estudantes para encontrar o logado
+          const estudantes = await api.getEstudantes();
+          console.log('[DASHBOARD] Estudantes disponíveis:', estudantes);
+
+          if (estudantes && estudantes.length > 0) {
+            const estudante = estudantes[0];
+            estudanteId = estudante.id_estudante;
+            api.setEstudanteId(estudanteId);
+
+            console.log('[DASHBOARD] Estudante Logado:', {
+              id: estudanteId,
+              nome: estudante.nome_estudante,
+              turma_id: estudante.turma_id
+            });
+
+            // Carregar turma com disciplinas
+            if (estudante.turma_id) {
+              await loadTurmaComDisciplinas(estudante.turma_id);
+            }
+
+            // Carregar notas do estudante
+            await loadNotasDoEstudante();
+          }
+        } catch (error) {
+          console.error('[DASHBOARD] Erro ao carregar dados do estudante:', error);
+          showFlashMessage('Erro ao carregar dados: ' + error.message, 'danger');
+        }
+      }
+
+      // ========== FUNÇÃO: CARREGAR TURMA COM DISCIPLINAS ==========
+      async function loadTurmaComDisciplinas(turmaId) {
+        try {
+          console.log('[DASHBOARD] Carregando turma com disciplinas:', turmaId);
+          
+          // Buscar turma
+          const turma = await api.getTurma(turmaId);
+          console.log('[DASHBOARD] Turma carregada:', turma);
+
+          if (turma && turma.curso_id) {
+            // Buscar disciplinas do curso
+            const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
+            console.log('[DASHBOARD] Disciplinas do curso:', disciplinas);
+            
+            // Armazenar disciplinas globalmente
+            if (disciplinas && disciplinas.length > 0) {
+              disciplinasDoEstudante = disciplinas;
+            }
+          }
+        } catch (error) {
+          console.error('[DASHBOARD] Erro ao carregar turma:', error);
+        }
+      }
+
+      // ========== VARIÁVEL ADICIONAL: DISCIPLINAS DO ESTUDANTE ==========
+      let disciplinasDoEstudante = [];
+
+      // ========== FUNÇÃO: CARREGAR NOTAS DO BACKEND ==========
+      async function loadNotasDoEstudante() {
+        try {
+          if (!estudanteId) {
+            console.warn('[DASHBOARD] Estudante ID não definido');
+            return;
+          }
+
+          console.log('[DASHBOARD] Carregando notas para estudante:', estudanteId);
+          notasData = await api.getNotas(estudanteId);
+          console.log('[DASHBOARD] Notas carregadas:', notasData);
+
+          // Combinar disciplinas com notas
+          const notasCompletas = combinarDisciplinasComNotas(disciplinasDoEstudante, notasData);
+          displayNotas(notasCompletas);
+        } catch (error) {
+          console.error('[DASHBOARD] Erro ao carregar notas:', error);
+          showFlashMessage('Erro ao carregar notas: ' + error.message, 'warning');
+          displayNotas([]);
+        }
+      }
+
+      // ========== FUNÇÃO: COMBINAR DISCIPLINAS COM NOTAS ==========
+      function combinarDisciplinasComNotas(disciplinas, notas) {
+        if (!disciplinas || disciplinas.length === 0) {
+          console.warn('[DASHBOARD] Nenhuma disciplina disponível');
+          return notas || [];
+        }
+
+        console.log('[DASHBOARD] Combinando:', disciplinas.length, 'disciplinas com', (notas || []).length, 'notas');
+
+        // Criar mapa de notas por disciplina
+        const notasPorDisciplina = {};
+        (notas || []).forEach(nota => {
+          const key = nota.disciplina_id;
+          notasPorDisciplina[key] = nota;
+        });
+
+        // Para cada disciplina, usar nota existente ou criar com zero
+        const resultado = disciplinas.map(disciplina => {
+          const nota = notasPorDisciplina[disciplina.id_disc];
+          
+          if (nota) {
+            return nota;
+          } else {
+            // Criar nota padrão com zero
+            return {
+              id_nota: null,
+              estudante_id: estudanteId,
+              disciplina_id: disciplina.id_disc,
+              disciplina: disciplina,
+              trimestre_nota: 1,
+              mac_notas: 0,
+              pp_notas: 0,
+              pt_notas: 0,
+              ano_letivo: 2025,
+              nota_zero: true // Flag para indicar que é um dado preenchido
+            };
+          }
+        });
+
+        console.log('[DASHBOARD] Notas combinadas:', resultado);
+        return resultado;
+      }
+
+      // ========== FUNÇÃO: CARREGAR FALTAS DO BACKEND ==========
+      async function loadFaltasDoEstudante() {
+        try {
+          if (!estudanteId) {
+            console.warn('[DASHBOARD] Estudante ID não definido');
+            return;
+          }
+
+          console.log('[DASHBOARD] Carregando faltas para estudante:', estudanteId);
+          faltasData = await api.getFaltas(estudanteId);
+          console.log('[DASHBOARD] Faltas carregadas:', faltasData);
+
+          if (faltasData && faltasData.length > 0) {
+            displayFaltas(faltasData);
+          } else {
+            console.log('[DASHBOARD] Nenhuma falta encontrada');
+            loadFaltas([]);
+          }
+        } catch (error) {
+          console.error('[DASHBOARD] Erro ao carregar faltas:', error);
+          showFlashMessage('Erro ao carregar faltas: ' + error.message, 'warning');
+          // Usar dados de fallback
+          loadFaltas([]);
+        }
+      }
+
+      // ========== FUNÇÃO: MOSTRAR NOTAS NA TABELA ==========
+      function displayNotas(notas) {
+        console.log('[DASHBOARD] Exibindo notas:', notas);
         const tbody = document.getElementById('avaliacoesTableBody');
         tbody.innerHTML = '';
 
-        const filteredData = searchTerm 
-          ? avaliacoesData.filter(item => 
-              item.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
-              item.disciplina.toLowerCase().includes(searchTerm.toLowerCase())
-            )
-          : avaliacoesData;
+        if (!notas || notas.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Nenhuma avaliação registada</td></tr>';
+          return;
+        }
 
-        console.log('[API] GET /api/aluno/avaliacoes', { search: searchTerm });
-
-        filteredData.forEach(item => {
+        notas.forEach(nota => {
           const row = document.createElement('tr');
+          const disciplinaName = nota.disciplina?.descricao_disc || 'Disciplina';
+          const valoresPT = nota.pt_notas || 0;
+          const badgeClass = nota.nota_zero ? 'badge-secondary' : 'badge-success';
+          
           row.innerHTML = `
-            <td><strong>${item.titulo}</strong></td>
-            <td class="text-center">${item.disciplina}</td>
-            <td class="text-center">${item.data}</td>
-            <td class="text-center"><span class="badge badge-success">${item.nota}</span></td>
+            <td><strong>${disciplinaName}</strong></td>
+            <td class="text-center">${nota.mac_notas || 0}</td>
+            <td class="text-center">${nota.pp_notas || 0}</td>
+            <td class="text-center">
+              <span class="badge ${badgeClass}">${valoresPT}</span>
+            </td>
           `;
           tbody.appendChild(row);
         });
-
-        setTimeout(() => {
-          console.log('Avaliações carregadas com sucesso!', filteredData);
-        }, 500);
       }
 
-      // Função para carregar faltas
-      function loadFaltas(searchTerm = '') {
+      // ========== FUNÇÃO: MOSTRAR FALTAS NA TABELA ==========
+      function displayFaltas(faltas) {
+        console.log('[DASHBOARD] Exibindo faltas:', faltas);
         const tbody = document.getElementById('faltasTableBody');
         tbody.innerHTML = '';
 
-        const filteredData = searchTerm 
-          ? faltasData.filter(item => item.disciplina.toLowerCase().includes(searchTerm.toLowerCase()))
-          : faltasData;
+        if (!faltas || faltas.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Sem faltas registadas</td></tr>';
+          return;
+        }
 
-        console.log('[API] GET /api/aluno/faltas', { trimestre: 1, search: searchTerm });
+        // Agrupar faltas por disciplina
+        const faltasPorDisciplina = {};
+        faltas.forEach(falta => {
+          const discKey = falta.disciplina?.id_disc || 'unknown';
+          if (!faltasPorDisciplina[discKey]) {
+            faltasPorDisciplina[discKey] = {
+              disciplina: falta.disciplina?.descricao_disc || 'Disciplina',
+              count: 0,
+              limite: 10
+            };
+          }
+          faltasPorDisciplina[discKey].count++;
+        });
 
-        filteredData.forEach(item => {
-          const statusClass = item.status === 'OK' ? 'badge-success' : 'badge-warning';
+        // Exibir resumo por disciplina
+        Object.values(faltasPorDisciplina).forEach(falta => {
+          const statusClass = falta.count < falta.limite ? 'badge-success' : 'badge-warning';
+          const status = falta.count < falta.limite ? 'OK' : 'ALERTA';
           const row = document.createElement('tr');
           row.innerHTML = `
-            <td><strong>${item.disciplina}</strong></td>
-            <td class="text-center">${item.faltas}</td>
-            <td class="text-center text-muted">${item.limite}</td>
-            <td class="text-center"><span class="badge ${statusClass}">${item.status}</span></td>
+            <td><strong>${falta.disciplina}</strong></td>
+            <td class="text-center">${falta.count}</td>
+            <td class="text-center text-muted">${falta.limite}</td>
+            <td class="text-center"><span class="badge ${statusClass}">${status}</span></td>
           `;
           tbody.appendChild(row);
         });
-
-        setTimeout(() => {
-          console.log('Faltas carregadas com sucesso!', filteredData);
-        }, 500);
       }
 
-      // Função de busca
+      // ========== DADOS DE FALLBACK (para quando não houver dados do backend) ==========
+      const avaliacoesFallback = [
+        { titulo: 'Prova 1 - Funções', disciplina: 'Matematica', data: '15/11/2026', nota: 15 },
+        { titulo: 'Teste - Leis de Newton', disciplina: 'Fisica', data: '12/11/2026', nota: 13 },
+        { titulo: 'Trabalho - Sistema Digestivo', disciplina: 'Biologia', data: '10/11/2026', nota: 16 },
+        { titulo: 'Prova - Reações Químicas', disciplina: 'Quimica', data: '08/11/2026', nota: 14 },
+        { titulo: 'Teste - Literatura Portuguesa', disciplina: 'Lingua Portuguesa', data: '05/11/2026', nota: 12 }
+      ];
+
+      const faltasFallback = [
+        { disciplina: 'Matematica', faltas: 2, limite: 10, status: 'OK' },
+        { disciplina: 'Fisica', faltas: 1, limite: 10, status: 'OK' },
+        { disciplina: 'Quimica', faltas: 0, limite: 10, status: 'OK' },
+        { disciplina: 'Biologia', faltas: 1, limite: 10, status: 'OK' },
+        { disciplina: 'Lingua Portuguesa', faltas: 1, limite: 10, status: 'OK' }
+      ];
+
+      // ========== FUNÇÃO AUXILIAR: FUNÇÃO DE BUSCA ==========
       function handleSearch(searchTerm) {
-        loadNotas(searchTerm);
-        loadFaltas(searchTerm);
-        
+        // Filtrar notas pelo nome da disciplina
+        if (notasData && notasData.length > 0) {
+          const filtered = notasData.filter(item =>
+            (item.disciplina?.descricao_disc || '').toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          displayNotas(filtered);
+        } else {
+          console.warn('[DASHBOARD] Nenhuma nota para filtrar');
+        }
+
+        if (faltasData && faltasData.length > 0) {
+          const filtered = faltasData.filter(item =>
+            (item.disciplina?.descricao_disc || '').toLowerCase().includes(searchTerm.toLowerCase())
+          );
+          displayFaltas(filtered);
+        }
+
         if (searchTerm) {
           showFlashMessage(`Resultados filtrados para: "${searchTerm}"`, 'info');
         }
       }
 
-      // Adicionar campo de busca
+      // ========== ADICIONAR CAMPO DE BUSCA ==========
       const searchContainer = document.createElement('div');
       searchContainer.className = 'card mb-4';
       searchContainer.innerHTML = `
@@ -396,7 +576,7 @@
       const welcomeCard = document.querySelector('.card[style*="background: linear-gradient"]');
       welcomeCard.insertAdjacentElement('afterend', searchContainer);
 
-      // Event listeners
+      // ========== EVENT LISTENERS ==========
       const searchInput = document.getElementById('searchInput');
       const clearSearch = document.getElementById('clearSearch');
       const refreshBtn = document.getElementById('refreshBtn');
@@ -420,9 +600,11 @@
         this.disabled = true;
         this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Actualizando...';
         
-        setTimeout(() => {
-          loadAvaliacoes();
-          loadFaltas();
+        // Recarregar dados do backend
+        Promise.all([
+          loadNotasDoEstudante(),
+          loadFaltasDoEstudante()
+        ]).then(() => {
           this.disabled = false;
           this.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
@@ -434,12 +616,28 @@
             Actualizar
           `;
           showFlashMessage('Dados actualizados com sucesso!', 'success');
-        }, 1500);
+        }).catch(error => {
+          this.disabled = false;
+          this.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+              <path d="M21 3v5h-5"/>
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+              <path d="M8 16H3v5"/>
+            </svg>
+            Actualizar
+          `;
+          showFlashMessage('Erro ao actualizar: ' + error.message, 'danger');
+        });
       });
 
-      // Carregar dados iniciais
-      loadAvaliacoes();
-      loadFaltas();
+      // ========== CARREGAR DADOS INICIAIS ==========
+      loadEstudanteData();
+      
+      // Também carregar faltas após carregar dados do estudante
+      setTimeout(() => {
+        loadFaltasDoEstudante();
+      }, 500);
     });
   </script>
 

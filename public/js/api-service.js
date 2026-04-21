@@ -547,6 +547,90 @@ class APIService {
     return this.delete(`/avisos/${id}`);
   }
 
+  // ============= ESTUDANTE LOGADO =============
+
+  /**
+   * Buscar estudante pelo email do usuário logado
+   * Armazena o ID do estudante no localStorage
+   */
+  async getEstudanteLogado() {
+    try {
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
+        console.warn('[API-SERVICE] Email não encontrado no localStorage');
+        return null;
+      }
+
+      // Buscar todos os estudantes e procurar o que corresponde ao email
+      const estudantes = await this.getEstudantes();
+      // Nota: Isso é um workaround. O ideal seria ter um endpoint específico
+      console.log('[API-SERVICE] Estudantes carregados:', estudantes);
+      
+      // Se não conseguir, retorna null - o backend deveria ter um endpoint /me para estudante
+      return null;
+    } catch (error) {
+      console.error('[API-SERVICE] Erro ao buscar estudante logado:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Armazenar ID do estudante logado
+   */
+  setEstudanteId(id) {
+    localStorage.setItem('estudanteId', id);
+  }
+
+  /**
+   * Obter ID do estudante armazenado
+   */
+  getEstudanteId() {
+    return localStorage.getItem('estudanteId');
+  }
+
+  /**
+   * Buscar turma com disciplinas do curso
+   */
+  async getTurmaComDisciplinas(turmaId) {
+    try {
+      const turma = await this.getTurma(turmaId);
+      console.log('[API-SERVICE] Turma carregada:', turma);
+      
+      if (!turma || !turma.curso_id) {
+        console.warn('[API-SERVICE] Turma sem curso associado');
+        return turma;
+      }
+
+      // Buscar disciplinas do curso
+      const disciplinas = await this.getDisciplinasCurso(turma.curso_id);
+      console.log('[API-SERVICE] Disciplinas do curso:', disciplinas);
+
+      // Combinar turma com disciplinas
+      return {
+        ...turma,
+        disciplinas: disciplinas
+      };
+    } catch (error) {
+      console.error('[API-SERVICE] Erro ao buscar turma com disciplinas:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Buscar disciplinas de um curso
+   */
+  async getDisciplinasCurso(cursoId) {
+    try {
+      const endpoint = `/cursos/${cursoId}/disciplinas`;
+      const result = await this.get(endpoint);
+      return result || [];
+    } catch (error) {
+      console.error('[API-SERVICE] Erro ao buscar disciplinas do curso:', error);
+      // Fallback: buscar todas as disciplinas
+      return await this.getDisciplinas();
+    }
+  }
+
   // ============= NOTAS ENDPOINTS =============
 
   /**
