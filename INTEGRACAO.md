@@ -95,7 +95,7 @@ DataLoader.showError('Erro!');
 ```html
 <script>
   // Verificar se está logado e qual é a role
-  AuthHelper.checkRole(['ADMIN']); // Ou ['PROFESSOR'], ['ALUNO']
+  AuthHelper.checkRole(['ADMIN']); // Ou ['PROFESSOR'], ['ESTUDANTE']
   
   // Preencher dados do usuário no header
   AuthHelper.fillUserInfo();
@@ -133,7 +133,7 @@ DataLoader.showError('Erro!');
 7. Redireciona para dashboard baseado em role:
    - ADMIN → public/views/admin/dashboard.html
    - PROFESSOR → public/views/professor/dashboard.html
-   - ALUNO → public/views/aluno/dashboard.html
+   - ESTUDANTE → public/views/aluno/dashboard.html
    ↓
 8. Páginas verificam autenticação com AuthHelper.checkRole()
    ↓

@@ -21,8 +21,17 @@ class AuthHelper {
     this.checkAuth();
     
     const userRole = api.getUserRole();
+    
+    // Debug log
+    console.log('[AUTH-HELPER] Verificando acesso:', {
+      userRole: userRole,
+      allowedRoles: allowedRoles,
+      hasAccess: allowedRoles.includes(userRole)
+    });
+    
     if (!allowedRoles.includes(userRole)) {
-      alert('Acesso negado. Você não tem permissão para acessar esta página.');
+      console.error('[AUTH-HELPER] Acesso negado para role:', userRole, 'Roles permitidas:', allowedRoles);
+      alert(`Acesso negado. Seu perfil é "${userRole}" mas esta página requer: ${allowedRoles.join(', ')}`);
       this.logout(); // Fazer logout automático
     }
   }
@@ -71,6 +80,7 @@ class AuthHelper {
     const roleMap = {
       'ADMIN': 'Administrador',
       'PROFESSOR': 'Professor',
+      'ESTUDANTE': 'Estudante',
       'ALUNO': 'Aluno',
       'SECRETARIA': 'Secretaria',
       'ENCARREGADO': 'Encarregado de Educação'

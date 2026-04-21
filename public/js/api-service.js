@@ -138,9 +138,20 @@ class APIService {
       if (response) {
         if (response.id_usuario) localStorage.setItem('userId', response.id_usuario);
         if (response.id) localStorage.setItem('userId', response.id);
-        localStorage.setItem('userRole', response.perfil || 'ADMIN');
-        localStorage.setItem('userName', response.user_name || 'Utilizador');
+        
+        // Armazenar perfil
+        const userRole = response.perfil || response.role || 'ADMIN';
+        localStorage.setItem('userRole', userRole);
+        localStorage.setItem('userName', response.user_name || response.userName || 'Utilizador');
         localStorage.setItem('userEmail', response.email || '');
+        
+        // Debug log
+        console.log('[API-SERVICE] Login successful:', {
+          email: response.email,
+          perfil: userRole,
+          user_name: localStorage.getItem('userName'),
+          stored_role: localStorage.getItem('userRole')
+        });
       }
     }
 
