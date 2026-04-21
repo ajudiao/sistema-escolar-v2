@@ -368,6 +368,8 @@
         const notasPorDisciplina = {};
         (notas || []).forEach(nota => {
           const key = nota.disciplina_id;
+          // Marcar notas reais do backend como nota_zero: false
+          nota.nota_zero = false;
           notasPorDisciplina[key] = nota;
         });
 
@@ -378,7 +380,8 @@
           if (nota) {
             return nota;
           } else {
-            // Criar nota padrão com zero
+            // Criar nota padrão com zero - mas NÃO marcar como nota_zero
+            // Assim vai aparecer em vermelho (já que 0 < 10)
             return {
               id_nota: null,
               estudante_id: estudanteId,
@@ -389,7 +392,7 @@
               pp_notas: 0,
               pt_notas: 0,
               ano_letivo: 2025,
-              nota_zero: true // Flag para indicar que é um dado preenchido
+              nota_zero: false // Marcar como nota real para aparecer em vermelho
             };
           }
         });
@@ -435,11 +438,33 @@
           return;
         }
 
-        notas.forEach(nota => {
+        notas.forEach((nota, index) => {
           const row = document.createElement('tr');
           const disciplinaName = nota.disciplina?.descricao_disc || 'Disciplina';
-          const valoresPT = nota.pt_notas || 0;
-          const badgeClass = nota.nota_zero ? 'badge-secondary' : 'badge-success';
+          const valoresPT = parseFloat(nota.pt_notas) || 0;
+          
+          console.log(`[DASHBOARD] Nota ${index}:`, {
+            disciplina: disciplinaName,
+            pt_notas: nota.pt_notas,
+            valoresPT: valoresPT,
+            nota_zero: nota.nota_zero,
+            tipo_pt: typeof nota.pt_notas
+          });
+          
+          // Determinar cor do badge baseado na nota P.T
+          let badgeClass = 'badge-secondary'; // Cinza para notas preenchidas com zero
+          
+          // Se é nota_zero (preenchida), fica cinza
+          if (!nota.nota_zero) {
+            // Se é nota real do backend, aplicar cor baseada no valor
+            if (valoresPT < 10) {
+              badgeClass = 'badge-danger'; // Vermelho para notas < 10
+            } else {
+              badgeClass = 'badge-success'; // Verde para notas >= 10
+            }
+          }
+          
+          console.log(`[DASHBOARD] Aplicando badgeClass "${badgeClass}" para nota ${valoresPT} (nota_zero: ${nota.nota_zero})`);
           
           row.innerHTML = `
             <td><strong>${disciplinaName}</strong></td>
@@ -491,6 +516,133 @@
           `;
           tbody.appendChild(row);
         });
+      }
+
+      // ========== FUNÇÕES DE ESTATÍSTICAS ==========
+      
+      /**
+       * Calcular media geral das notas (P.T)
+       */
+      function calcularMediaGeral(notas) {
+        if (!notas || notas.length === 0) return 0;
+        
+        let soma = 0;
+        let count = 0;
+        
+        notas.forEach(nota => {
+          // Ignorar notas com valor zero (que foram preenchidas)
+          if (nota.pt_notas && nota.pt_notas > 0 && !nota.nota_zero) {
+            soma += parseFloat(nota.pt_notas);
+            count++;
+          }
+        });
+        
+        return count > 0 ? (soma / count).toFixed(1) : 0;
+      }
+
+      /**
+       * Contar disciplinas com nota positiva (>= 10)
+       */
+      function contarDisciplinasPositivas(notas) {
+        if (!notas || notas.length === 0) return 0;
+        
+        let positivas = 0;
+        notas.forEach(nota => {
+          if (nota.pt_notas && nota.pt_notas >= 10 && !nota.nota_zero) {
+            positivas++;
+          }
+        });
+        
+        return positivas;
+      }
+
+      /**
+       * Contar total de faltas
+       */
+      function contarFaltasTotais(faltas) {
+        if (!faltas || faltas.length === 0) return 0;
+        return faltas.length;
+      }
+
+      /**
+       * Atualizar cards de estatísticas
+       */
+      function atualizarEstatisticas() {
+        console.log('[DASHBOARD-STATS] Actualizando estatísticas...');
+        console.log('[DASHBOARD-STATS] Notas:', notasData);
+        console.log('[DASHBOARD-STATS] Faltas:', faltasData);
+        
+        // Calcular média geral
+        const mediaGeral = calcularMediaGeral(notasData);
+        const mediaElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
+        if (mediaElement) {
+          mediaElement.textContent = mediaGeral;
+          console.log('[DASHBOARD-STATS] Média Geral actualizada:', mediaGeral);
+        }
+
+        // Calcular disciplinas positivas
+        const positivas = contarDisciplinasPositivas(notasData);
+        const totalDisciplinas = notasData ? notasData.filter(n => !n.nota_zero).length : 0;
+        const disciplinasElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
+        if (disciplinasElement) {
+          disciplinasElement.textContent = `${positivas} / ${totalDisciplinas}`;
+          console.log('[DASHBOARD-STATS] Disciplinas Positivas actualizadas:', `${positivas} / ${totalDisciplinas}`);
+        }
+
+        // Calcular faltas totais
+        const faltasTotais = contarFaltasTotais(faltasData);
+        const faltasElement = document.querySelector('.stat-card:nth-child(3) .stat-value');
+        if (faltasElement) {
+          faltasElement.textContent = faltasTotais;
+          console.log('[DASHBOARD-STATS] Faltas Totais actualizadas:', faltasTotais);
+        }
+
+        // Buscar avisos novos
+        buscarAvisosNovos();
+
+        console.log('[DASHBOARD-STATS] Estatísticas actualizadas com sucesso');
+      }
+
+      /**
+       * Buscar avisos novos (últimos 2 dias)
+       */
+      async function buscarAvisosNovos() {
+        try {
+          console.log('[DASHBOARD-STATS] Buscando avisos novos...');
+          const avisos = await api.getAvisos();
+          console.log('[DASHBOARD-STATS] Avisos carregados:', avisos);
+          
+          if (!avisos || avisos.length === 0) {
+            console.log('[DASHBOARD-STATS] Nenhum aviso encontrado');
+            const avisosElement = document.querySelector('.stat-card:nth-child(4) .stat-value');
+            if (avisosElement) {
+              avisosElement.textContent = 0;
+            }
+            return;
+          }
+
+          // Contar avisos dos últimos 2 dias
+          const hoje = new Date();
+          const duasDiasAtras = new Date(hoje.getTime() - 2 * 24 * 60 * 60 * 1000);
+          
+          let avisosNovos = 0;
+          avisos.forEach(aviso => {
+            const dataAviso = new Date(aviso.data_publicacao);
+            console.log('[DASHBOARD-STATS] Aviso:', aviso.titulo, 'Data:', dataAviso, 'Limite:', duasDiasAtras);
+            if (dataAviso >= duasDiasAtras) {
+              avisosNovos++;
+            }
+          });
+          
+          console.log('[DASHBOARD-STATS] Avisos novos encontrados:', avisosNovos);
+          const avisosElement = document.querySelector('.stat-card:nth-child(4) .stat-value');
+          if (avisosElement) {
+            avisosElement.textContent = avisosNovos;
+          }
+        } catch (error) {
+          console.error('[DASHBOARD-STATS] Erro ao buscar avisos:', error);
+          // Manter valor padrão
+        }
       }
 
       // ========== DADOS DE FALLBACK (para quando não houver dados do backend) ==========
@@ -605,6 +757,9 @@
           loadNotasDoEstudante(),
           loadFaltasDoEstudante()
         ]).then(() => {
+          // Actualizar estatísticas
+          atualizarEstatisticas();
+          
           this.disabled = false;
           this.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
@@ -637,6 +792,8 @@
       // Também carregar faltas após carregar dados do estudante
       setTimeout(() => {
         loadFaltasDoEstudante();
+        // Actualizar estatísticas após carregar todos os dados
+        atualizarEstatisticas();
       }, 500);
     });
   </script>
