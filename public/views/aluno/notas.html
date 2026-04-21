@@ -107,8 +107,8 @@
           <div class="header-user">
             <div class="header-user-avatar">MS</div>
             <div class="header-user-info">
-              <span class="header-user-name">Maria Santos</span>
-              <span class="header-user-role">Aluno - EIA-11AD</span>
+              <span class="header-user-name">~</span>
+              <span class="header-user-role">Aluno</span>
             </div>
           </div>
         </div>
@@ -138,13 +138,6 @@
                 <label class="form-label">Disciplina</label>
                 <select class="form-control form-select" id="disciplinaSelect">
                   <option value="todas" selected>Todas</option>
-                  <option value="Matemática">Matemática</option>
-                  <option value="Português">Português</option>
-                  <option value="Física">Física</option>
-                  <option value="Química">Química</option>
-                  <option value="Biologia">Biologia</option>
-                  <option value="História">História</option>
-                  <option value="Geografia">Geografia</option>
                 </select>
               </div>
               <div class="col-md-3">
@@ -166,19 +159,19 @@
           <div class="boletim-info">
             <div class="boletim-info-item">
               <span class="boletim-info-label">Aluno:</span>
-              <span class="boletim-info-value">Maria Teresa dos Santos</span>
+              <span class="boletim-info-value" id="boletimAluno">~</span>
             </div>
             <div class="boletim-info-item">
               <span class="boletim-info-label">Classe/Turma:</span>
-              <span class="boletim-info-value">EIA-11AD</span>
+              <span class="boletim-info-value" id="boletimTurma">~</span>
             </div>
             <div class="boletim-info-item">
               <span class="boletim-info-label">Curso:</span>
-              <span class="boletim-info-value">Ciencias Fisicas e Biologicas</span>
+              <span class="boletim-info-value" id="boletimCurso">~</span>
             </div>
             <div class="boletim-info-item">
               <span class="boletim-info-label">Ano Lectivo:</span>
-              <span class="boletim-info-value" id="anoLectivo">2026/2025</span>
+              <span class="boletim-info-value" id="anoLectivo">~</span>
             </div>
           </div>
           <div class="table-responsive">
@@ -231,39 +224,25 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Dados simulados com datas
-      const notasData = [
-        { disciplina: 'Matemática', data: '2026-01-15', mac: 15, npp: 14, npt: null, mt: null },
-        { disciplina: 'Matemática', data: '2026-02-10', mac: 16, npp: 15, npt: 17, mt: 16 },
-        { disciplina: 'Matemática', data: '2026-03-05', mac: 14, npp: 13, npt: 15, mt: 14 },
-        { disciplina: 'Física', data: '2026-01-20', mac: 13, npp: 12, npt: null, mt: null },
-        { disciplina: 'Física', data: '2026-02-15', mac: 14, npp: 13, npt: 15, mt: 14 },
-        { disciplina: 'Química', data: '2026-01-25', mac: 14, npp: 15, npt: null, mt: null },
-        { disciplina: 'Química', data: '2026-02-20', mac: 15, npp: 16, npt: 14, mt: 15 },
-        { disciplina: 'Biologia', data: '2026-01-30', mac: 16, npp: 17, npt: null, mt: null },
-        { disciplina: 'Biologia', data: '2026-02-25', mac: 17, npp: 18, npt: 16, mt: 17 },
-        { disciplina: 'Português', data: '2026-01-10', mac: 12, npp: 11, npt: null, mt: null },
-        { disciplina: 'Português', data: '2026-02-05', mac: 13, npp: 12, npt: 14, mt: 13 },
-        { disciplina: 'Inglês', data: '2026-01-18', mac: 14, npp: 13, npt: null, mt: null },
-        { disciplina: 'Inglês', data: '2026-02-12', mac: 15, npp: 14, npt: 16, mt: 15 },
-        { disciplina: 'História', data: '2026-01-22', mac: 11, npp: 10, npt: null, mt: null },
-        { disciplina: 'História', data: '2026-02-18', mac: 12, npp: 11, npt: 13, mt: 12 },
-        { disciplina: 'Geografia', data: '2026-01-28', mac: 13, npp: 14, npt: null, mt: null },
-        { disciplina: 'Geografia', data: '2026-02-22', mac: 14, npp: 15, npt: 13, mt: 14 },
-        // Adicionar mais dados para outros trimestres se necessário
-        { disciplina: 'Matemática', data: '2026-04-15', mac: 17, npp: 16, npt: 18, mt: 17 },
-        { disciplina: 'Física', data: '2026-04-20', mac: 15, npp: 14, npt: 16, mt: 15 },
-        { disciplina: 'Química', data: '2026-04-25', mac: 16, npp: 17, npt: 15, mt: 16 },
-        { disciplina: 'Biologia', data: '2026-04-30', mac: 18, npp: 19, npt: 17, mt: 18 },
-        { disciplina: 'Português', data: '2026-04-10', mac: 14, npp: 13, npt: 15, mt: 14 },
-        { disciplina: 'Inglês', data: '2026-04-18', mac: 16, npp: 15, npt: 17, mt: 16 },
-        { disciplina: 'História', data: '2026-04-22', mac: 13, npp: 12, npt: 14, mt: 13 },
-        { disciplina: 'Geografia', data: '2026-04-28', mac: 15, npp: 16, npt: 14, mt: 15 },
-      ];
+  
+  <!-- API Scripts -->
+  <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
+  <script src="../../js/data-loader.js"></script>
 
-      // Função para mostrar notificações
+  <script>
+    // Proteger página para ESTUDANTE
+    AuthHelper.checkRole(['ESTUDANTE']);
+    
+    document.addEventListener('DOMContentLoaded', function () {
+      // ========== VARIÁVEIS GLOBAIS ==========
+      let estudanteId = null;
+      let turmaData = null;
+      let disciplinasData = [];
+      let notasData = [];
+      let notasCombinadas = [];
+
+      // ========== FUNÇÃO AUXILIAR: MOSTRAR NOTIFICAÇÕES ==========
       function showNotification(message, type = 'success') {
         const existingNotification = document.querySelector('.alert');
         if (existingNotification) {
@@ -285,26 +264,298 @@
         }, 5000);
       }
 
-      // Função para carregar notas
+      // ========== FUNÇÃO: ATUALIZAR INFORMAÇÕES DO BOLETIM ==========
+      function updateBoletimInfo(estudante, turma) {
+        try {
+          console.log('[NOTAS] Atualizando informações do boletim...');
+          
+          // Atualizar nome do aluno no header
+          const headerUserName = document.querySelector('.header-user-name');
+          if (headerUserName) {
+            headerUserName.textContent = api.getUserName() || 'Aluno';
+          }
+
+          // Atualizar role no header
+          const headerUserRole = document.querySelector('.header-user-role');
+          if (headerUserRole && turma) {
+            headerUserRole.textContent = 'Aluno - ' + (turma.sigla_turma || 'EIA');
+          }
+
+          // Atualizar boletim aluno
+          const boletimAluno = document.getElementById('boletimAluno');
+          if (boletimAluno) {
+            boletimAluno.textContent = api.getUserName() || 'Aluno';
+          }
+
+          // Atualizar boletim turma
+          const boletimTurma = document.getElementById('boletimTurma');
+          if (boletimTurma && turma) {
+            boletimTurma.textContent = turma.sigla_turma || 'EIA';
+          }
+
+          // Atualizar boletim curso
+          const boletimCurso = document.getElementById('boletimCurso');
+          if (boletimCurso && turma && turma.curso) {
+            boletimCurso.textContent = turma.curso.descricao_curso || 'Curso';
+          }
+
+          // Atualizar ano letivo
+          const anoLectivo = document.getElementById('anoLectivo');
+          if (anoLectivo && turma && turma.ano_lectivo_turma) {
+            anoLectivo.textContent = turma.ano_lectivo_turma + '/' + (turma.ano_lectivo_turma - 1);
+          }
+
+          console.log('[NOTAS] Informações do boletim atualizadas');
+        } catch (error) {
+          console.error('[NOTAS] Erro ao atualizar boletim:', error);
+        }
+      }
+
+      // ========== FUNÇÃO: CARREGAR DADOS INICIAIS DO ESTUDANTE ==========
+      async function loadEstudanteInitialData() {
+        try {
+          console.log('[NOTAS] Iniciando carregamento de dados do estudante...');
+          
+          // Obter ID do usuário logado do localStorage
+          const userId = api.getUserId();
+          console.log('[NOTAS] ID do usuário logado:', userId);
+          
+          // Buscar estudantes
+          const estudantes = await api.getEstudantes();
+          console.log('[NOTAS] Estudantes retornados:', estudantes?.length ?? 0);
+
+          // Procurar o estudante do usuário logado
+          let estudante = null;
+          if (userId && estudantes && estudantes.length > 0) {
+            // Tentar encontrar estudante com usuario_id
+            estudante = estudantes.find(e => e.usuario_id === userId);
+            
+            // Se não encontrar, usar o primeiro como fallback
+            if (!estudante) {
+              console.warn('[NOTAS] Estudante com usuario_id não encontrado, usando primeiro da lista');
+              estudante = estudantes[0];
+            }
+          } else if (estudantes && estudantes.length > 0) {
+            estudante = estudantes[0];
+          }
+
+          if (estudante) {
+            estudanteId = estudante.id_estudante;
+            api.setEstudanteId(estudanteId);
+
+            console.log('[NOTAS] Estudante logado:', {
+              id: estudanteId,
+              nome: estudante.nome_estudante,
+              turma_id: estudante.turma_id,
+              usuario_id: estudante.usuario_id
+            });
+
+            // Atualizar header
+            const headerUserName = document.querySelector('.header-user-name');
+            if (headerUserName) {
+              headerUserName.textContent = api.getUserName() || 'Aluno';
+            }
+
+            // Carregar turma e disciplinas
+            if (estudante.turma_id) {
+              await loadTurmaComDisciplinas(estudante.turma_id);
+              // Atualizar informações do boletim
+              updateBoletimInfo(estudante, turmaData);
+            }
+
+            // Carregar notas
+            await loadNotasDoEstudante();
+          } else {
+            showNotification('Erro: Estudante não encontrado', 'danger');
+          }
+        } catch (error) {
+          console.error('[NOTAS] Erro ao carregar dados iniciais:', error);
+          showNotification('Erro ao carregar dados: ' + error.message, 'danger');
+        }
+      }
+
+      // ========== FUNÇÃO: CARREGAR TURMA COM DISCIPLINAS ==========
+      async function loadTurmaComDisciplinas(turmaId) {
+        try {
+          console.log('[NOTAS] Carregando turma e disciplinas da turma:', turmaId);
+          
+          // Buscar turma
+          const turma = await api.getTurma(turmaId);
+          turmaData = turma;
+          console.log('[NOTAS] Turma carregada:', turma);
+
+          // Atualizar boletim header
+          if (turma.ano_lectivo_turma) {
+            document.getElementById('anoLectivo').textContent = 
+              turma.ano_lectivo_turma + '/' + (turma.ano_lectivo_turma - 1);
+          }
+
+          // Buscar disciplinas DO CURSO desta turma
+          if (turma && turma.curso_id) {
+            console.log('[NOTAS] Buscando disciplinas do curso ID:', turma.curso_id);
+            try {
+              const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
+              console.log('[NOTAS] Disciplinas do curso carregadas:', disciplinas?.length ?? 0);
+              console.log('[NOTAS] Lista de disciplinas:', disciplinas);
+              
+              if (disciplinas && disciplinas.length > 0) {
+                disciplinasData = disciplinas;
+                console.log('[NOTAS] Usando disciplinas do curso');
+              } else {
+                console.warn('[NOTAS] Nenhuma disciplina encontrada para curso:', turma.curso_id);
+                disciplinasData = [];
+              }
+            } catch (courseError) {
+              console.error('[NOTAS] Erro ao buscar disciplinas do curso:', courseError);
+              disciplinasData = [];
+            }
+          } else {
+            console.warn('[NOTAS] Turma sem curso associado');
+            disciplinasData = [];
+          }
+
+          console.log('[NOTAS] Total de disciplinas carregadas:', disciplinasData?.length ?? 0);
+          
+          // Atualizar selector de disciplinas
+          updateDisciplinaSelector();
+        } catch (error) {
+          console.error('[NOTAS] Erro ao carregar turma:', error);
+          disciplinasData = [];
+          updateDisciplinaSelector();
+        }
+      }
+
+      // ========== FUNÇÃO: CARREGAR NOTAS DO BACKEND ==========
+      async function loadNotasDoEstudante() {
+        try {
+          if (!estudanteId) {
+            console.warn('[NOTAS] Estudante ID não definido');
+            return;
+          }
+
+          console.log('[NOTAS] Carregando notas do estudante:', estudanteId);
+          notasData = await api.getNotas(estudanteId) || [];
+          console.log('[NOTAS] Notas carregadas:', notasData?.length ?? 0);
+
+          // Combinar disciplinas com notas
+          combinarDisciplinasComNotas();
+          
+          // Carregar notas inicial
+          loadNotas();
+        } catch (error) {
+          console.error('[NOTAS] Erro ao carregar notas:', error);
+          showNotification('Erro ao carregar notas: ' + error.message, 'warning');
+        }
+      }
+
+      // ========== FUNÇÃO: COMBINAR DISCIPLINAS COM NOTAS ==========
+      function combinarDisciplinasComNotas() {
+        console.log('[NOTAS] Combinando:', disciplinasData?.length ?? 0, 'disciplinas com', (notasData || []).length, 'notas');
+
+        if (!disciplinasData || disciplinasData.length === 0) {
+          console.warn('[NOTAS] Nenhuma disciplina disponível');
+          // Se não houver disciplinas carregadas, extrair dos dados de notas
+          if (!notasData || notasData.length === 0) {
+            console.warn('[NOTAS] Também sem notas. Retornando vazio.');
+            notasCombinadas = [];
+            return;
+          }
+          // Usar disciplinas das notas que existem
+          notasCombinadas = notasData; // Retornar as notas que temos
+          return;
+        }
+
+        // Criar mapa de notas por disciplina_id
+        const notasPorDisciplina = {};
+        (notasData || []).forEach(nota => {
+          const key = nota.disciplina_id;
+          notasPorDisciplina[key] = nota;
+        });
+
+        // Para cada disciplina, usar nota existente ou criar com zero
+        const resultado = disciplinasData.map(disciplina => {
+          const notaId = disciplina.id_disc || disciplina.id;
+          const nota = notasPorDisciplina[notaId];
+          
+          if (nota) {
+            console.log('[NOTAS] Disciplina com nota:', disciplina.descricao_disc || disciplina.sigla_disc);
+            return nota;
+          } else {
+            // Criar nota padrão com zero
+            console.log('[NOTAS] Disciplina SEM nota (preenchendo com zero):', disciplina.descricao_disc || disciplina.sigla_disc);
+            return {
+              id_nota: null,
+              estudante_id: estudanteId,
+              disciplina_id: notaId,
+              disciplina: disciplina,
+              trimestre_nota: 1,
+              mac_notas: 0,
+              pp_notas: 0,
+              pt_notas: 0,
+              ano_letivo: 2026,
+              nota_zero: true // Flag para indicar que é um dado preenchido
+            };
+          }
+        });
+
+        notasCombinadas = resultado;
+        console.log('[NOTAS] Notas combinadas:', notasCombinadas.length, 'disciplinas');
+      }
+
+      // ========== FUNÇÃO: ATUALIZAR SELECTOR DE DISCIPLINAS ==========
+      function updateDisciplinaSelector() {
+        const selector = document.getElementById('disciplinaSelect');
+        
+        // Remover opções antigas (exceto "Todas")
+        while (selector.options.length > 1) {
+          selector.remove(1);
+        }
+
+        // Adicionar disciplinas carregadas
+        disciplinasData.forEach(disciplina => {
+          const option = document.createElement('option');
+          option.value = disciplina.id_disc || disciplina.id;
+          option.textContent = disciplina.descricao_disc || disciplina.sigla_disc;
+          selector.appendChild(option);
+        });
+
+        console.log('[NOTAS] Selector de disciplinas atualizado');
+      }
+
+      // ========== FUNÇÃO: CARREGAR NOTAS COM FILTROS ==========
       function loadNotas() {
         const trimestre = document.getElementById('trimestreSelect').value;
         const ano = document.getElementById('anoSelect').value;
-        const disciplina = document.getElementById('disciplinaSelect').value;
+        const disciplinaId = document.getElementById('disciplinaSelect').value;
 
-        console.log(`Buscando notas para ano: ${ano}, trimestre: ${trimestre}, disciplina: ${disciplina}`);
+        console.log(`[NOTAS] Filtrando: ano=${ano}, trimestre=${trimestre}, disciplina=${disciplinaId}`);
 
-        // Simulação de busca
-        let filteredData = notasData.filter(nota => {
-          const notaDate = new Date(nota.data);
-          const trimestreStart = trimestre == 1 ? new Date(ano, 0, 1) : trimestre == 2 ? new Date(ano, 3, 1) : new Date(ano, 6, 1);
-          const trimestreEnd = trimestre == 1 ? new Date(ano, 2, 31) : trimestre == 2 ? new Date(ano, 5, 30) : new Date(ano, 8, 30);
-          const inTrimestre = notaDate >= trimestreStart && notaDate <= trimestreEnd;
-          const matchesDisciplina = disciplina === 'todas' || nota.disciplina === disciplina;
-          return inTrimestre && matchesDisciplina;
+        // Filtrar por trimestre, ano e disciplina
+        let filteredData = notasCombinadas.filter(nota => {
+          // Filtro de disciplina
+          if (disciplinaId !== 'todas') {
+            const discId = nota.disciplina_id;
+            if (discId != disciplinaId && nota.disciplina_id != disciplinaId) {
+              return false;
+            }
+          }
+
+          // Filtro de trimestre
+          if (nota.trimestre_nota && nota.trimestre_nota != trimestre) {
+            return false;
+          }
+
+          return true;
         });
 
-        // Ordenar por data descendente
-        filteredData.sort((a, b) => new Date(b.data) - new Date(a.data));
+        // Ordenar por disciplina
+        filteredData.sort((a, b) => {
+          const discA = (a.disciplina?.descricao_disc || a.disciplina?.sigla_disc || '').toLowerCase();
+          const discB = (b.disciplina?.descricao_disc || b.disciplina?.sigla_disc || '').toLowerCase();
+          return discA.localeCompare(discB);
+        });
+
+        console.log('[NOTAS] Dados filtrados:', filteredData.length);
 
         const tbody = document.getElementById('boletimTableBody');
         tbody.innerHTML = '';
@@ -314,39 +565,52 @@
           return;
         }
 
-        const today = new Date();
-        const sevenDaysAgo = new Date(today);
-        sevenDaysAgo.setDate(today.getDate() - 7);
-
+        // Renderizar tabela
         filteredData.forEach(nota => {
           const row = document.createElement('tr');
-          const notaDate = new Date(nota.data);
-          const isRecent = notaDate >= sevenDaysAgo;
-          if (isRecent) {
-            row.classList.add('recent');
-          }
+          
+          // Calcular média trimestral: (MAC + NPP + NPT) / 3
+          const mac = parseFloat(nota.mac_notas) || 0;
+          const npp = parseFloat(nota.pp_notas) || 0;
+          const npt = parseFloat(nota.pt_notas) || 0;
+          const mediaTrimestral = npt > 0 ? ((mac + npp + npt) / 3).toFixed(2) : '-';
+
+          const discName = nota.disciplina?.descricao_disc || nota.disciplina?.sigla_disc || 'Disciplina';
+          const dataFormatada = nota.data_nota || '-';
 
           row.innerHTML = `
-            <td>${nota.disciplina}</td>
-            <td>${nota.data}</td>
-            <td>${nota.mac}</td>
-            <td>${nota.npp}</td>
-            <td>${nota.npt || '-'}</td>
-            <td>${nota.mt || '-'}</td>
+            <td>${discName}</td>
+            <td>${dataFormatada}</td>
+            <td>${mac}</td>
+            <td>${npp}</td>
+            <td>${npt || '-'}</td>
+            <td>${mediaTrimestral}</td>
           `;
+
+          // Destacar notas adicionadas recentemente (zeros preenchidos)
+          if (nota.nota_zero) {
+            row.style.opacity = '0.7';
+          }
+
           tbody.appendChild(row);
         });
 
         showNotification(`${filteredData.length} notas carregadas com sucesso.`, 'success');
       }
 
-      // Event listener para o botão
+      // ========== EVENT LISTENERS ==========
       document.getElementById('btnCarregarNotas').addEventListener('click', function() {
         loadNotas();
       });
 
-      // Carregar dados iniciais
-      loadNotas();
+      // Atualizar ao mudar filtros
+      document.getElementById('trimestreSelect').addEventListener('change', loadNotas);
+      document.getElementById('anoSelect').addEventListener('change', loadNotas);
+      document.getElementById('disciplinaSelect').addEventListener('change', loadNotas);
+
+      // ========== CARREGAR DADOS INICIAIS ==========
+      console.log('[NOTAS] DOMContentLoaded: iniciando carregamento');
+      loadEstudanteInitialData();
     });
   </script>
 </body>
