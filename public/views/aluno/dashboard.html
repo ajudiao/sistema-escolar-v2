@@ -277,9 +277,11 @@
       // ========== FUNÇÃO: CARREGAR DADOS REAIS DO BACKEND ==========
       async function loadEstudanteData() {
         try {
+          console.log('[DASHBOARD] Iniciando carregamento de dados do estudante...');
+          
           // Buscar todos os estudantes para encontrar o logado
           const estudantes = await api.getEstudantes();
-          console.log('[DASHBOARD] Estudantes disponíveis:', estudantes);
+          console.log('[DASHBOARD] Estudantes retornados:', estudantes?.length ?? 0);
 
           if (estudantes && estudantes.length > 0) {
             const estudante = estudantes[0];
@@ -292,13 +294,29 @@
               turma_id: estudante.turma_id
             });
 
-            // Carregar turma com disciplinas
+            // Passo 1: Carregar turma com disciplinas
             if (estudante.turma_id) {
+              console.log('[DASHBOARD] Passo 1: Carregando turma #' + estudante.turma_id);
               await loadTurmaComDisciplinas(estudante.turma_id);
+              console.log('[DASHBOARD] Passo 1 concluído. Disciplinas carregadas:', disciplinasDoEstudante?.length ?? 0);
+            } else {
+              console.warn('[DASHBOARD] Estudante sem turma. Carregando todas as disciplinas.');
+              try {
+                disciplinasDoEstudante = await api.getDisciplinas();
+                console.log('[DASHBOARD] Disciplinas carregadas (todas):', disciplinasDoEstudante?.length ?? 0);
+              } catch (e) {
+                console.error('[DASHBOARD] Erro ao carregar disciplinas:', e);
+                disciplinasDoEstudante = [];
+              }
             }
 
-            // Carregar notas do estudante
+            // Passo 2: Carregar notas do estudante
+            console.log('[DASHBOARD] Passo 2: Carregando notas do estudante');
             await loadNotasDoEstudante();
+            console.log('[DASHBOARD] Passo 2 concluído');
+          } else {
+            console.error('[DASHBOARD] Nenhum estudante encontrado!');
+            showFlashMessage('Erro: Estudante não encontrado', 'danger');
           }
         } catch (error) {
           console.error('[DASHBOARD] Erro ao carregar dados do estudante:', error);
@@ -317,16 +335,41 @@
 
           if (turma && turma.curso_id) {
             // Buscar disciplinas do curso
-            const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
-            console.log('[DASHBOARD] Disciplinas do curso:', disciplinas);
-            
-            // Armazenar disciplinas globalmente
-            if (disciplinas && disciplinas.length > 0) {
-              disciplinasDoEstudante = disciplinas;
+            try {
+              const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
+              console.log('[DASHBOARD] Disciplinas do curso encontradas:', disciplinas);
+              
+              // Armazenar disciplinas globalmente
+              if (disciplinas && disciplinas.length > 0) {
+                disciplinasDoEstudante = disciplinas;
+              } else {
+                console.warn('[DASHBOARD] Nenhuma disciplina encontrada para curso:', turma.curso_id);
+                // Fallback: buscar todas as disciplinas
+                disciplinasDoEstudante = await api.getDisciplinas();
+                console.log('[DASHBOARD] Fallback: usando todas as disciplinas:', disciplinasDoEstudante);
+              }
+            } catch (courseError) {
+              console.error('[DASHBOARD] Erro ao buscar disciplinas do curso:', courseError);
+              // Fallback: buscar todas as disciplinas
+              disciplinasDoEstudante = await api.getDisciplinas();
+              console.log('[DASHBOARD] Fallback (erro): usando todas as disciplinas:', disciplinasDoEstudante);
             }
+          } else {
+            console.warn('[DASHBOARD] Turma sem curso associado. Carregando todas as disciplinas.');
+            // Se não tem curso, buscar todas as disciplinas
+            disciplinasDoEstudante = await api.getDisciplinas();
+            console.log('[DASHBOARD] Todas as disciplinas carregadas:', disciplinasDoEstudante);
           }
         } catch (error) {
           console.error('[DASHBOARD] Erro ao carregar turma:', error);
+          // Fallback final: buscar todas as disciplinas
+          try {
+            disciplinasDoEstudante = await api.getDisciplinas();
+            console.log('[DASHBOARD] Fallback final: usando todas as disciplinas:', disciplinasDoEstudante);
+          } catch (fallbackError) {
+            console.error('[DASHBOARD] Erro no fallback final:', fallbackError);
+            disciplinasDoEstudante = [];
+          }
         }
       }
 
@@ -341,63 +384,96 @@
             return;
           }
 
-          console.log('[DASHBOARD] Carregando notas para estudante:', estudanteId);
+          console.log('[DASHBOARD] Chamando API para notas do estudante:', estudanteId);
+          console.log('[DASHBOARD] Disciplinas disponíveis antes das notas:', disciplinasDoEstudante?.length ?? 0);
+          
+          // Buscar notas do API
           notasData = await api.getNotas(estudanteId);
-          console.log('[DASHBOARD] Notas carregadas:', notasData);
+          console.log('[DASHBOARD] Notas carregadas da API:', notasData?.length ?? 0, 'notas');
+
+          if (notasData && notasData.length > 0) {
+            console.log('[DASHBOARD] Notas encontradas:');
+            notasData.forEach(n => {
+              console.log('  - Disciplina ID:', n.disciplina_id, 'PT:', n.pt_notas, 'Disciplina:', n.disciplina?.descricao_disc);
+            });
+          } else {
+            console.warn('[DASHBOARD] Nenhuma nota encontrada. Usando array vazio.');
+            notasData = [];
+          }
 
           // Combinar disciplinas com notas
           const notasCompletas = combinarDisciplinasComNotas(disciplinasDoEstudante, notasData);
+          console.log('[DASHBOARD] Total de registros após combinar:', notasCompletas?.length ?? 0);
+          
           displayNotas(notasCompletas);
         } catch (error) {
           console.error('[DASHBOARD] Erro ao carregar notas:', error);
           showFlashMessage('Erro ao carregar notas: ' + error.message, 'warning');
+          
+          // Fallback: mostrar apenas as notas que conseguimos junto
+          console.log('[DASHBOARD] Fallback: tentando mostrar notas sem combinar com disciplinas');
           displayNotas([]);
         }
       }
 
       // ========== FUNÇÃO: COMBINAR DISCIPLINAS COM NOTAS ==========
       function combinarDisciplinasComNotas(disciplinas, notas) {
+        console.log('[DASHBOARD] Combinando:', disciplinas?.length ?? 0, 'disciplinas com', (notas || []).length, 'notas');
+
         if (!disciplinas || disciplinas.length === 0) {
           console.warn('[DASHBOARD] Nenhuma disciplina disponível');
-          return notas || [];
+          // Se não houver disciplinas carregadas, extrair dos dados de notas
+          if (!notas || notas.length === 0) {
+            console.warn('[DASHBOARD] Também sem notas. Retornando vazio.');
+            return [];
+          }
+          // Usar disciplinas das notas que existem
+          const disciplinasUnicas = {};
+          notas.forEach(nota => {
+            if (nota.disciplina_id && !disciplinasUnicas[nota.disciplina_id]) {
+              disciplinasUnicas[nota.disciplina_id] = nota.disciplina || { 
+                id_disc: nota.disciplina_id,
+                descricao_disc: `Disciplina ${nota.disciplina_id}`
+              };
+            }
+          });
+          return notas; // Retornar as notas que temos
         }
 
-        console.log('[DASHBOARD] Combinando:', disciplinas.length, 'disciplinas com', (notas || []).length, 'notas');
-
-        // Criar mapa de notas por disciplina
+        // Criar mapa de notas por disciplina_id
         const notasPorDisciplina = {};
         (notas || []).forEach(nota => {
           const key = nota.disciplina_id;
-          // Marcar notas reais do backend como nota_zero: false
-          nota.nota_zero = false;
           notasPorDisciplina[key] = nota;
         });
 
         // Para cada disciplina, usar nota existente ou criar com zero
         const resultado = disciplinas.map(disciplina => {
-          const nota = notasPorDisciplina[disciplina.id_disc];
+          const notaId = disciplina.id_disc || disciplina.id;
+          const nota = notasPorDisciplina[notaId];
           
           if (nota) {
+            console.log('[DASHBOARD] Disciplina com nota:', disciplina.descricao_disc || disciplina.sigla_disc);
             return nota;
           } else {
-            // Criar nota padrão com zero - mas NÃO marcar como nota_zero
-            // Assim vai aparecer em vermelho (já que 0 < 10)
+            // Criar nota padrão com zero
+            console.log('[DASHBOARD] Disciplina SEM nota (preenchendo com zero):', disciplina.descricao_disc || disciplina.sigla_disc);
             return {
               id_nota: null,
               estudante_id: estudanteId,
-              disciplina_id: disciplina.id_disc,
+              disciplina_id: notaId,
               disciplina: disciplina,
               trimestre_nota: 1,
               mac_notas: 0,
               pp_notas: 0,
               pt_notas: 0,
               ano_letivo: 2025,
-              nota_zero: false // Marcar como nota real para aparecer em vermelho
+              nota_zero: true // Flag para indicar que é um dado preenchido
             };
           }
         });
 
-        console.log('[DASHBOARD] Notas combinadas:', resultado);
+        console.log('[DASHBOARD] Notas combinadas:', resultado.length, 'disciplinas');
         return resultado;
       }
 
@@ -405,73 +481,62 @@
       async function loadFaltasDoEstudante() {
         try {
           if (!estudanteId) {
-            console.warn('[DASHBOARD] Estudante ID não definido');
+            console.warn('[DASHBOARD] Estudante ID não definido para faltas');
             return;
           }
 
           console.log('[DASHBOARD] Carregando faltas para estudante:', estudanteId);
           faltasData = await api.getFaltas(estudanteId);
-          console.log('[DASHBOARD] Faltas carregadas:', faltasData);
+          console.log('[DASHBOARD] Faltas carregadas:', faltasData?.length ?? 0, 'registos');
 
           if (faltasData && faltasData.length > 0) {
+            console.log('[DASHBOARD] Exibindo', faltasData.length, 'faltas');
             displayFaltas(faltasData);
           } else {
-            console.log('[DASHBOARD] Nenhuma falta encontrada');
-            loadFaltas([]);
+            console.log('[DASHBOARD] Nenhuma falta encontrada. Exibindo tabela vazia com disciplinas');
+            displayFaltas([]);
           }
         } catch (error) {
           console.error('[DASHBOARD] Erro ao carregar faltas:', error);
           showFlashMessage('Erro ao carregar faltas: ' + error.message, 'warning');
           // Usar dados de fallback
-          loadFaltas([]);
+          displayFaltas([]);
         }
       }
 
       // ========== FUNÇÃO: MOSTRAR NOTAS NA TABELA ==========
       function displayNotas(notas) {
-        console.log('[DASHBOARD] Exibindo notas:', notas);
+        console.log('[DASHBOARD] displayNotas() chamada com:', notas?.length ?? 0, 'notas');
         const tbody = document.getElementById('avaliacoesTableBody');
         tbody.innerHTML = '';
 
         if (!notas || notas.length === 0) {
+          console.warn('[DASHBOARD] Nenhuma avaliação para exibir');
           tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Nenhuma avaliação registada</td></tr>';
           return;
         }
 
+        console.log('[DASHBOARD] Exibindo', notas.length, 'avaliações');
+        
         notas.forEach((nota, index) => {
           const row = document.createElement('tr');
-          const disciplinaName = nota.disciplina?.descricao_disc || 'Disciplina';
-          const valoresPT = parseFloat(nota.pt_notas) || 0;
+          const disciplinaName = nota.disciplina?.descricao_disc || nota.disciplina?.sigla_disc || 'Disciplina Desconhecida';
+          const valoresPT = parseFloat(nota.pt_notas || 0);
+          const valoresMAC = parseFloat(nota.mac_notas || 0).toFixed(2);
+          const valoresPP = parseFloat(nota.pp_notas || 0).toFixed(2);
           
-          console.log(`[DASHBOARD] Nota ${index}:`, {
-            disciplina: disciplinaName,
-            pt_notas: nota.pt_notas,
-            valoresPT: valoresPT,
-            nota_zero: nota.nota_zero,
-            tipo_pt: typeof nota.pt_notas
-          });
+          // Determinar classe CSS baseado no valor de PT
+          // Verde se PT >= 10, Vermelho se PT < 10
+          const badgeClass = valoresPT >= 10 ? 'badge-success' : 'badge-danger';
           
-          // Determinar cor do badge baseado na nota P.T
-          let badgeClass = 'badge-secondary'; // Cinza para notas preenchidas com zero
-          
-          // Se é nota_zero (preenchida), fica cinza
-          if (!nota.nota_zero) {
-            // Se é nota real do backend, aplicar cor baseada no valor
-            if (valoresPT < 10) {
-              badgeClass = 'badge-danger'; // Vermelho para notas < 10
-            } else {
-              badgeClass = 'badge-success'; // Verde para notas >= 10
-            }
-          }
-          
-          console.log(`[DASHBOARD] Aplicando badgeClass "${badgeClass}" para nota ${valoresPT} (nota_zero: ${nota.nota_zero})`);
+          console.log(`[DASHBOARD] Linha ${index + 1}: ${disciplinaName} - PT: ${valoresPT.toFixed(2)} (${badgeClass})`);
           
           row.innerHTML = `
             <td><strong>${disciplinaName}</strong></td>
-            <td class="text-center">${nota.mac_notas || 0}</td>
-            <td class="text-center">${nota.pp_notas || 0}</td>
+            <td class="text-center">${valoresMAC}</td>
+            <td class="text-center">${valoresPP}</td>
             <td class="text-center">
-              <span class="badge ${badgeClass}">${valoresPT}</span>
+              <span class="badge ${badgeClass}">${valoresPT.toFixed(2)}</span>
             </td>
           `;
           tbody.appendChild(row);
@@ -480,22 +545,40 @@
 
       // ========== FUNÇÃO: MOSTRAR FALTAS NA TABELA ==========
       function displayFaltas(faltas) {
-        console.log('[DASHBOARD] Exibindo faltas:', faltas);
+        console.log('[DASHBOARD] displayFaltas() chamada com:', faltas?.length ?? 0, 'faltas');
         const tbody = document.getElementById('faltasTableBody');
         tbody.innerHTML = '';
 
         if (!faltas || faltas.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Sem faltas registadas</td></tr>';
+          console.warn('[DASHBOARD] Nenhuma falta encontrada. Criando linhas vazias para disciplinas...');
+          
+          // Se não há faltas, criar linhas vazias para cada disciplina
+          if (disciplinasDoEstudante && disciplinasDoEstudante.length > 0) {
+            console.log('[DASHBOARD] Exibindo', disciplinasDoEstudante.length, 'disciplinas sem faltas');
+            disciplinasDoEstudante.forEach(disc => {
+              const row = document.createElement('tr');
+              const discName = disc.descricao_disc || disc.sigla_disc || 'Disciplina';
+              row.innerHTML = `
+                <td><strong>${discName}</strong></td>
+                <td class="text-center">0</td>
+                <td class="text-center text-muted">10</td>
+                <td class="text-center"><span class="badge badge-success">OK</span></td>
+              `;
+              tbody.appendChild(row);
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Sem faltas registadas</td></tr>';
+          }
           return;
         }
 
         // Agrupar faltas por disciplina
         const faltasPorDisciplina = {};
         faltas.forEach(falta => {
-          const discKey = falta.disciplina?.id_disc || 'unknown';
+          const discKey = falta.disciplina?.id_disc || falta.disciplina_id || 'unknown';
           if (!faltasPorDisciplina[discKey]) {
             faltasPorDisciplina[discKey] = {
-              disciplina: falta.disciplina?.descricao_disc || 'Disciplina',
+              disciplina: falta.disciplina?.descricao_disc || falta.disciplina?.sigla_disc || 'Disciplina',
               count: 0,
               limite: 10
             };
@@ -504,6 +587,7 @@
         });
 
         // Exibir resumo por disciplina
+        console.log('[DASHBOARD] Exibindo', Object.keys(faltasPorDisciplina).length, 'disciplinas com faltas');
         Object.values(faltasPorDisciplina).forEach(falta => {
           const statusClass = falta.count < falta.limite ? 'badge-success' : 'badge-warning';
           const status = falta.count < falta.limite ? 'OK' : 'ALERTA';
@@ -516,133 +600,6 @@
           `;
           tbody.appendChild(row);
         });
-      }
-
-      // ========== FUNÇÕES DE ESTATÍSTICAS ==========
-      
-      /**
-       * Calcular media geral das notas (P.T)
-       */
-      function calcularMediaGeral(notas) {
-        if (!notas || notas.length === 0) return 0;
-        
-        let soma = 0;
-        let count = 0;
-        
-        notas.forEach(nota => {
-          // Ignorar notas com valor zero (que foram preenchidas)
-          if (nota.pt_notas && nota.pt_notas > 0 && !nota.nota_zero) {
-            soma += parseFloat(nota.pt_notas);
-            count++;
-          }
-        });
-        
-        return count > 0 ? (soma / count).toFixed(1) : 0;
-      }
-
-      /**
-       * Contar disciplinas com nota positiva (>= 10)
-       */
-      function contarDisciplinasPositivas(notas) {
-        if (!notas || notas.length === 0) return 0;
-        
-        let positivas = 0;
-        notas.forEach(nota => {
-          if (nota.pt_notas && nota.pt_notas >= 10 && !nota.nota_zero) {
-            positivas++;
-          }
-        });
-        
-        return positivas;
-      }
-
-      /**
-       * Contar total de faltas
-       */
-      function contarFaltasTotais(faltas) {
-        if (!faltas || faltas.length === 0) return 0;
-        return faltas.length;
-      }
-
-      /**
-       * Atualizar cards de estatísticas
-       */
-      function atualizarEstatisticas() {
-        console.log('[DASHBOARD-STATS] Actualizando estatísticas...');
-        console.log('[DASHBOARD-STATS] Notas:', notasData);
-        console.log('[DASHBOARD-STATS] Faltas:', faltasData);
-        
-        // Calcular média geral
-        const mediaGeral = calcularMediaGeral(notasData);
-        const mediaElement = document.querySelector('.stat-card:nth-child(1) .stat-value');
-        if (mediaElement) {
-          mediaElement.textContent = mediaGeral;
-          console.log('[DASHBOARD-STATS] Média Geral actualizada:', mediaGeral);
-        }
-
-        // Calcular disciplinas positivas
-        const positivas = contarDisciplinasPositivas(notasData);
-        const totalDisciplinas = notasData ? notasData.filter(n => !n.nota_zero).length : 0;
-        const disciplinasElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
-        if (disciplinasElement) {
-          disciplinasElement.textContent = `${positivas} / ${totalDisciplinas}`;
-          console.log('[DASHBOARD-STATS] Disciplinas Positivas actualizadas:', `${positivas} / ${totalDisciplinas}`);
-        }
-
-        // Calcular faltas totais
-        const faltasTotais = contarFaltasTotais(faltasData);
-        const faltasElement = document.querySelector('.stat-card:nth-child(3) .stat-value');
-        if (faltasElement) {
-          faltasElement.textContent = faltasTotais;
-          console.log('[DASHBOARD-STATS] Faltas Totais actualizadas:', faltasTotais);
-        }
-
-        // Buscar avisos novos
-        buscarAvisosNovos();
-
-        console.log('[DASHBOARD-STATS] Estatísticas actualizadas com sucesso');
-      }
-
-      /**
-       * Buscar avisos novos (últimos 2 dias)
-       */
-      async function buscarAvisosNovos() {
-        try {
-          console.log('[DASHBOARD-STATS] Buscando avisos novos...');
-          const avisos = await api.getAvisos();
-          console.log('[DASHBOARD-STATS] Avisos carregados:', avisos);
-          
-          if (!avisos || avisos.length === 0) {
-            console.log('[DASHBOARD-STATS] Nenhum aviso encontrado');
-            const avisosElement = document.querySelector('.stat-card:nth-child(4) .stat-value');
-            if (avisosElement) {
-              avisosElement.textContent = 0;
-            }
-            return;
-          }
-
-          // Contar avisos dos últimos 2 dias
-          const hoje = new Date();
-          const duasDiasAtras = new Date(hoje.getTime() - 2 * 24 * 60 * 60 * 1000);
-          
-          let avisosNovos = 0;
-          avisos.forEach(aviso => {
-            const dataAviso = new Date(aviso.data_publicacao);
-            console.log('[DASHBOARD-STATS] Aviso:', aviso.titulo, 'Data:', dataAviso, 'Limite:', duasDiasAtras);
-            if (dataAviso >= duasDiasAtras) {
-              avisosNovos++;
-            }
-          });
-          
-          console.log('[DASHBOARD-STATS] Avisos novos encontrados:', avisosNovos);
-          const avisosElement = document.querySelector('.stat-card:nth-child(4) .stat-value');
-          if (avisosElement) {
-            avisosElement.textContent = avisosNovos;
-          }
-        } catch (error) {
-          console.error('[DASHBOARD-STATS] Erro ao buscar avisos:', error);
-          // Manter valor padrão
-        }
       }
 
       // ========== DADOS DE FALLBACK (para quando não houver dados do backend) ==========
@@ -757,9 +714,6 @@
           loadNotasDoEstudante(),
           loadFaltasDoEstudante()
         ]).then(() => {
-          // Actualizar estatísticas
-          atualizarEstatisticas();
-          
           this.disabled = false;
           this.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="me-2">
@@ -787,13 +741,13 @@
       });
 
       // ========== CARREGAR DADOS INICIAIS ==========
+      console.log('[DASHBOARD] DOMContentLoaded: iniciando carregamento de dados');
       loadEstudanteData();
       
       // Também carregar faltas após carregar dados do estudante
       setTimeout(() => {
+        console.log('[DASHBOARD] Carregando faltas após 500ms');
         loadFaltasDoEstudante();
-        // Actualizar estatísticas após carregar todos os dados
-        atualizarEstatisticas();
       }, 500);
     });
   </script>
