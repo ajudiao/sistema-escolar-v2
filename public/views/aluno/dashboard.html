@@ -120,8 +120,8 @@
           <div class="card-body py-4">
             <div class="row align-items-center">
               <div class="col-md-8">
-                <h3 class="mb-2">Bem-vindo/a, <span id="welcomeName">~</span>!</h3>
-                <p class="mb-0 opacity-90" id="welcomeInfo">Carregando informações...</p>
+                <h3 class="mb-2">Bem-vinda, Maria!</h3>
+                <p class="mb-0 opacity-90">EIA-11AD - Ciencias Fisicas e Biologicas | Periodo: Manha | Ano Lectivo 2026/2025</p>
               </div>
               <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <span class="badge" style="background: rgba(255,255,255,0.2); font-size: 0.875rem; padding: 0.5rem 1rem;">I Trimestre</span>
@@ -138,7 +138,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
               </div>
               <div class="stat-content">
-                <span class="stat-value">14.2</span>
+                <span class="stat-value" style="color: red;">1.88</span>
                 <span class="stat-label">Media Geral</span>
               </div>
             </div>
@@ -150,7 +150,7 @@
               </div>
               <div class="stat-content">
                 <span class="stat-value">9</span>
-                <span class="stat-label">Total de disciplinas</span>
+                <span class="stat-label">Disciplinas </span>
               </div>
             </div>
           </div>
@@ -249,8 +249,6 @@
     document.addEventListener('DOMContentLoaded', function () {
       // ========== VARIÁVEIS GLOBAIS ==========
       let estudanteId = null;
-      let estudanteData = null;
-      let turmaData = null;
       let notasData = [];
       let faltasData = [];
 
@@ -276,94 +274,24 @@
         }, 5000);
       }
 
-      // ========== FUNÇÃO: ATUALIZAR WELCOME BANNER ==========
-      async function updateWelcomeBanner(estudante, turma) {
-        try {
-          console.log('[DASHBOARD] Atualizando welcome banner...', { estudante, turma });
-          
-          // Atualizar nome - usar o nome do usuário logado (localStorage)
-          const welcomeName = document.getElementById('welcomeName');
-          if (welcomeName) {
-            const userName = api.getUserName() || 'Aluno';
-            const primeiroNome = userName.split(' ')[0];
-            welcomeName.textContent = primeiroNome;
-            console.log('[DASHBOARD] Nome no banner:', primeiroNome);
-          }
-          
-          // Atualizar descrição da turma
-          const welcomeInfo = document.getElementById('welcomeInfo');
-          if (welcomeInfo && turma) {
-            let infoText = '';
-            
-            // Formatar: SIGLA_TURMA - DESCRICAO_CURSO | Periodo: TURNO | Ano Lectivo AAAA/AAAA-1
-            infoText = turma.sigla_turma || '';
-            
-            // Adicionar descrição do curso se disponível
-            if (turma.curso && turma.curso.descricao_curso) {
-              infoText += ' - ' + turma.curso.descricao_curso;
-            }
-            
-            // Adicionar período (turno)
-            if (turma.turno_turma) {
-              // Capitalizar o turno
-              const turnoCapitalizado = turma.turno_turma.charAt(0).toUpperCase() + 
-                                       turma.turno_turma.slice(1).toLowerCase();
-              infoText += ' | Período: ' + turnoCapitalizado;
-            }
-            
-            // Adicionar ano letivo
-            if (turma.ano_lectivo_turma) {
-              const anoAnterior = turma.ano_lectivo_turma - 1;
-              infoText += ' | Ano Letivo ' + turma.ano_lectivo_turma + '/' + anoAnterior;
-            }
-            
-            welcomeInfo.textContent = infoText;
-            console.log('[DASHBOARD] Banner atualizado:', infoText);
-          }
-        } catch (error) {
-          console.error('[DASHBOARD] Erro ao atualizar welcome banner:', error);
-        }
-      }
-
       // ========== FUNÇÃO: CARREGAR DADOS REAIS DO BACKEND ==========
       async function loadEstudanteData() {
         try {
           console.log('[DASHBOARD] Iniciando carregamento de dados do estudante...');
           
-          // Obter ID do usuário logado do localStorage
-          const userId = api.getUserId();
-          console.log('[DASHBOARD] ID do usuário logado:', userId);
-          
-          // Buscar estudantes e encontrar o do usuário logado
+          // Buscar todos os estudantes para encontrar o logado
           const estudantes = await api.getEstudantes();
           console.log('[DASHBOARD] Estudantes retornados:', estudantes?.length ?? 0);
 
-          // Procurar o estudante do usuário logado
-          // Se não temos relação usuário-estudante, usar o primeiro
-          let estudante = null;
-          if (userId && estudantes && estudantes.length > 0) {
-            // Tentar encontrar estudante com usuario_id
-            estudante = estudantes.find(e => e.usuario_id === userId);
-            
-            // Se não encontrar, usar o primeiro como fallback
-            if (!estudante) {
-              console.warn('[DASHBOARD] Estudante com usuario_id não encontrado, usando primeiro da lista');
-              estudante = estudantes[0];
-            }
-          } else if (estudantes && estudantes.length > 0) {
-            estudante = estudantes[0];
-          }
-
-          if (estudante) {
+          if (estudantes && estudantes.length > 0) {
+            const estudante = estudantes[0];
             estudanteId = estudante.id_estudante;
-            estudanteData = estudante;
             api.setEstudanteId(estudanteId);
 
             console.log('[DASHBOARD] Estudante Logado:', {
               id: estudanteId,
               nome: estudante.nome_estudante,
-              turma_id: estudante.turma_id,
-              usuario_id: estudante.usuario_id
+              turma_id: estudante.turma_id
             });
 
             // Passo 1: Carregar turma com disciplinas
@@ -371,11 +299,6 @@
               console.log('[DASHBOARD] Passo 1: Carregando turma #' + estudante.turma_id);
               await loadTurmaComDisciplinas(estudante.turma_id);
               console.log('[DASHBOARD] Passo 1 concluído. Disciplinas carregadas:', disciplinasDoEstudante?.length ?? 0);
-              
-              // Atualizar welcome banner com dados do estudante e turma
-              if (turmaData) {
-                await updateWelcomeBanner(estudante, turmaData);
-              }
             } else {
               console.warn('[DASHBOARD] Estudante sem turma. Carregando todas as disciplinas.');
               try {
@@ -385,8 +308,6 @@
                 console.error('[DASHBOARD] Erro ao carregar disciplinas:', e);
                 disciplinasDoEstudante = [];
               }
-              // Ainda assim atualizar o banner com o nome do estudante
-              await updateWelcomeBanner(estudante, null);
             }
 
             // Passo 2: Carregar notas do estudante
@@ -411,39 +332,44 @@
           // Buscar turma
           const turma = await api.getTurma(turmaId);
           console.log('[DASHBOARD] Turma carregada:', turma);
-          
-          // Armazenar turma globalmente
-          turmaData = turma;
 
           if (turma && turma.curso_id) {
-            console.log('[DASHBOARD] Buscando disciplinas do curso ID:', turma.curso_id);
             // Buscar disciplinas do curso
             try {
               const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
-              console.log('[DASHBOARD] Disciplinas do curso encontradas:', disciplinas?.length ?? 0);
-              console.log('[DASHBOARD] Lista de disciplinas:', disciplinas);
+              console.log('[DASHBOARD] Disciplinas do curso encontradas:', disciplinas);
               
               // Armazenar disciplinas globalmente
               if (disciplinas && disciplinas.length > 0) {
                 disciplinasDoEstudante = disciplinas;
-                console.log('[DASHBOARD] Disciplinas carregadas do curso');
               } else {
                 console.warn('[DASHBOARD] Nenhuma disciplina encontrada para curso:', turma.curso_id);
-                disciplinasDoEstudante = [];
+                // Fallback: buscar todas as disciplinas
+                disciplinasDoEstudante = await api.getDisciplinas();
+                console.log('[DASHBOARD] Fallback: usando todas as disciplinas:', disciplinasDoEstudante);
               }
             } catch (courseError) {
               console.error('[DASHBOARD] Erro ao buscar disciplinas do curso:', courseError);
-              disciplinasDoEstudante = [];
+              // Fallback: buscar todas as disciplinas
+              disciplinasDoEstudante = await api.getDisciplinas();
+              console.log('[DASHBOARD] Fallback (erro): usando todas as disciplinas:', disciplinasDoEstudante);
             }
           } else {
-            console.warn('[DASHBOARD] Turma sem curso associado.');
-            disciplinasDoEstudante = [];
+            console.warn('[DASHBOARD] Turma sem curso associado. Carregando todas as disciplinas.');
+            // Se não tem curso, buscar todas as disciplinas
+            disciplinasDoEstudante = await api.getDisciplinas();
+            console.log('[DASHBOARD] Todas as disciplinas carregadas:', disciplinasDoEstudante);
           }
-          
-          console.log('[DASHBOARD] Total de disciplinas carregadas:', disciplinasDoEstudante?.length ?? 0);
         } catch (error) {
           console.error('[DASHBOARD] Erro ao carregar turma:', error);
-          disciplinasDoEstudante = [];
+          // Fallback final: buscar todas as disciplinas
+          try {
+            disciplinasDoEstudante = await api.getDisciplinas();
+            console.log('[DASHBOARD] Fallback final: usando todas as disciplinas:', disciplinasDoEstudante);
+          } catch (fallbackError) {
+            console.error('[DASHBOARD] Erro no fallback final:', fallbackError);
+            disciplinasDoEstudante = [];
+          }
         }
       }
 
@@ -814,35 +740,6 @@
         });
       });
 
-      // ========== FUNÇÃO: ATUALIZAR HEADER COM DADOS DO ESTUDANTE ==========
-      function updateHeaderWithEstudanteData() {
-        try {
-          console.log('[DASHBOARD] Atualizando header com dados do usuário logado...');
-          
-          // Atualizar nome do usuário no header - usar localStorage
-          const headerUserName = document.querySelector('.header-user-name');
-          if (headerUserName) {
-            const userName = api.getUserName() || 'Aluno';
-            headerUserName.textContent = userName;
-            console.log('[DASHBOARD] Nome no header atualizado para:', userName);
-          }
-          
-          // Atualizar role no header
-          const headerUserRole = document.querySelector('.header-user-role');
-          if (headerUserRole) {
-            // Formatar role com turma se disponível
-            let roleText = AuthHelper.translateRole(api.getUserRole());
-            if (turmaData && turmaData.sigla_turma) {
-              roleText += ' - ' + turmaData.sigla_turma;
-            }
-            headerUserRole.textContent = roleText;
-            console.log('[DASHBOARD] Role no header atualizado para:', roleText);
-          }
-        } catch (error) {
-          console.error('[DASHBOARD] Erro ao atualizar header:', error);
-        }
-      }
-
       // ========== CARREGAR DADOS INICIAIS ==========
       console.log('[DASHBOARD] DOMContentLoaded: iniciando carregamento de dados');
       loadEstudanteData();
@@ -851,8 +748,6 @@
       setTimeout(() => {
         console.log('[DASHBOARD] Carregando faltas após 500ms');
         loadFaltasDoEstudante();
-        // Atualizar header com dados do estudante após carregar
-        updateHeaderWithEstudanteData();
       }, 500);
     });
   </script>
@@ -867,7 +762,7 @@
     AuthHelper.checkRole(['ESTUDANTE']);
     
     document.addEventListener('DOMContentLoaded', function() {
-      // Update header com dados padrão (fallback)
+      // Update header com dados do usuário
       const headerUserName = document.querySelector('.header-user-name');
       const headerUserRole = document.querySelector('.header-user-role');
       
