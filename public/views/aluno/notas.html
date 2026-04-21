@@ -479,7 +479,12 @@
           
           if (nota) {
             console.log('[NOTAS] Disciplina com nota:', disciplina.descricao_disc || disciplina.sigla_disc);
-            return nota;
+            // Retornar a nota mas SEMPRE incluindo a disciplina completa
+            return {
+              ...nota,
+              disciplina: disciplina,
+              disciplina_id: notaId
+            };
           } else {
             // Criar nota padrão com zero
             console.log('[NOTAS] Disciplina SEM nota (preenchendo com zero):', disciplina.descricao_disc || disciplina.sigla_disc);
@@ -500,6 +505,9 @@
 
         notasCombinadas = resultado;
         console.log('[NOTAS] Notas combinadas:', notasCombinadas.length, 'disciplinas');
+        
+        // Debug: listar todas as disciplinas carregadas
+        console.log('[NOTAS] Disciplinas no resultado:', notasCombinadas.map(n => n.disciplina?.descricao_disc || 'N/A'));
       }
 
       // ========== FUNÇÃO: ATUALIZAR SELECTOR DE DISCIPLINAS ==========
@@ -524,49 +532,31 @@
 
       // ========== FUNÇÃO: CARREGAR NOTAS COM FILTROS ==========
       function loadNotas() {
-        const trimestre = document.getElementById('trimestreSelect').value;
-        const ano = document.getElementById('anoSelect').value;
-        const disciplinaId = document.getElementById('disciplinaSelect').value;
+        console.log('[NOTAS] Carregando notas das disciplinas da turma...');
 
-        console.log(`[NOTAS] Filtrando: ano=${ano}, trimestre=${trimestre}, disciplina=${disciplinaId}`);
+        // Usar todas as notas combinadas SEM filtros
+        let notasParaExibir = notasCombinadas || [];
 
-        // Filtrar por trimestre, ano e disciplina
-        let filteredData = notasCombinadas.filter(nota => {
-          // Filtro de disciplina
-          if (disciplinaId !== 'todas') {
-            const discId = nota.disciplina_id;
-            if (discId != disciplinaId && nota.disciplina_id != disciplinaId) {
-              return false;
-            }
-          }
-
-          // Filtro de trimestre
-          if (nota.trimestre_nota && nota.trimestre_nota != trimestre) {
-            return false;
-          }
-
-          return true;
-        });
+        console.log('[NOTAS] Total de notas a exibir:', notasParaExibir.length);
+        console.log('[NOTAS] Notas para exibir:', notasParaExibir);
 
         // Ordenar por disciplina
-        filteredData.sort((a, b) => {
+        notasParaExibir.sort((a, b) => {
           const discA = (a.disciplina?.descricao_disc || a.disciplina?.sigla_disc || '').toLowerCase();
           const discB = (b.disciplina?.descricao_disc || b.disciplina?.sigla_disc || '').toLowerCase();
           return discA.localeCompare(discB);
         });
 
-        console.log('[NOTAS] Dados filtrados:', filteredData.length);
-
         const tbody = document.getElementById('boletimTableBody');
         tbody.innerHTML = '';
 
-        if (filteredData.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhuma nota encontrada para os filtros selecionados.</td></tr>';
+        if (notasParaExibir.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Nenhuma nota encontrada.</td></tr>';
           return;
         }
 
         // Renderizar tabela
-        filteredData.forEach(nota => {
+        notasParaExibir.forEach(nota => {
           const row = document.createElement('tr');
           
           // Calcular média trimestral: (MAC + NPP + NPT) / 3
@@ -595,7 +585,7 @@
           tbody.appendChild(row);
         });
 
-        showNotification(`${filteredData.length} notas carregadas com sucesso.`, 'success');
+        showNotification(`${notasParaExibir.length} notas carregadas.`, 'success');
       }
 
       // ========== EVENT LISTENERS ==========
