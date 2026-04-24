@@ -10,8 +10,9 @@ if (typeof api === 'undefined') {
 }
 
 let faltasData = [];
-let disciplinasDisponíveis = new Set();
+let disciplinasDisponíveis = [];
 let estudanteId = null;
+let estudante = null;
 
 document.addEventListener('DOMContentLoaded', function () {
   console.log('[FALTAS] Script carregado');
@@ -29,8 +30,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Atualizar informações do usuário no header
   updateUserInfo();
 
-  // Carregar faltas inicialmente
-  loadFaltas();
+  // Carregar turma e disciplinas primeiro
+  loadTurmaComDisciplinas().then(() => {
+    // Depois carregar faltas
+    loadFaltas();
+  });
 
   // Event listener para botão de carregar faltas
   const btnCarregarFaltas = document.getElementById('btnCarregarFaltas');
@@ -59,6 +63,67 @@ function updateUserInfo() {
 }
 
 /**
+ * Carregar turma e disciplinas do estudante
+ */
+async function loadTurmaComDisciplinas() {
+  try {
+    console.log('[FALTAS] Carregando turma e disciplinas do estudante...');
+
+    // 1. Obter dados do estudante via API
+    estudante = await api.getEstudanteByUsuario(estudanteId);
+    console.log('[FALTAS] Estudante carregado:', estudante.nome_estudante);
+
+    if (!estudante.turma || !estudante.turma.id_turma) {
+      console.warn('[FALTAS] Estudante sem turma. Carregando todas as disciplinas.');
+      disciplinasDisponíveis = await api.getDisciplinas();
+      console.log('[FALTAS] Total de disciplinas (todas):', disciplinasDisponíveis.length);
+      return;
+    }
+
+    const turmaId = estudante.turma.id_turma;
+    console.log('[FALTAS] Turma ID:', turmaId);
+
+    // 2. Carregar turma
+    const turma = await api.getTurma(turmaId);
+    console.log('[FALTAS] Turma carregada:', turma.sigla_turma);
+
+    // 3. Se turma tem curso, carregar disciplinas do curso
+    if (turma && turma.curso_id) {
+      console.log('[FALTAS] Carregando disciplinas do curso:', turma.curso_id);
+      try {
+        const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
+        console.log('[FALTAS] Disciplinas do curso carregadas:', disciplinas.length);
+        
+        if (disciplinas && disciplinas.length > 0) {
+          disciplinasDisponíveis = disciplinas;
+        } else {
+          console.warn('[FALTAS] Nenhuma disciplina do curso. Usando fallback.');
+          disciplinasDisponíveis = await api.getDisciplinas();
+        }
+      } catch (error) {
+        console.error('[FALTAS] Erro ao carregar disciplinas do curso:', error.message);
+        console.log('[FALTAS] Usando fallback: todas as disciplinas');
+        disciplinasDisponíveis = await api.getDisciplinas();
+      }
+    } else {
+      console.warn('[FALTAS] Turma sem curso. Carregando todas as disciplinas.');
+      disciplinasDisponíveis = await api.getDisciplinas();
+    }
+
+    console.log('[FALTAS] Total de disciplinas carregadas:', disciplinasDisponíveis.length);
+  } catch (error) {
+    console.error('[FALTAS] Erro ao carregar turma e disciplinas:', error);
+    console.log('[FALTAS] Fallback: carregando todas as disciplinas');
+    try {
+      disciplinasDisponíveis = await api.getDisciplinas();
+    } catch (fallbackError) {
+      console.error('[FALTAS] Erro no fallback:', fallbackError);
+      disciplinasDisponíveis = [];
+    }
+  }
+}
+
+/**
  * Carregar faltas da API
  */
 async function loadFaltas() {
@@ -75,17 +140,8 @@ async function loadFaltas() {
     
     console.log('[FALTAS] Faltas carregadas:', faltasData);
 
-  // Extrair disciplinas únicas para o select
-    if (faltasData && faltasData.length > 0) {
-      faltasData.forEach(falta => {
-        if (falta.disciplina?.descricao_disc) {
-          disciplinasDisponíveis.add(falta.disciplina.descricao_disc);
-        }
-      });
-
-      // Atualizar select de disciplinas
-      updateDisciplinaSelect();
-    }
+    // Atualizar select de disciplinas com disciplinas da turma
+    updateDisciplinaSelect();
 
     // Renderizar tabela com filtros
     renderFaltasTable(trimestre, ano, disciplina);
@@ -116,13 +172,20 @@ function updateDisciplinaSelect() {
   const currentValue = select.value;
   select.innerHTML = '<option value="todas">Todas</option>';
 
-  // Adicionar disciplinas carregadas
-  disciplinasDisponíveis.forEach(disciplina => {
-    const option = document.createElement('option');
-    option.value = disciplina;
-    option.textContent = disciplina;
-    select.appendChild(option);
-  });
+  // Adicionar disciplinas carregadas da turma
+  if (disciplinasDisponíveis && disciplinasDisponíveis.length > 0) {
+    console.log('[FALTAS] Preenchendo select com', disciplinasDisponíveis.length, 'disciplinas');
+    
+    disciplinasDisponíveis.forEach(disciplina => {
+      const option = document.createElement('option');
+      const nomeDisciplina = disciplina.descricao_disc || disciplina.descricao_disciplina || 'Disciplina';
+      option.value = nomeDisciplina;
+      option.textContent = nomeDisciplina;
+      select.appendChild(option);
+    });
+  } else {
+    console.warn('[FALTAS] Nenhuma disciplina carregada para o select');
+  }
 
   // Manter valor selecionado se ainda existir
   if (Array.from(select.options).some(opt => opt.value === currentValue)) {
