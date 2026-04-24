@@ -169,135 +169,42 @@
         </div>
       </header>
 
-      <div class="page-content">
+      <!-- Loading Spinner -->
+      <div id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status" style="width: 2rem; height: 2rem;">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p class="text-muted mt-2">Carregando avisos...</p>
+      </div>
+
+      <!-- Page Content (hidden while loading) -->
+      <div id="pageContent" style="display: none;">
         <!-- Filters -->
         <div class="card mb-4">
           <div class="card-body">
             <div class="row g-3 align-items-end">
               <div class="col-md-4">
                 <label class="form-label">Pesquisar</label>
-                <input type="text" class="form-control" placeholder="Título ou conteúdo...">
+                <input type="text" class="form-control" id="buscaAviso" placeholder="Título ou conteúdo...">
               </div>
               <div class="col-md-3">
-                <label for="filtroTipoMensagem" class="form-label">Tipo de Mensagem</label>
-
-                <select id="filtroTipoMensagem" name="tipoMensagem" class="form-select">
+                <label for="filtroPrioridade" class="form-label">Prioridade</label>
+                <select id="filtroPrioridade" class="form-select">
                   <option value="">Todas</option>
-                  <option value="nao_lidas">Não lidos</option>
-                  <option value="urgencia">Urgência</option>
-                  <option value="evento">Evento</option>
                 </select>
               </div>
-
-              <div class="col-md-3">
-                <label class="form-label">Data</label>
-                <input type="date" class="form-control">
-              </div>
               <div class="col-md-2">
-                <button class="btn btn-outline-primary w-100">Filtrar</button>
+                <button class="btn btn-primary w-100" id="btnFiltrar">Filtrar</button>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Avisos List -->
-        <div class="avisos-list">
-          <!-- Aviso Urgente -->
-          <div class="aviso-card aviso-urgente aviso-nao-lido">
-            <div class="aviso-header">
-              <div class="aviso-badges">
-                <span class="badge badge-danger">Urgente</span>
-                <span class="badge badge-warning">Nao Lido</span>
-              </div>
-              <span class="aviso-data">15 Nov 2026, 09:30</span>
-            </div>
-            <h5 class="aviso-titulo">Prova de Matematica - Segunda-feira</h5>
-            <p class="aviso-texto">Informamos que a prova trimestral de Matematica sera realizada na proxima
-              segunda-feira, dia 18 de Novembro, das 07:30 as 09:00. A prova abrangera os conteudos de Funcoes
-              Quadraticas e Sistemas de Equacoes. Trazer calculadora cientifica e material de geometria.</p>
-            <div class="aviso-footer">
-              <span class="aviso-autor">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                Prof. Joao Ferreira - Matematica
-              </span>
-              <button class="btn btn-sm btn-outline-primary">Marcar como Lido</button>
-            </div>
-          </div>
+        <div class="avisos-list" id="avisosList">
+        </div>
+      </div>
 
-          <!-- Aviso Informativo -->
-          <div class="aviso-card aviso-informativo aviso-nao-lido">
-            <div class="aviso-header">
-              <div class="aviso-badges">
-                <span class="badge badge-info">Informativo</span>
-                <span class="badge badge-warning">Nao Lido</span>
-              </div>
-              <span class="aviso-data">14 Nov 2026, 14:00</span>
-            </div>
-            <h5 class="aviso-titulo">Entrega de Trabalho de Biologia</h5>
-            <p class="aviso-texto">Lembramos que o trabalho de pesquisa sobre Ecossistemas Angolanos deve ser entregue
-              ate dia 20 de Novembro. O trabalho deve conter minimo de 5 paginas, incluindo introducao, desenvolvimento,
-              conclusao e referencias bibliograficas.</p>
-            <div class="aviso-footer">
-              <span class="aviso-autor">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                Prof. Carlos Mendes - Biologia
-              </span>
-              <button class="btn btn-sm btn-outline-primary">Marcar como Lido</button>
-            </div>
-          </div>
-
-          <!-- Aviso Evento -->
-          <div class="aviso-card aviso-evento">
-            <div class="aviso-header">
-              <div class="aviso-badges">
-                <span class="badge badge-success">Evento</span>
-                <span class="badge badge-secondary">Lido</span>
-              </div>
-              <span class="aviso-data">12 Nov 2026, 10:00</span>
-            </div>
-            <h5 class="aviso-titulo">Feira de Ciencias 2026</h5>
-            <p class="aviso-texto">A Feira de Ciencias da nossa escola sera realizada nos dias 28 e 29 de Novembro. Os
-              alunos interessados em participar com projectos devem inscrever-se junto do coordenador de INFGEST-10ADte
-              dia 20 de Novembro.</p>
-            <div class="aviso-footer">
-              <span class="aviso-autor">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-                Direcao da Escola
-              </span>
-              <span class="text-muted small">Lido em 12 Nov 2026</span>
-            </div>
-          </div>
-
-          <!-- Aviso Lido -->
-          <div class="aviso-card aviso-informativo">
-            <div class="aviso-header">
-              <div class="aviso-badges">
-                <span class="badge badge-info">Informativo</span>
-                <span class="badge badge-secondary">Lido</span>
-              </div>
-              <span class="aviso-data">10 Nov 2026, 08:00</span>
-            </div>
-            <h5 class="aviso-titulo">Calendario de Provas Trimestrais</h5>
-            <p class="aviso-texto">O calendario completo das provas trimestrais ja esta disponivel. As provas decorrem
-              de 02 a 13 de Dezembro. Consultem o horario na pagina da escola ou na secretaria academica.</p>
-            <div class="aviso-footer">
-              <span class="aviso-autor">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
                 </svg>
                 Secretaria Academica
               </span>
@@ -315,7 +222,9 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
+  <script src="../../js/api-service.js"></script>
   <script src="../../js/sidebar.js"></script>
+  <script src="../../js/avisos.js"></script>
 </body>
 
 </html>
