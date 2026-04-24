@@ -223,6 +223,13 @@ class APIService {
   }
 
   /**
+   * Obter estudante do usuário logado por usuário ID
+   */
+  async getEstudanteByUsuario(usuarioId) {
+    return this.get(`/estudantes/usuario/${usuarioId}`);
+  }
+
+  /**
    * Criar novo estudante
    */
   async createEstudante(data) {
