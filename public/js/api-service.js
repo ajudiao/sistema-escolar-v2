@@ -189,6 +189,13 @@ class APIService {
   }
 
   /**
+   * Atualizar utilizador
+   */
+  async updateUsuario(id, data) {
+    return this.put(`/usuarios/${id}`, data);
+  }
+
+  /**
    * Deletar utilizador
    */
   async deleteUsuario(id) {
