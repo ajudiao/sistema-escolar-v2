@@ -744,20 +744,33 @@
     }
 
     // Ver detalhes do professor
-    async function viewProfessor(id) {
+    async function viewProfessor(id, buttonElement = null) {
       let prof = professoresData.find(p => p.id_prof == id);
       if (!prof) {
         DataLoader.showError('Professor não encontrado');
         return;
       }
 
+      const originalContent = buttonElement ? buttonElement.innerHTML : '';
+
       try {
-        DataLoader.showLoading('Carregando detalhes do professor...');
+        if (buttonElement) {
+          buttonElement.disabled = true;
+          buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Ver...';
+        } else {
+          DataLoader.showLoading('Carregando detalhes do professor...');
+        }
+
         prof = await api.getProfessor(id);
       } catch (error) {
         console.warn('Falha ao carregar detalhes completos do professor:', error);
       } finally {
-        DataLoader.hideLoading();
+        if (buttonElement) {
+          buttonElement.disabled = false;
+          buttonElement.innerHTML = originalContent;
+        } else {
+          DataLoader.hideLoading();
+        }
       }
 
       document.getElementById('profDetailNome').textContent = prof.nome_prof || '-';
@@ -1160,7 +1173,7 @@ document.getElementById('profModal').addEventListener('show.bs.modal', function(
         if (!id) return;
         
         if (btn.classList.contains('btn-view')) {
-          viewProfessor(id);
+          viewProfessor(id, btn);
         } else if (btn.classList.contains('btn-edit')) {
           editProfessor(id);
         } else if (btn.classList.contains('btn-delete')) {
