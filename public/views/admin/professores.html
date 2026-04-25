@@ -258,7 +258,7 @@
                   <option>Biologia</option>
                 </select>
               </div>
-              <div class="col-md-2">
+              <!-- <div class="col-md-2">
                 <label class="form-label">Turma</label>
                 <select id="filterProfTurma" class="form-control form-select">
                   <option value="">Todas</option>
@@ -266,7 +266,7 @@
                   <option value="2">Turma B1 — Tarde — B202</option>
                   <option value="3">Turma C1 — Noite — C303</option>
                 </select>
-              </div>
+              </div> -->
               <div class="col-md-2">
                 <button id="btnFilterProf" class="btn btn-outline-primary w-100">Filtrar</button>
               </div>
@@ -321,6 +321,16 @@
                   <div class="col-md-6">
                     <label class="form-label fw-bold">Disciplinas</label>
                     <p id="profDetailDisciplinas">-</p>
+                  </div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Formação</label>
+                    <p id="profDetailFormacao">-</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Status</label>
+                    <p id="profDetailStatus">-</p>
                   </div>
                 </div>
               </div>
@@ -679,7 +689,7 @@
     async function loadProfessores() {
       try {
         DataLoader.showLoading('Carregando professores...');
-        professoresData = await api.getProfessores();
+        professoresData = await api.getProfessores('ATIVO');
         DataLoader.hideLoading();
         renderProfessoresTable(professoresData);
       } catch (error) {
@@ -923,17 +933,17 @@
 
     // =========== DELETAR ===========
     async function deleteProfessor(id) {
-      if (!confirm('Tem certeza que quer deletar este professor?')) return;
+      if (!confirm('Tem certeza que quer desativar este professor?')) return;
 
       try {
-        DataLoader.showLoading('Deletando professor...');
+        DataLoader.showLoading('Desativando professor...');
         await api.deleteProfessor(id);
         DataLoader.hideLoading();
-        DataLoader.showSuccess('Professor deletado com sucesso!');
+        DataLoader.showSuccess('Professor desativado com sucesso!');
         loadProfessores();
       } catch (error) {
         DataLoader.hideLoading();
-        DataLoader.showError('Erro ao deletar professor: ' + error.message);
+        DataLoader.showError('Erro ao desativar professor: ' + error.message);
       }
     }
 

@@ -255,8 +255,14 @@ class APIService {
   /**
    * Listar professores
    */
-  async getProfessores() {
-    return this.get('/professores');
+  async getProfessores(status = null) {
+    let endpoint = '/professores';
+
+    if (status) {
+      endpoint += `?status=${encodeURIComponent(status)}`;
+    }
+
+    return this.get(endpoint);
   }
 
   /**
