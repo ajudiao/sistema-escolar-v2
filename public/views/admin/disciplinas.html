@@ -266,7 +266,6 @@
                   <tr>
                     <th>Código</th>
                     <th>Nome</th>
-                    <th>Observação</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
@@ -383,7 +382,7 @@
       tbody.innerHTML = '';
 
       if (!disciplinas || disciplinas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma disciplina encontrada</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-4">Nenhuma disciplina encontrada</td></tr>';
         return;
       }
 
@@ -392,7 +391,6 @@
         row.setAttribute('data-disc-id', disc.id_disc);
         row.innerHTML = `
           <td><strong>${disc.sigla_disc || '-'}</strong></td>
-          <td>${disc.descricao_disc || '-'}</td>
           <td>${disc.descricao_disc || '-'}</td>
           <td>
             <button class="btn btn-sm btn-outline-info me-1 btn-view" data-id="${disc.id_disc}">Ver</button>
