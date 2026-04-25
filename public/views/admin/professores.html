@@ -333,6 +333,16 @@
                     <p id="profDetailStatus">-</p>
                   </div>
                 </div>
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Turma(s)</label>
+                    <p id="profDetailTurmas">-</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Disciplinas lecionadas</label>
+                    <p id="profDetailDisciplinasLecionadas">-</p>
+                  </div>
+                </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -734,11 +744,20 @@
     }
 
     // Ver detalhes do professor
-    function viewProfessor(id) {
-      const prof = professoresData.find(p => p.id_prof == id);
+    async function viewProfessor(id) {
+      let prof = professoresData.find(p => p.id_prof == id);
       if (!prof) {
         DataLoader.showError('Professor não encontrado');
         return;
+      }
+
+      try {
+        DataLoader.showLoading('Carregando detalhes do professor...');
+        prof = await api.getProfessor(id);
+      } catch (error) {
+        console.warn('Falha ao carregar detalhes completos do professor:', error);
+      } finally {
+        DataLoader.hideLoading();
       }
 
       document.getElementById('profDetailNome').textContent = prof.nome_prof || '-';
@@ -748,6 +767,23 @@
       
       const statusBadge = prof.status === 'ATIVO' ? '<span class="badge bg-success">Ativo</span>' : '<span class="badge bg-danger">Inativo</span>';
       document.getElementById('profDetailStatus').innerHTML = statusBadge;
+
+      const disciplinasResumo = Array.isArray(prof.disciplinas)
+        ? prof.disciplinas
+            .map(item => item.disciplina?.sigla_disc || item.disciplina?.descricao_disc || item.disciplina_id || item.id)
+            .filter(Boolean)
+            .join(', ')
+        : '-';
+      document.getElementById('profDetailDisciplinas').textContent = disciplinasResumo || '-';
+      document.getElementById('profDetailDisciplinasLecionadas').textContent = disciplinasResumo || '-';
+
+      const turmasResumo = Array.isArray(prof.turmas)
+        ? prof.turmas
+            .map(item => item.turma?.sigla_turma || item.turma?.classe_turma || item.turma_id || item.id)
+            .filter(Boolean)
+            .join(', ')
+        : '-';
+      document.getElementById('profDetailTurmas').textContent = turmasResumo || '-';
 
       const modal = new bootstrap.Modal(document.getElementById('profDetailsModal'));
       modal.show();
@@ -932,18 +968,31 @@
     }
 
     // =========== DELETAR ===========
-    async function deleteProfessor(id) {
+    async function deleteProfessor(id, buttonElement = null) {
       if (!confirm('Tem certeza que quer desativar este professor?')) return;
 
+      const originalContent = buttonElement ? buttonElement.innerHTML : '';
+
       try {
-        DataLoader.showLoading('Desativando professor...');
+        if (buttonElement) {
+          buttonElement.disabled = true;
+          buttonElement.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Deletando...';
+        } else {
+          DataLoader.showLoading('Desativando professor...');
+        }
+
         await api.deleteProfessor(id);
-        DataLoader.hideLoading();
         DataLoader.showSuccess('Professor desativado com sucesso!');
         loadProfessores();
       } catch (error) {
-        DataLoader.hideLoading();
         DataLoader.showError('Erro ao desativar professor: ' + error.message);
+      } finally {
+        if (buttonElement) {
+          buttonElement.disabled = false;
+          buttonElement.innerHTML = originalContent;
+        } else {
+          DataLoader.hideLoading();
+        }
       }
     }
 
@@ -1115,7 +1164,7 @@ document.getElementById('profModal').addEventListener('show.bs.modal', function(
         } else if (btn.classList.contains('btn-edit')) {
           editProfessor(id);
         } else if (btn.classList.contains('btn-delete')) {
-          deleteProfessor(id);
+          deleteProfessor(id, btn);
         }
       });
 
