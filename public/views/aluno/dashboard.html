@@ -154,7 +154,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
               </div>
               <div class="stat-content">
-                <span class="stat-value" style="color: red;">1.88</span>
+                <span class="stat-value" id="mediaGeralValue" style="color: red;">-</span>
                 <span class="stat-label">Media Geral</span>
               </div>
             </div>
@@ -562,6 +562,7 @@
         if (!notas || notas.length === 0) {
           console.warn('[DASHBOARD] Nenhuma avaliação para exibir');
           tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Nenhuma avaliação registada</td></tr>';
+          atualizarMediaGeral([]);
           return;
         }
 
@@ -590,6 +591,9 @@
           `;
           tbody.appendChild(row);
         });
+
+        // Atualizar a média geral
+        atualizarMediaGeral(notas);
       }
 
       // ========== FUNÇÃO: MOSTRAR FALTAS NA TABELA ==========
@@ -649,6 +653,53 @@
           `;
           tbody.appendChild(row);
         });
+      }
+
+      // ========== FUNÇÃO: ATUALIZAR MÉDIA GERAL ==========
+      function atualizarMediaGeral(notas) {
+        console.log('[DASHBOARD] Calculando média geral de', (notas || []).length, 'notas');
+        
+        if (!notas || notas.length === 0) {
+          console.warn('[DASHBOARD] Nenhuma nota para calcular média');
+          document.getElementById('mediaGeralValue').textContent = '-';
+          document.getElementById('mediaGeralValue').style.color = 'gray';
+          return;
+        }
+
+        // Calcular a média das notas PT (Prova Trimestral)
+        const notasValidas = notas
+          .filter(nota => nota.pt_notas !== null && nota.pt_notas !== undefined && nota.pt_notas !== '')
+          .map(nota => parseFloat(nota.pt_notas) || 0);
+
+        if (notasValidas.length === 0) {
+          console.warn('[DASHBOARD] Nenhuma nota PT válida encontrada');
+          document.getElementById('mediaGeralValue').textContent = '-';
+          document.getElementById('mediaGeralValue').style.color = 'gray';
+          return;
+        }
+
+        // Calcular a média
+        const somaNotas = notasValidas.reduce((sum, nota) => sum + nota, 0);
+        const mediaGeral = somaNotas / notasValidas.length;
+        
+        console.log('[DASHBOARD] Notas para cálculo:', notasValidas);
+        console.log('[DASHBOARD] Soma:', somaNotas, 'Quantidade:', notasValidas.length, 'Média:', mediaGeral.toFixed(2));
+
+        // Atualizar o elemento com a média
+        const elemento = document.getElementById('mediaGeralValue');
+        elemento.textContent = mediaGeral.toFixed(2);
+        
+        // Mudar cor baseado na média
+        // Verde se >= 10, Amarelo se >= 7 e < 10, Vermelho se < 7
+        if (mediaGeral >= 10) {
+          elemento.style.color = '#10b981'; // Verde
+        } else if (mediaGeral >= 7) {
+          elemento.style.color = '#f59e0b'; // Amarelo/Laranja
+        } else {
+          elemento.style.color = '#ef4444'; // Vermelho
+        }
+
+        console.log('[DASHBOARD] ✓ Média geral atualizada:', mediaGeral.toFixed(2));
       }
 
       // ========== DADOS DE FALLBACK (para quando não houver dados do backend) ==========
