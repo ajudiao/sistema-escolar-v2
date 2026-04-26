@@ -136,8 +136,8 @@
           <div class="card-body py-4">
             <div class="row align-items-center">
               <div class="col-md-8">
-                <h3 class="mb-2">Bem-vinda, Maria!</h3>
-                <p class="mb-0 opacity-90">EIA-11AD - Ciencias Fisicas e Biologicas | Periodo: Manha | Ano Lectivo 2026/2025</p>
+                <h3 class="mb-2">Bem-vinda, <span id="nomeBemVindo">~</span>!</h3>
+                <p class="mb-0 opacity-90" id="infoEstudanteText">-</p>
               </div>
               <div class="col-md-4 text-md-end mt-3 mt-md-0">
                 <span class="badge" style="background: rgba(255,255,255,0.2); font-size: 0.875rem; padding: 0.5rem 1rem;">I Trimestre</span>
@@ -265,6 +265,8 @@
     document.addEventListener('DOMContentLoaded', function () {
       // ========== VARIÁVEIS GLOBAIS ==========
       let estudanteId = null;
+      let estudanteData = null;
+      let turmaDoEstudante = null;
       let notasData = [];
       let faltasData = [];
 
@@ -335,6 +337,7 @@
             }
             
             estudanteId = estudante.id_estudante;
+            estudanteData = estudante;
             api.setEstudanteId(estudanteId);
 
             console.log('[DASHBOARD] Estudante Logado:', {
@@ -349,12 +352,14 @@
               await loadTurmaComDisciplinas(estudante.turma_id);
               console.log('[DASHBOARD] Passo 1 concluído. Disciplinas carregadas:', disciplinasDoEstudante?.length ?? 0);
               atualizarQtdDisciplinas();
+              atualizarBannerEstudante(estudante, turmaDoEstudante);
             } else {
               console.warn('[DASHBOARD] Estudante sem turma. Carregando todas as disciplinas.');
               try {
                 disciplinasDoEstudante = await api.getDisciplinas();
                 console.log('[DASHBOARD] Disciplinas carregadas (todas):', disciplinasDoEstudante?.length ?? 0);
                 atualizarQtdDisciplinas();
+                atualizarBannerEstudante(estudante, turmaDoEstudante);
               } catch (e) {
                 console.error('[DASHBOARD] Erro ao carregar disciplinas:', e);
                 disciplinasDoEstudante = [];
@@ -382,6 +387,7 @@
           
           // Buscar turma
           const turma = await api.getTurma(turmaId);
+          turmaDoEstudante = turma;
           console.log('[DASHBOARD] Turma carregada:', turma);
 
           if (turma && turma.curso_id) {
@@ -713,6 +719,34 @@
         elemento.textContent = qtd;
         
         console.log('[DASHBOARD] ✓ Quantidade de disciplinas atualizada:', qtd);
+      }
+
+      // ========== FUNÇÃO: ATUALIZAR INFORMAÇÕES DO BANNER ==========
+      function atualizarBannerEstudante(estudante, turma) {
+        console.log('[DASHBOARD] Atualizando banner com informações do estudante');
+        
+        // Atualizar nome
+        if (estudante && estudante.nome_estudante) {
+          const nomeElement = document.getElementById('nomeBemVindo');
+          nomeElement.textContent = estudante.nome_estudante.split(' ')[0]; // Apenas o primeiro nome
+        }
+
+        // Atualizar informações da turma
+        if (turma) {
+          const siglaTurma = turma.sigla_turma || '-';
+          const descricaoCurso = turma.curso?.descricao_curso || '-';
+          const turnoTurma = turma.turno_turma || '-';
+          const anoLectivo = turma.ano_lectivo_turma || '-';
+
+          const infoText = `${siglaTurma} - ${descricaoCurso} | Periodo: ${turnoTurma} | Ano Lectivo ${anoLectivo}/${anoLectivo - 1}`;
+          
+          const infoElement = document.getElementById('infoEstudanteText');
+          infoElement.textContent = infoText;
+
+          console.log('[DASHBOARD] ✓ Banner atualizado:', infoText);
+        } else {
+          console.warn('[DASHBOARD] ⚠️ Turma não disponível para atualizar banner');
+        }
       }
 
       // ========== DADOS DE FALLBACK (para quando não houver dados do backend) ==========
