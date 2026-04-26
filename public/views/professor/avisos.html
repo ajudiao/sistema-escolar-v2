@@ -264,19 +264,33 @@
     // ========== GERENCIAR AVISOS LIDOS ==========
     function getAvisosLidosDoLocalStorage() {
       const avisosLidos = localStorage.getItem('avisosLidos');
+      console.log('%c[STORAGE] Lendo avisosLidos do localStorage:', 'color: purple;', avisosLidos);
       return avisosLidos ? JSON.parse(avisosLidos) : [];
     }
 
     function salvarAvisoComoLidoNoLocalStorage(avisoId) {
+      // Converter para número para garantir consistência
+      const id = parseInt(avisoId, 10);
+      console.log('%c[STORAGE] Tentando guardar aviso como lido - ID:', 'color: purple;', id, '(tipo:', typeof id + ')');
+      
       const avisosLidos = getAvisosLidosDoLocalStorage();
-      if (!avisosLidos.includes(avisoId)) {
-        avisosLidos.push(avisoId);
+      
+      if (!avisosLidos.includes(id)) {
+        avisosLidos.push(id);
         localStorage.setItem('avisosLidos', JSON.stringify(avisosLidos));
+        console.log('%c[STORAGE] Aviso guardado! Lista atual:', 'color: green;', avisosLidos);
+      } else {
+        console.log('%c[STORAGE] Aviso já estava na lista:', 'color: orange;', avisosLidos);
       }
     }
 
     function verificarSeAvisoEstaLido(avisoId) {
-      return getAvisosLidosDoLocalStorage().includes(avisoId);
+      // Converter para número para garantir consistência
+      const id = parseInt(avisoId, 10);
+      const avisosLidos = getAvisosLidosDoLocalStorage();
+      const estaLido = avisosLidos.includes(id);
+      console.log('%c[STORAGE] Verificando se aviso %d está lido:', 'color: purple;', id, estaLido, '| Lista:', avisosLidos);
+      return estaLido;
     }
 
     // ========== CARREGAMENTO INICIAL ==========
@@ -348,12 +362,14 @@
       avisosList.innerHTML = '';
       
       console.log('%c[AVISOS] Iniciando renderização com', 'color: blue; font-weight: bold;', avisos.length, 'avisos');
+      console.log('%c[AVISOS] Avisos lidos no localStorage:', 'color: purple;', getAvisosLidosDoLocalStorage());
       
       avisos.forEach((aviso, index) => {
         console.log(`%c[AVISOS] Renderizando aviso ${index + 1}:`, 'color: blue;', 'ID:', aviso.id, 'Título:', aviso.titulo);
         const tipo = aviso.tipo || 'informativo';
         // Verificar se o aviso já foi lido
         const jaLido = verificarSeAvisoEstaLido(aviso.id);
+        console.log(`%c[AVISOS] ↳ Aviso ID ${aviso.id} já lido: ${jaLido}`, 'color: ' + (jaLido ? 'green' : 'orange') + ';');
         const status = jaLido ? 'lido' : 'nao_lido';
         const classes = getClassesTipo(tipo);
         const nomeStatus = status === 'nao_lido' ? 'Não Lido' : 'Lido';
@@ -395,7 +411,7 @@
         avisosList.appendChild(avisoCard);
       });
     }
-
+ 
     // ========== FILTRAR AVISOS ==========
     function filtrarAvisos() {
       const tipoSelecionado = document.getElementById('filtroTipo').value;
@@ -455,6 +471,7 @@
         
         // Salvar no localStorage
         salvarAvisoComoLidoNoLocalStorage(avisoId);
+        console.log('%c[AVISOS] localStorage após guardar:', 'color: blue;', getAvisosLidosDoLocalStorage());
         
         // Atualizar UI imediatamente
         aviso.dataset.status = 'lido';
