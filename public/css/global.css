@@ -634,6 +634,29 @@ input[type="number"].nota-input:focus {
   color: var(--text-muted);
 }
 
+/* Avisos Card */
+.aviso-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 1.25rem;
+  transition: all var(--transition-fast);
+}
+
+.aviso-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.aviso-card.aviso-nao_lido {
+  background: rgba(26, 68, 128, 0.05);
+  border-left: 3px solid var(--primary-color);
+}
+
+.aviso-card.aviso-lido {
+  background: var(--bg-white);
+  opacity: 0.85;
+}
+
 /* Profile */
 .profile-card {
   background: var(--bg-white);

@@ -261,6 +261,24 @@
       }, 5000);
     }
 
+    // ========== GERENCIAR AVISOS LIDOS ==========
+    function getAvisosLidosDoLocalStorage() {
+      const avisosLidos = localStorage.getItem('avisosLidos');
+      return avisosLidos ? JSON.parse(avisosLidos) : [];
+    }
+
+    function salvarAvisoComoLidoNoLocalStorage(avisoId) {
+      const avisosLidos = getAvisosLidosDoLocalStorage();
+      if (!avisosLidos.includes(avisoId)) {
+        avisosLidos.push(avisoId);
+        localStorage.setItem('avisosLidos', JSON.stringify(avisosLidos));
+      }
+    }
+
+    function verificarSeAvisoEstaLido(avisoId) {
+      return getAvisosLidosDoLocalStorage().includes(avisoId);
+    }
+
     // ========== CARREGAMENTO INICIAL ==========
     async function carregarDados() {
       const spinner = document.getElementById('loadingSpinner');
@@ -329,9 +347,14 @@
       const avisosList = document.getElementById('avisosList');
       avisosList.innerHTML = '';
       
-      avisos.forEach(aviso => {
+      console.log('%c[AVISOS] Iniciando renderização com', 'color: blue; font-weight: bold;', avisos.length, 'avisos');
+      
+      avisos.forEach((aviso, index) => {
+        console.log(`%c[AVISOS] Renderizando aviso ${index + 1}:`, 'color: blue;', 'ID:', aviso.id, 'Título:', aviso.titulo);
         const tipo = aviso.tipo || 'informativo';
-        const status = 'nao_lido'; // Assumindo que vem da API
+        // Verificar se o aviso já foi lido
+        const jaLido = verificarSeAvisoEstaLido(aviso.id);
+        const status = jaLido ? 'lido' : 'nao_lido';
         const classes = getClassesTipo(tipo);
         const nomeStatus = status === 'nao_lido' ? 'Não Lido' : 'Lido';
         const badgeStatus = status === 'nao_lido' ? 'badge-warning' : 'badge-secondary';
@@ -340,10 +363,15 @@
         avisoCard.className = `aviso-card ${classes} aviso-${status}`;
         avisoCard.dataset.tipo = tipo;
         avisoCard.dataset.status = status;
-        avisoCard.dataset.id = aviso.id_aviso;
+        avisoCard.dataset.id = aviso.id;
         
         const badgesClasses = classes.split(' ');
         const badgeColor = badgesClasses[1] || 'badge-secondary';
+        
+        // Se já está lido, não mostrar o botão "Marcar como Lido"
+        const botaoMarcarLido = jaLido 
+          ? `<span class="text-muted small">Lido em ${new Date().toLocaleDateString('pt-AO')}</span>`
+          : `<button class="btn btn-sm btn-outline-primary btn-marcar-lido" data-id="${aviso.id}">Marcar como Lido</button>`;
         
         avisoCard.innerHTML = `
           <div class="aviso-header">
@@ -360,7 +388,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               ${aviso.autor_aviso || 'Sistema'}
             </span>
-            <button class="btn btn-sm btn-outline-primary btn-marcar-lido" data-id="${aviso.id_aviso}">Marcar como Lido</button>
+            ${botaoMarcarLido}
           </div>
         `;
         
@@ -395,15 +423,43 @@
 
     // ========== MARCAR COMO LIDO ==========
     async function marcarComoLido(avisoId) {
+      console.log('%c[AVISOS] Marcando aviso como lido - ID:', 'color: blue; font-weight: bold;', avisoId);
+      
+      if (!avisoId) {
+        console.error('%c[AVISOS] Erro: ID do aviso está vazio!', 'color: red;');
+        return;
+      }
+      
+      // Selecionar o card específico pelo data-id
       const aviso = document.querySelector(`[data-id="${avisoId}"]`);
-      if (!aviso) return;
+      
+      if (!aviso) {
+        console.error('%c[AVISOS] Erro: Aviso não encontrado no DOM!', 'color: red;', `ID procurado: ${avisoId}`);
+        return;
+      }
+
+      console.log('%c[AVISOS] Aviso encontrado:', 'color: green;', aviso);
 
       try {
-        console.log('%c[AVISOS] Marcando aviso como lido:', 'color: blue;', avisoId);
+        console.log('%c[AVISOS] Iniciando processo de marcar como lido...', 'color: blue;');
+        
+        // Tentar chamar a API se disponível
+        if (typeof api !== 'undefined' && api.marcarAvisoComoLido) {
+          try {
+            await api.marcarAvisoComoLido(avisoId);
+            console.log('%c[AVISOS] Aviso marcado como lido na API', 'color: green;');
+          } catch (apiError) {
+            console.warn('%c[AVISOS] Aviso marcado localmente (API indisponível)', 'color: orange;', apiError);
+          }
+        }
+        
+        // Salvar no localStorage
+        salvarAvisoComoLidoNoLocalStorage(avisoId);
         
         // Atualizar UI imediatamente
         aviso.dataset.status = 'lido';
-        aviso.classList.remove('aviso-nao-lido');
+        aviso.classList.remove('aviso-nao_lido');
+        aviso.classList.add('aviso-lido');
 
         const badgesContainer = aviso.querySelector('.aviso-badges');
         const badgeNaoLido = badgesContainer.querySelector('.badge-warning');
@@ -427,7 +483,7 @@
         atualizarContadorNaoLidos();
         showFlashMessage('Aviso marcado como lido!');
         
-        console.log('%c[AVISOS] Aviso marcado com sucesso!', 'color: green;');
+        console.log('%c[AVISOS] Aviso marcado com sucesso!', 'color: green; font-weight: bold;');
         
       } catch (erro) {
         console.error('%c[AVISOS] Erro ao marcar lido:', 'color: red;', erro);
@@ -470,8 +526,11 @@
       }
 
       document.addEventListener('click', function (e) {
-        if (e.target.classList.contains('btn-marcar-lido')) {
-          const avisoId = e.target.dataset.id;
+        // Encontrar o botão clicado (importante para quando SVG é clicado)
+        const btnMarcarLido = e.target.closest('.btn-marcar-lido');
+        if (btnMarcarLido) {
+          const avisoId = btnMarcarLido.dataset.id;
+          console.log('%c[AVISOS] Clique capturado - ID do aviso:', 'color: blue;', avisoId);
           marcarComoLido(avisoId);
         }
       });
