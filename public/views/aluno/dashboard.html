@@ -165,7 +165,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               </div>
               <div class="stat-content">
-                <span class="stat-value">9</span>
+                <span class="stat-value" id="disciplinasValue">-</span>
                 <span class="stat-label">Disciplinas </span>
               </div>
             </div>
@@ -348,11 +348,13 @@
               console.log('[DASHBOARD] Passo 1: Carregando turma #' + estudante.turma_id);
               await loadTurmaComDisciplinas(estudante.turma_id);
               console.log('[DASHBOARD] Passo 1 concluído. Disciplinas carregadas:', disciplinasDoEstudante?.length ?? 0);
+              atualizarQtdDisciplinas();
             } else {
               console.warn('[DASHBOARD] Estudante sem turma. Carregando todas as disciplinas.');
               try {
                 disciplinasDoEstudante = await api.getDisciplinas();
                 console.log('[DASHBOARD] Disciplinas carregadas (todas):', disciplinasDoEstudante?.length ?? 0);
+                atualizarQtdDisciplinas();
               } catch (e) {
                 console.error('[DASHBOARD] Erro ao carregar disciplinas:', e);
                 disciplinasDoEstudante = [];
@@ -700,6 +702,17 @@
         }
 
         console.log('[DASHBOARD] ✓ Média geral atualizada:', mediaGeral.toFixed(2));
+      }
+
+      // ========== FUNÇÃO: ATUALIZAR QUANTIDADE DE DISCIPLINAS ==========
+      function atualizarQtdDisciplinas() {
+        const qtd = disciplinasDoEstudante?.length ?? 0;
+        console.log('[DASHBOARD] Atualizando quantidade de disciplinas:', qtd);
+        
+        const elemento = document.getElementById('disciplinasValue');
+        elemento.textContent = qtd;
+        
+        console.log('[DASHBOARD] ✓ Quantidade de disciplinas atualizada:', qtd);
       }
 
       // ========== DADOS DE FALLBACK (para quando não houver dados do backend) ==========
