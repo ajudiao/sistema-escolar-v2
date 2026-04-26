@@ -344,7 +344,7 @@ function renderAvisosNotasLancadas(avisos) {
     let badgeClass = 'bg-warning text-dark';
     let badgeTexto = 'Nova Nota';
     let borderClass = 'border-warning';
-    let iconTexto = '🆕';
+    let iconTexto = '';
     
     if (ehAtualizacao) {
       badgeClass = 'bg-info text-white';
