@@ -479,145 +479,26 @@
   <script src="../../js/sidebar.js"></script>
   <script src="../../js/alunos.js"></script>
   <script>
+    // Filter functionality
     document.addEventListener('DOMContentLoaded', function () {
-      function showFlashMessage(message, type = 'success') {
-        const flash = document.getElementById('flashMessage');
-        flash.textContent = message;
-        flash.className = `alert alert-${type}`;
-        flash.style.display = 'block';
-        setTimeout(() => {
-          flash.style.display = 'none';
-        }, 5000);
-      }
+      const filterBtn = document.getElementById('btnFilterAluno');
+      if (filterBtn) {
+        filterBtn.addEventListener('click', function () {
+          const searchValue = document.getElementById('filterAlunoSearch').value.toLowerCase();
+          const turmaValue = document.getElementById('filterAlunoTurma').value;
 
-      // Toggle escola anterior
-      document.getElementById('alunoTransferido').addEventListener('change', function () {
-        const escolaDiv = document.getElementById('escolaAnterior');
-        escolaDiv.style.display = this.checked ? 'block' : 'none';
-      });
-      // Ver detalhes
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-view');
-        if (!btn) return;
-        
-        const nome = btn.getAttribute('data-nome') || '';
-        const processo = btn.getAttribute('data-processo') || '';
-        const turma = btn.getAttribute('data-turma') || '';
-        const telefone = btn.getAttribute('data-telefone') || '';
+          const rows = document.querySelectorAll('#alunosTableBody tr');
+          rows.forEach(row => {
+            const nome = row.cells[0].textContent.toLowerCase();
+            const turma = row.cells[2].textContent;
 
-        document.getElementById('detailNome').textContent = nome;
-        document.getElementById('detailProcesso').textContent = processo;
-        document.getElementById('detailTurma').textContent = turma;
-        document.getElementById('detailTelefone').textContent = telefone;
-      });
+            const matchesSearch = !searchValue || nome.includes(searchValue);
+            const matchesTurma = !turmaValue || turma === turmaValue;
 
-      // Editar aluno
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-edit');
-        if (!btn) return;
-        const nome = btn.getAttribute('data-nome') || '';
-        const processo = btn.getAttribute('data-processo') || '';
-        const curso = btn.getAttribute('data-curso') || '';
-        const ano = btn.getAttribute('data-ano') || '';
-        const contacto = btn.getAttribute('data-contacto') || '';
-
-        document.getElementById('alunoModalTitle').textContent = 'Editar Aluno';
-        document.getElementById('alunoId').value = processo; // Assuming processo is unique ID
-        document.getElementById('alunoAction').value = 'edit';
-        document.getElementById('alunoNome').value = nome;
-        document.getElementById('alunoProcesso').value = processo;
-        document.getElementById('alunoTurma').value = turma;
-        document.getElementById('alunoTelefone').value = telefone;
-        // Populate other fields if available, e.g., from data attributes
-      });
-
-      // Deletar aluno
-      document.addEventListener('click', function (e) {
-        const btn = e.target.closest('.btn-delete');
-        if (!btn) return;
-        
-        const nome = btn.getAttribute('data-nome');
-        const data = { acao: 'deletar', nome: nome };
-        console.log('[API] DELETE /api/alunos', data);
-        showFlashMessage(`Aluno ${nome} eliminado com sucesso!`, 'success');
-      });
-
-      const alunoModalEl = document.getElementById('alunoModal');
-      alunoModalEl.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('alunoModalTitle').textContent = 'Novo Aluno';
-        document.getElementById('formAluno').reset();
-        document.getElementById('alunoAction').value = 'add';
-        document.getElementById('escolaAnterior').style.display = 'none';
-      });
-
-      document.getElementById('formAluno').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const submitBtn = document.querySelector('#formAluno button[type="submit"]');
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
-
-        const tipoDocumento = document.querySelector('input[name="tipoDocumento"]:checked').value;
-        const transferido = document.getElementById('alunoTransferido').checked;
-        const data = {
-          id: document.getElementById('alunoId').value,
-          action: document.getElementById('alunoAction').value,
-          nome: document.getElementById('alunoNome').value,
-          processo: document.getElementById('alunoProcesso').value,
-          turma: document.getElementById('alunoTurma').value,
-          tipoDocumento: tipoDocumento,
-          identidade: document.getElementById('alunoIdentidade').value,
-          telefone: document.getElementById('alunoTelefone').value,
-          senha: document.getElementById('alunoSenha').value,
-          encarregadoNome: document.getElementById('encarregadoNome').value,
-          encarregadoTelefone: document.getElementById('encarregadoTelefone').value,
-          endereco: {
-            rua: document.getElementById('alunoRua').value,
-            bairro: document.getElementById('alunoBairro').value,
-            cidade: document.getElementById('alunoCidade').value,
-            provincia: document.getElementById('alunoProvincia').value
-          },
-          transferido: transferido,
-          escolaAnterior: transferido ? {
-            nome: document.getElementById('escolaNome').value,
-            classe: document.getElementById('escolaClasse').value,
-            turma: document.getElementById('escolaTurma').value,
-            turno: document.getElementById('escolaTurno').value,
-            anoConclusao: document.getElementById('escolaAnoConclusao').value
-          } : null
-        };
-
-        // Simulate API call
-        setTimeout(() => {
-          if (data.action === 'added') {
-            console.log('Adicionando aluno:', data);
-            showFlashMessage('Aluno adicionado com sucesso!');
-          } else {
-            console.log('Editando aluno:', data);
-            showFlashMessage('Aluno editado com sucesso!');
-          }
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = 'Guardar';
-          bootstrap.Modal.getInstance(alunoModalEl).hide();
-        }, 2000); // Simulate 2 second delay
-      });
-
-      // Filter functionality
-      document.getElementById('btnFilterAluno').addEventListener('click', function () {
-        const searchValue = document.getElementById('filterAlunoSearch').value.toLowerCase();
-        const turmaValue = document.getElementById('filterAlunoTurma').value;
-
-        const rows = document.querySelectorAll('#alunosTableBody tr');
-        rows.forEach(row => {
-          const nome = row.cells[0].textContent.toLowerCase();
-          const processo = row.cells[1].textContent.toLowerCase();
-          const turma = row.cells[2].textContent;
-
-          const matchesSearch = !searchValue || nome.includes(searchValue) || processo.includes(searchValue);
-          const matchesTurma = !turmaValue || turma === turmaValue;
-
-          row.style.display = matchesSearch && matchesTurma ? '' : 'none';
+            row.style.display = matchesSearch && matchesTurma ? '' : 'none';
+          });
         });
-      });
+      }
     });
   </script>
 </body>
