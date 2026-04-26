@@ -335,19 +335,37 @@ function renderAvisosNotasLancadas(avisos) {
     card.className = 'col-md-6 col-lg-4';
 
     const dataPublicacao = new Date(aviso.data_publicacao).toLocaleDateString('pt-AO');
-    const titulo = aviso.titulo.replace('Nova Nota Lançada: ', '');
+    
+    // Verificar se é uma nota atualizada ou nova
+    const ehAtualizacao = aviso.titulo.includes('Nota Atualizada');
+    const titulo = aviso.titulo.replace('Nova Nota Lançada: ', '').replace('Nota Atualizada: ', '');
+    
+    // Cores e badges diferentes para cada tipo
+    let badgeClass = 'bg-warning text-dark';
+    let badgeTexto = 'Nova Nota';
+    let borderClass = 'border-warning';
+    let iconTexto = '🆕';
+    
+    if (ehAtualizacao) {
+      badgeClass = 'bg-info text-white';
+      badgeTexto = 'Nota Atualizada';
+      borderClass = 'border-info';
+      iconTexto = '✏️';
+    }
 
     card.innerHTML = `
-      <div class="card border-warning">
+      <div class="card ${borderClass}">
         <div class="card-body">
           <h6 class="card-title">
-            <span class="badge bg-warning text-dark">Nova Nota</span>
+            <span class="badge ${badgeClass}">${iconTexto} ${badgeTexto}</span>
             ${titulo}
           </h6>
           <p class="card-text small text-muted">${aviso.conteudo}</p>
           <div class="d-flex justify-content-between align-items-center">
             <small class="text-muted">${dataPublicacao}</small>
-            <span class="badge bg-danger">Alta Prioridade</span>
+            <span class="badge ${ehAtualizacao ? 'bg-secondary' : 'bg-danger'}">
+              ${ehAtualizacao ? 'Prioridade Média' : 'Alta Prioridade'}
+            </span>
           </div>
         </div>
       </div>
