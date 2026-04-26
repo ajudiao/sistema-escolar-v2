@@ -300,7 +300,40 @@
           console.log('[DASHBOARD] Estudantes retornados:', estudantes?.length ?? 0);
 
           if (estudantes && estudantes.length > 0) {
-            const estudante = estudantes[0];
+            // Encontrar o estudante do usuário logado
+            const userId = api.getUserId();
+            console.log('[DASHBOARD] userId do localStorage:', userId, 'tipo:', typeof userId);
+            
+            let estudante = null;
+            if (userId) {
+              const userIdNum = parseInt(userId, 10);
+              console.log('[DASHBOARD] Procurando estudante com usuario_id:', userIdNum);
+              
+              // Debug: mostrar todos os estudantes com seus usuario_id
+              console.log('[DASHBOARD] Estudantes disponíveis:', estudantes.map(e => ({
+                id_estudante: e.id_estudante,
+                nome: e.nome_estudante,
+                usuario_id: e.usuario_id,
+                turma_id: e.turma_id
+              })));
+              
+              // Tentar encontrar estudante com usuario_id (comparação numérica)
+              estudante = estudantes.find(e => {
+                const estUsuarioId = e.usuario_id ? parseInt(e.usuario_id, 10) : null;
+                return estUsuarioId === userIdNum;
+              });
+              
+              if (estudante) {
+                console.log('%c[DASHBOARD] ✓ Estudante encontrado por usuario_id', 'color: green;', estudante);
+              } else {
+                console.warn('[DASHBOARD] ⚠️ Estudante com usuario_id não encontrado, usando primeiro da lista');
+                estudante = estudantes[0];
+              }
+            } else {
+              console.warn('[DASHBOARD] ⚠️ userId não definido, usando primeiro estudante');
+              estudante = estudantes[0];
+            }
+            
             estudanteId = estudante.id_estudante;
             api.setEstudanteId(estudanteId);
 
