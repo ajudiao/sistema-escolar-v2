@@ -340,19 +340,37 @@
           // Buscar estudantes
           const estudantes = await api.getEstudantes();
           console.log('[NOTAS] Estudantes retornados:', estudantes?.length ?? 0);
+          console.log('[NOTAS] userId do localStorage:', userId, 'tipo:', typeof userId);
 
           // Procurar o estudante do usuário logado
           let estudante = null;
           if (userId && estudantes && estudantes.length > 0) {
-            // Tentar encontrar estudante com usuario_id
-            estudante = estudantes.find(e => e.usuario_id === userId);
+            // Converter userId para número para comparação
+            const userIdNum = parseInt(userId, 10);
+            console.log('[NOTAS] Procurando estudante com usuario_id:', userIdNum);
             
-            // Se não encontrar, usar o primeiro como fallback
-            if (!estudante) {
-              console.warn('[NOTAS] Estudante com usuario_id não encontrado, usando primeiro da lista');
+            // Debug: mostrar todos os estudantes com seus usuario_id
+            console.log('[NOTAS] Estudantes disponíveis:', estudantes.map(e => ({
+              id_estudante: e.id_estudante,
+              nome: e.nome_estudante,
+              usuario_id: e.usuario_id,
+              turma_id: e.turma_id
+            })));
+            
+            // Tentar encontrar estudante com usuario_id (comparação numérica)
+            estudante = estudantes.find(e => {
+              const estUsuarioId = e.usuario_id ? parseInt(e.usuario_id, 10) : null;
+              return estUsuarioId === userIdNum;
+            });
+            
+            if (estudante) {
+              console.log('%c[NOTAS] ✓ Estudante encontrado por usuario_id', 'color: green;', estudante);
+            } else {
+              console.warn('[NOTAS] ⚠️ Estudante com usuario_id não encontrado, usando primeiro da lista');
               estudante = estudantes[0];
             }
           } else if (estudantes && estudantes.length > 0) {
+            console.warn('[NOTAS] ⚠️ userId não definido, usando primeiro estudante');
             estudante = estudantes[0];
           }
 
