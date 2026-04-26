@@ -202,6 +202,10 @@ function renderPautasPorDisciplina(turma, disciplinas) {
 
     const alunos = Object.values(alunoMap);
 
+    // Obter professor (pega do primeiro nota, pois todos devem ter o mesmo)
+    const professorNota = notasDisciplina.length > 0 ? notasDisciplina[0] : null;
+    const nomeProfessor = professorNota?.professor?.nome_prof || 'Professor não atribuído';
+
     // Construir HTML da pauta
     const disciplinaName = disciplina.descricao_disc || disciplina.sigla_disc;
     
@@ -218,6 +222,13 @@ function renderPautasPorDisciplina(turma, disciplinas) {
         ? ((parseFloat(mac) + parseFloat(pp) + parseFloat(pt)) / 3).toFixed(2)
         : '-';
 
+      // Determinar se está aprovado (média >= 10)
+      const mediaNum = parseFloat(media);
+      const aprovado = !isNaN(mediaNum) && mediaNum >= 10;
+      const statusBadge = aprovado 
+        ? '<span class="badge bg-success">Aprovado</span>'
+        : media === '-' ? '<span class="badge bg-secondary">Sem Notas</span>' : '<span class="badge bg-danger">Reprovado</span>';
+
       return `
         <tr>
           <td>${aluno.estudante?.nome_estudante || 'Aluno desconhecido'}</td>
@@ -225,6 +236,7 @@ function renderPautasPorDisciplina(turma, disciplinas) {
           <td class="text-center">${pp}</td>
           <td class="text-center">${pt}</td>
           <td class="text-end"><strong>${media}</strong></td>
+          <td class="text-center">${statusBadge}</td>
         </tr>
       `;
     }).join('');
@@ -237,7 +249,10 @@ function renderPautasPorDisciplina(turma, disciplinas) {
           <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
               <h5 class="card-title mb-1">${disciplinaName}</h5>
-              <p class="text-muted mb-0">${turma.sigla_turma} • ${turma.classe_turma}ª Classe • ${turma.turno_turma}</p>
+              <p class="text-muted mb-0">
+                <strong>Professor:</strong> ${nomeProfessor}<br>
+                ${turma.sigla_turma} • ${turma.classe_turma}ª Classe • ${turma.turno_turma}
+              </p>
             </div>
             <span class="badge bg-info">${alunos.length} aluno(s)</span>
           </div>
@@ -252,6 +267,7 @@ function renderPautasPorDisciplina(turma, disciplinas) {
                     <th class="text-center" style="width: 80px;">PP</th>
                     <th class="text-center" style="width: 80px;">PT</th>
                     <th class="text-end" style="width: 80px;">Média</th>
+                    <th class="text-center" style="width: 120px;">Status</th>
                   </tr>
                 </thead>
                 <tbody>
