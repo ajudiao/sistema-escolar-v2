@@ -228,11 +228,25 @@
       <div class="page-content">
         <div class="page-header mb-4">
           <div>
-            <h2 class="page-title">Notas Pendentes</h2>
-            <p class="page-subtitle">Aprovar ou recusar pautas lançadas pelos professores</p>
+            <h2 class="page-title">Pautas por Turma</h2>
+            <p class="page-subtitle">Visualize a pauta do professor com todas as disciplinas da turma</p>
           </div>
         </div>
-        <div class="row g-4">
+
+        <!-- Filtro de Turma -->
+        <div class="row mb-4">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="selectTurma" class="form-label">Selecione uma Turma:</label>
+              <select id="selectTurma" class="form-select" aria-label="Selecionar Turma">
+                <option value="">-- Escolha uma turma --</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conteúdo dinamicamente carregado -->
+        <div id="pautasContainer" class="row g-4">
           <!-- Pautas carregadas dinamicamente via JavaScript -->
         </div>
       </div>

@@ -1,16 +1,17 @@
 /* ===========================================
    GERENCIAMENTO DE NOTAS - ADMIN
-   Visualiza e aprova pautas de notas
+   Visualiza pautas por turma com todas as disciplinas
    =========================================== */
 
 if (typeof api === 'undefined') {
   console.error('[ADMIN-NOTAS] APIService não está disponível!');
 }
 
-let pautasData = [];
-let notasData = [];
 let turmasData = [];
-let professorData = null;
+let notasData = [];
+let disciplinasData = [];
+let cursosData = [];
+let selectedTurmaId = null;
 
 document.addEventListener('DOMContentLoaded', function () {
   console.log('[ADMIN-NOTAS] Script carregado');
@@ -23,8 +24,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Atualizar informações do usuário no header
   updateUserInfo();
 
-  // Carregar dados
-  loadPautas();
+  // Carregar dados iniciais
+  loadInitialData();
 
   // Setup event listeners
   setupEventListeners();
@@ -43,25 +44,127 @@ function updateUserInfo() {
 }
 
 /**
- * Carregar pautas da API
+ * Carregar dados iniciais
  */
-async function loadPautas() {
+async function loadInitialData() {
   try {
-    console.log('[ADMIN-NOTAS] Iniciando carregamento de pautas...');
+    console.log('[ADMIN-NOTAS] Iniciando carregamento de dados...');
 
-    // Carregar turmas
-    turmasData = await api.getTurmas() || [];
+    // Carregar dados em paralelo
+    const [turmas, notas, disciplinas, cursos] = await Promise.all([
+      api.getTurmas() || [],
+      api.getNotas() || [],
+      api.getDisciplinas() || [],
+      api.getCursos() || []
+    ]);
+
+    turmasData = turmas;
+    notasData = notas;
+    disciplinasData = disciplinas;
+    cursosData = cursos;
+
     console.log('[ADMIN-NOTAS] Turmas carregadas:', turmasData?.length ?? 0);
-
-    // Carregar notas
-    notasData = await api.getNotas() || [];
     console.log('[ADMIN-NOTAS] Notas carregadas:', notasData?.length ?? 0);
+    console.log('[ADMIN-NOTAS] Disciplinas carregadas:', disciplinasData?.length ?? 0);
 
-    // Processar pautas por turma/disciplina
-    procesarPautas();
+    // Preencher dropdown de turmas
+    populateTurmaSelect();
 
-    // Renderizar pautas
-    renderPautas();
+  } catch (erro) {
+    console.error('[ADMIN-NOTAS] Erro ao carregar dados:', erro);
+    showNotification('Erro ao carregar dados: ' + erro.message, 'danger');
+  }
+}
+
+/**
+ * Preencher dropdown de turmas
+ */
+function populateTurmaSelect() {
+  const selectTurma = document.getElementById('selectTurma');
+  
+  if (!selectTurma) {
+    console.error('[ADMIN-NOTAS] Select de turma não encontrado');
+    return;
+  }
+
+  // Ordenar turmas por sigla
+  const turmasOrdenadas = [...turmasData].sort((a, b) => {
+    return (a.sigla_turma || '').localeCompare(b.sigla_turma || '');
+  });
+
+  // Adicionar opções
+  turmasOrdenadas.forEach(turma => {
+    const option = document.createElement('option');
+    option.value = turma.id_turma;
+    option.textContent = `${turma.sigla_turma} - ${turma.classe_turma}ª Classe (${turma.turno_turma})`;
+    selectTurma.appendChild(option);
+  });
+
+  console.log('[ADMIN-NOTAS] Dropdown de turmas preenchido:', turmasOrdenadas.length);
+}
+
+/**
+ * Obter disciplinas de uma turma via seu curso
+ */
+async function getDisciplinasDaTurma(turmaId) {
+  const turma = turmasData.find(t => t.id_turma === turmaId);
+  
+  if (!turma || !turma.curso_id) {
+    console.warn('[ADMIN-NOTAS] Turma ou curso_id não encontrado');
+    return [];
+  }
+
+  try {
+    // Usar o método da API para obter as disciplinas do curso
+    const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
+    
+    // Ordenar por descrição
+    return (disciplinas || []).sort((a, b) => 
+      (a.descricao_disc || '').localeCompare(b.descricao_disc || '')
+    );
+  } catch (erro) {
+    console.error('[ADMIN-NOTAS] Erro ao obter disciplinas:', erro);
+    return [];
+  }
+}
+
+/**
+ * Carregar e exibir pautas para a turma selecionada
+ */
+async function loadPautasDaTurma(turmaId) {
+  try {
+    console.log('[ADMIN-NOTAS] Carregando pautas para turma:', turmaId);
+
+    if (!turmaId) {
+      document.getElementById('pautasContainer').innerHTML = '';
+      return;
+    }
+
+    selectedTurmaId = turmaId;
+
+    // Obter turma
+    const turma = turmasData.find(t => t.id_turma === turmaId);
+    if (!turma) {
+      showNotification('Turma não encontrada', 'warning');
+      return;
+    }
+
+    // Obter disciplinas da turma (agora é assíncrono)
+    const disciplinas = await getDisciplinasDaTurma(turmaId);
+
+    if (disciplinas.length === 0) {
+      document.getElementById('pautasContainer').innerHTML = `
+        <div class="col-12">
+          <div class="alert alert-info">
+            Nenhuma disciplina associada a esta turma.
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // Renderizar pautas por disciplina
+    renderPautasPorDisciplina(turma, disciplinas);
 
   } catch (erro) {
     console.error('[ADMIN-NOTAS] Erro ao carregar pautas:', erro);
@@ -70,210 +173,121 @@ async function loadPautas() {
 }
 
 /**
- * Processar pautas agrupadas por turma e disciplina
+ * Renderizar pautas por disciplina
  */
-function procesarPautas() {
-  const pautasMap = {};
+function renderPautasPorDisciplina(turma, disciplinas) {
+  const container = document.getElementById('pautasContainer');
+  container.innerHTML = ''; // Limpar conteúdo anterior
 
-  try {
-    // Agrupar notas por turma_id + disciplina_id
-    notasData.forEach(nota => {
-      // Obter referências
-      const estudante = nota.estudante;
-      const disciplina = nota.disciplina;
-      const turma = turmasData.find(t => t.id_turma === nota.turma_id);
+  // Renderizar uma pauta para cada disciplina
+  disciplinas.forEach(disciplina => {
+    // Filtrar notas para esta turma e disciplina
+    const notasDisciplina = notasData.filter(nota =>
+      nota.turma_id === turma.id_turma &&
+      nota.disciplina_id === disciplina.id_disc
+    );
 
-      if (!turma || !disciplina) {
-        console.warn('[ADMIN-NOTAS] Nota incompleta:', nota);
-        return;
-      }
-
-      const pautaKey = `${nota.turma_id}-${nota.disciplina_id}`;
-
-      if (!pautasMap[pautaKey]) {
-        pautasMap[pautaKey] = {
-          id: pautaKey,
-          turmaId: nota.turma_id,
-          turma: turma,
-          disciplina: disciplina,
-          trimestre: nota.trimestre_nota || 1,
-          status: 'pendente',
+    // Agrupar notas por aluno
+    const alunoMap = {};
+    notasDisciplina.forEach(nota => {
+      if (!alunoMap[nota.estudante_id]) {
+        alunoMap[nota.estudante_id] = {
+          estudanteId: nota.estudante_id,
+          estudante: nota.estudante,
           notas: []
         };
       }
-
-      pautasMap[pautaKey].notas.push({
-        estudanteId: nota.estudante_id,
-        estudante: estudante || { nome_estudante: 'Aluno desconhecido' },
-        mac: nota.mac_notas || 0,
-        npp: nota.pp_notas || 0,
-        npt: nota.pt_notas || 0,
-        media: nota.pt_notas > 0 ? ((nota.mac_notas + nota.pp_notas + nota.pt_notas) / 3).toFixed(2) : '-'
-      });
+      alunoMap[nota.estudante_id].notas.push(nota);
     });
 
-    pautasData = Object.values(pautasMap);
-    console.log('[ADMIN-NOTAS] Total de pautas processadas:', pautasData?.length ?? 0);
+    const alunos = Object.values(alunoMap);
 
-  } catch (erro) {
-    console.error('[ADMIN-NOTAS] Erro ao processar pautas:', erro);
-    pautasData = [];
-  }
-}
+    // Construir HTML da pauta
+    const disciplinaName = disciplina.descricao_disc || disciplina.sigla_disc;
+    
+    const notasHtml = alunos.map(aluno => {
+      // Pegar a primeira nota (ou calcular média se houver várias)
+      const ultimaNota = aluno.notas[aluno.notas.length - 1];
+      
+      const mac = ultimaNota?.mac_notas ?? '-';
+      const pp = ultimaNota?.pp_notas ?? '-';
+      const pt = ultimaNota?.pt_notas ?? '-';
+      
+      // Calcular média
+      const media = (mac !== '-' && pp !== '-' && pt !== '-') 
+        ? ((parseFloat(mac) + parseFloat(pp) + parseFloat(pt)) / 3).toFixed(2)
+        : '-';
 
-/**
- * Renderizar pautas na página
- */
-function renderPautas() {
-  const pageContent = document.querySelector('.page-content .row.g-4');
-  
-  if (!pageContent) {
-    console.error('[ADMIN-NOTAS] Container de conteúdo não encontrado');
-    return;
-  }
+      return `
+        <tr>
+          <td>${aluno.estudante?.nome_estudante || 'Aluno desconhecido'}</td>
+          <td class="text-center">${mac}</td>
+          <td class="text-center">${pp}</td>
+          <td class="text-center">${pt}</td>
+          <td class="text-end"><strong>${media}</strong></td>
+        </tr>
+      `;
+    }).join('');
 
-  // Remover cards antigos (deixar apenas o primeiro header)
-  const cards = pageContent.querySelectorAll('.col-lg-6');
-  cards.forEach(card => card.remove());
-
-  if (!pautasData || pautasData.length === 0) {
-    pageContent.innerHTML += `
-      <div class="col-12">
-        <div class="alert alert-info">Nenhuma pauta disponível no momento.</div>
-      </div>
-    `;
-    return;
-  }
-
-  // Renderizar cada pauta
-  pautasData.forEach((pauta, index) => {
     const pautaCard = document.createElement('div');
-    pautaCard.className = 'col-lg-6';
-    pautaCard.dataset.pautaId = pauta.id;
-
-    const disciplinaName = pauta.disciplina?.descricao_disc || pauta.disciplina?.sigla_disc || 'Disciplina';
-    const turmaName = pauta.turma?.sigla_turma || 'Turma';
-    const trimestreText = `${pauta.trimestre}º Trimestre`;
-
-    // Gerar linhas da tabela
-    const notasHtml = pauta.notas.map(nota => `
-      <tr>
-        <td>${nota.estudante?.nome_estudante || 'Aluno desconhecido'}</td>
-        <td class="text-end">${nota.media}</td>
-      </tr>
-    `).join('');
-
+    pautaCard.className = 'col-lg-12';
     pautaCard.innerHTML = `
       <div class="card">
         <div class="card-body">
           <div class="d-flex justify-content-between align-items-start mb-3">
             <div>
-              <h5 class="card-title mb-1">Pauta - ${disciplinaName}</h5>
-              <p class="text-muted mb-0">${turmaName} • ${trimestreText}</p>
+              <h5 class="card-title mb-1">${disciplinaName}</h5>
+              <p class="text-muted mb-0">${turma.sigla_turma} • ${turma.classe_turma}ª Classe • ${turma.turno_turma}</p>
             </div>
-            <span class="badge bg-warning status-badge">Pendente</span>
+            <span class="badge bg-info">${alunos.length} aluno(s)</span>
           </div>
-          <div class="table-responsive mb-3">
-            <table class="table table-sm mb-0">
-              <thead>
-                <tr>
-                  <th>Aluno</th>
-                  <th class="text-end">Média</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${notasHtml}
-              </tbody>
-            </table>
-          </div>
-          <div class="d-flex gap-2">
-            <a href="notas-detalhes.html?pautaId=${pauta.id}" class="btn btn-outline-primary btn-sm">Ver Detalhes</a>
-            <button class="btn btn-success btn-sm btn-aprovar" data-pauta-id="${pauta.id}">Aprovar</button>
-            <button class="btn btn-danger btn-sm btn-recusar" data-pauta-id="${pauta.id}">Recusar</button>
-          </div>
+          
+          ${alunos.length > 0 ? `
+            <div class="table-responsive mb-3">
+              <table class="table table-sm table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Aluno</th>
+                    <th class="text-center" style="width: 80px;">MAC</th>
+                    <th class="text-center" style="width: 80px;">PP</th>
+                    <th class="text-center" style="width: 80px;">PT</th>
+                    <th class="text-end" style="width: 80px;">Média</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${notasHtml}
+                </tbody>
+              </table>
+            </div>
+          ` : `
+            <div class="alert alert-warning mb-0">Sem notas lançadas para esta disciplina.</div>
+          `}
         </div>
       </div>
     `;
 
-    pageContent.appendChild(pautaCard);
+    container.appendChild(pautaCard);
   });
 
-  // Reconfigurar event listeners para novos botões
-  setupEventListeners();
-
-  showNotification(`${pautasData.length} pauta(s) carregada(s).`, 'success');
+  console.log('[ADMIN-NOTAS] Pautas renderizadas para', disciplinas.length, 'disciplina(s)');
+  showNotification(`Pauta carregada com ${disciplinas.length} disciplina(s)`, 'success');
 }
 
 /**
  * Configurar event listeners
  */
 function setupEventListeners() {
-  // Botões aprovar
-  document.querySelectorAll('.btn-aprovar').forEach(button => {
-    button.addEventListener('click', async function () {
-      const pautaId = this.dataset.pautaId;
-      await aprovarPauta(pautaId, this);
+  const selectTurma = document.getElementById('selectTurma');
+  
+  if (selectTurma) {
+    selectTurma.addEventListener('change', async function () {
+      const turmaId = parseInt(this.value);
+      if (turmaId) {
+        await loadPautasDaTurma(turmaId);
+      } else {
+        document.getElementById('pautasContainer').innerHTML = '';
+      }
     });
-  });
-
-  // Botões recusar
-  document.querySelectorAll('.btn-recusar').forEach(button => {
-    button.addEventListener('click', async function () {
-      const pautaId = this.dataset.pautaId;
-      await recusarPauta(pautaId, this);
-    });
-  });
-}
-
-/**
- * Aprovar pauta
- */
-async function aprovarPauta(pautaId, buttonElement) {
-  try {
-    console.log('[ADMIN-NOTAS] Aprovando pauta:', pautaId);
-
-    // Atualizar UI
-    const card = buttonElement.closest('.card');
-    const badge = card.querySelector('.status-badge');
-    
-    badge.className = 'badge bg-success status-badge';
-    badge.textContent = 'Aprovado';
-    
-    // Desabilitar botões
-    buttonElement.disabled = true;
-    card.querySelector('.btn-recusar').disabled = true;
-
-    showNotification('Pauta aprovada com sucesso!', 'success');
-
-  } catch (erro) {
-    console.error('[ADMIN-NOTAS] Erro ao aprovar pauta:', erro);
-    showNotification('Erro ao aprovar pauta: ' + erro.message, 'danger');
-  }
-}
-
-/**
- * Recusar pauta
- */
-async function recusarPauta(pautaId, buttonElement) {
-  try {
-    console.log('[ADMIN-NOTAS] Recusando pauta:', pautaId);
-
-    // Atualizar UI
-    const card = buttonElement.closest('.card');
-    const badge = card.querySelector('.status-badge');
-    
-    badge.className = 'badge bg-danger status-badge';
-    badge.textContent = 'Recusado';
-    
-    // Desabilitar botões
-    buttonElement.disabled = true;
-    card.querySelector('.btn-aprovar').disabled = true;
-
-    showNotification('Pauta recusada!', 'warning');
-
-  } catch (erro) {
-    console.error('[ADMIN-NOTAS] Erro ao recusar pauta:', erro);
-    showNotification('Erro ao recusar pauta: ' + erro.message, 'danger');
   }
 }
 
@@ -298,14 +312,6 @@ function showNotification(message, type = 'success') {
     const header = pageContent.querySelector('.page-header');
     if (header) {
       header.after(notification);
-    } else {
-      pageContent.insertBefore(notification, pageContent.firstChild);
     }
-
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.remove();
-      }
-    }, 5000);
   }
 }
