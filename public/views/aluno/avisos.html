@@ -183,15 +183,23 @@
         <div class="card mb-4">
           <div class="card-body">
             <div class="row g-3 align-items-end">
-              <div class="col-md-4">
-                <label class="form-label">Pesquisar</label>
-                <input type="text" class="form-control" id="buscaAviso" placeholder="Título ou conteúdo...">
+              <div class="col-md-3">
+                <label class="form-label">Prioridade</label>
+                <select class="form-control form-select" id="filtroPrioridade">
+                  <option value="">Todas as prioridades</option>
+                </select>
               </div>
               <div class="col-md-3">
-                <label for="filtroPrioridade" class="form-label">Prioridade</label>
-                <select id="filtroPrioridade" class="form-select">
-                  <option value="">Todas</option>
+                <label class="form-label">Status</label>
+                <select class="form-control form-select" id="filtroStatus">
+                  <option value="">Todos</option>
+                  <option value="nao_lido">Não lidos</option>
+                  <option value="lido">Lidos</option>
                 </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Pesquisar</label>
+                <input type="text" class="form-control" id="buscaAviso" placeholder="Buscar aviso...">
               </div>
               <div class="col-md-2">
                 <button class="btn btn-primary w-100" id="btnFiltrar">Filtrar</button>
@@ -202,15 +210,6 @@
 
         <!-- Avisos List -->
         <div class="avisos-list" id="avisosList">
-        </div>
-      </div>
-
-                </svg>
-                Secretaria Academica
-              </span>
-              <span class="text-muted small">Lido em 10 Nov 2026</span>
-            </div>
-          </div>
         </div>
       </div>
 
