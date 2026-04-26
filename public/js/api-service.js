@@ -540,6 +540,13 @@ class APIService {
   }
 
   /**
+   * Obter avisos de notas lançadas (somente ADMIN)
+   */
+  async getAvisosNotasLancadas() {
+    return this.get('/notas/avisos/notas-lancadas');
+  }
+
+  /**
    * Obter aviso por ID
    */
   async getAviso(id) {

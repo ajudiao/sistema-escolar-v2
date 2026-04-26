@@ -27,6 +27,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // Carregar dados iniciais
   loadInitialData();
 
+  // Carregar avisos de notas lançadas
+  loadAvisosNotasLancadas();
+
   // Setup event listeners
   setupEventListeners();
 });
@@ -287,6 +290,76 @@ function renderPautasPorDisciplina(turma, disciplinas) {
 
   console.log('[ADMIN-NOTAS] Pautas renderizadas para', disciplinas.length, 'disciplina(s)');
   showNotification(`Pauta carregada com ${disciplinas.length} disciplina(s)`, 'success');
+}
+
+/**
+ * Carregar avisos de notas lançadas
+ */
+async function loadAvisosNotasLancadas() {
+  try {
+    console.log('[ADMIN-NOTAS] Carregando avisos de notas lançadas...');
+    
+    const avisos = await api.getAvisosNotasLancadas();
+    
+    if (!avisos || avisos.length === 0) {
+      console.log('[ADMIN-NOTAS] Nenhum aviso de notas lançadas');
+      return;
+    }
+
+    renderAvisosNotasLancadas(avisos);
+
+  } catch (erro) {
+    console.warn('[ADMIN-NOTAS] Erro ao carregar avisos de notas:', erro.message);
+    // Não mostrar erro se a API não retornar avisos
+  }
+}
+
+/**
+ * Renderizar avisos de notas lançadas
+ */
+function renderAvisosNotasLancadas(avisos) {
+  const secaoAvisos = document.getElementById('secaoAvisos');
+  const container = document.getElementById('avisosContainer');
+
+  if (!secaoAvisos || !container) {
+    console.error('[ADMIN-NOTAS] Container de avisos não encontrado');
+    return;
+  }
+
+  // Limpar avisos anteriores
+  container.innerHTML = '';
+
+  // Renderizar cada aviso como um card
+  avisos.forEach(aviso => {
+    const card = document.createElement('div');
+    card.className = 'col-md-6 col-lg-4';
+
+    const dataPublicacao = new Date(aviso.data_publicacao).toLocaleDateString('pt-AO');
+    const titulo = aviso.titulo.replace('Nova Nota Lançada: ', '');
+
+    card.innerHTML = `
+      <div class="card border-warning">
+        <div class="card-body">
+          <h6 class="card-title">
+            <span class="badge bg-warning text-dark">Nova Nota</span>
+            ${titulo}
+          </h6>
+          <p class="card-text small text-muted">${aviso.conteudo}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">${dataPublicacao}</small>
+            <span class="badge bg-danger">Alta Prioridade</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+
+  // Mostrar seção de avisos
+  secaoAvisos.style.display = 'block';
+
+  console.log('[ADMIN-NOTAS] Avisos renderizados:', avisos.length);
 }
 
 /**
