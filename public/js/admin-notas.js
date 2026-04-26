@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Proteger página para ADMIN
   if (typeof AuthHelper !== 'undefined') {
-    AuthHelper.checkRole(['ADMINISTRADOR']);
+    AuthHelper.checkRole(['ADMIN']);
   }
 
   // Atualizar informações do usuário no header
