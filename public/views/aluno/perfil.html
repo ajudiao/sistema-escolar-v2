@@ -186,10 +186,8 @@
             <div class="card">
               <div class="card-body text-center">
                 <div class="perfil-avatar mb-3">
-                  <img id="profileImage" src="https://via.placeholder.com/160x160.png?text=MS" alt="Avatar do aluno">
-                  <label for="profileUpload" class="avatar-upload-btn" title="Alterar foto de perfil">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a2 2 0 0 0 .6-1.4V8a2 2 0 0 0-2-2h-3.2a2 2 0 0 1-1.6-.8l-.8-1.2A2 2 0 0 0 10.4 3H6.6a2 2 0 0 0-2 2v10.4a2 2 0 0 0 2 2h10.8a2 2 0 0 0 1.6-.8z"/></svg>
-                  </label>
+                  <img id="profileImage" src="https://ui-avatars.com/api/?name=Aluno&background=3b82f6&color=fff&bold=true&size=140" alt="Avatar do aluno">
+                
                   <input type="file" id="profileUpload" accept="image/*" class="d-none">
                 </div>
                 <h4 class="mt-3 mb-1">Carregando...</h4>
@@ -533,6 +531,15 @@
       if (headerUserAvatar && estudante) {
         const nomes = (estudante.nome_estudante || '').split(' ').map(n => n[0]).join('');
         headerUserAvatar.textContent = nomes.substring(0, 2).toUpperCase() || 'AL';
+      }
+
+      // ===== ATUALIZAR IMAGEM DO PERFIL =====
+      const profileImage = document.getElementById('profileImage');
+      if (profileImage && estudante) {
+        const nomeParaAvatar = estudante.nome_estudante || 'Aluno';
+        // Usar API ui-avatars.com para gerar avatar com as iniciais
+        profileImage.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(nomeParaAvatar)}&background=3b82f6&color=fff&bold=true&size=140`;
+        profileImage.style.objectFit = 'cover';
       }
 
       // ===== CARD DO PERFIL (esquerda) H4 =====
