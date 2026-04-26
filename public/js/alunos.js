@@ -65,33 +65,37 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Carregar cursos
-  async function loadCursos() {
-    try {
-      cursosData = await api.getCursos();
-      const select = document.getElementById('alunoCurso');
-      if (!select) return;
-      select.innerHTML = '<option value="">Selecionar Curso (Opcional)</option>';
-      cursosData.forEach(curso => {
-        const option = document.createElement('option');
-        option.value = curso.id_curso;
-        option.textContent = curso.descricao_curso || 'Curso sem nome';
-        select.appendChild(option);
+  // Carregar cursos (retorna Promise)
+  function loadCursos() {
+    return api.getCursos()
+      .then(data => {
+        cursosData = data;
+        const select = document.getElementById('alunoCurso');
+        if (!select) return;
+        select.innerHTML = '<option value="">Selecionar Curso (Opcional)</option>';
+        cursosData.forEach(curso => {
+          const option = document.createElement('option');
+          option.value = curso.id_curso;
+          option.textContent = curso.descricao_curso || 'Curso sem nome';
+          select.appendChild(option);
+        });
+      })
+      .catch(error => {
+        console.error('Erro ao carregar cursos:', error);
       });
-    } catch (error) {
-      console.error('Erro ao carregar cursos:', error);
-    }
   }
 
-  // Carregar turmas
-  async function loadTurmas() {
-    try {
-      turmasData = await api.getTurmas();
-      console.log('Turmas carregadas:', turmasData);
-      renderAllTurmas();
-    } catch (error) {
-      console.error('Erro ao carregar turmas:', error);
-    }
+  // Carregar turmas (retorna Promise)
+  function loadTurmas() {
+    return api.getTurmas()
+      .then(data => {
+        turmasData = data;
+        console.log('Turmas carregadas:', turmasData);
+        renderAllTurmas();
+      })
+      .catch(error => {
+        console.error('Erro ao carregar turmas:', error);
+      });
   }
 
   // Renderizar todas as turmas inicialmente
@@ -153,21 +157,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Carregar dados ao abrir modal
+  // Quando o modal abre, apenas garantir que senha está oculta se for edição
   const alunoModalEl = document.getElementById('alunoModal');
   if (alunoModalEl) {
     alunoModalEl.addEventListener('show.bs.modal', function() {
       const alunoId = document.getElementById('alunoId').value;
       const action = document.getElementById('alunoAction').value;
       
+      console.log('[ALUNOS] Modal show.bs.modal event - alunoId:', alunoId, 'action:', action);
+      
       // Se for novo aluno, mostrar seção de senha/email
       if (!alunoId || action === 'add') {
-        const senhaSection = document.getElementById('alunoSenha')?.parentElement?.parentElement;
-        if (senhaSection) senhaSection.style.display = 'block';
+        const senhaEmail = document.getElementById('alunoEmail')?.parentElement;
+        const senhaPwd = document.getElementById('alunoSenha')?.parentElement;
+        if (senhaEmail) senhaEmail.style.display = 'block';
+        if (senhaPwd) senhaPwd.style.display = 'block';
+        console.log('[ALUNOS] Mostrando campos de email/senha');
       }
-      
-      loadCursos();
-      loadTurmas();
     });
   }
 
@@ -179,10 +185,29 @@ document.addEventListener('DOMContentLoaded', function () {
   // Fechar o modal
   if (alunoModalEl) {
     alunoModalEl.addEventListener('hidden.bs.modal', function () {
+      console.log('[ALUNOS] Fechando modal');
       document.getElementById('alunoModalTitle').textContent = 'Novo Aluno';
-      document.getElementById('formAluno').reset();
       document.getElementById('alunoId').value = '';
       document.getElementById('alunoAction').value = 'add';
+      
+      // Limpar todos os campos
+      document.getElementById('formAluno').reset();
+      document.getElementById('alunoNome').value = '';
+      document.getElementById('alunoDataNascimento').value = '';
+      document.getElementById('alunoIdentidade').value = '';
+      document.getElementById('alunoTelefone').value = '';
+      document.getElementById('alunoNaturalidade').value = '';
+      document.getElementById('encarregadoNome').value = '';
+      document.getElementById('encarregadoTelefone').value = '';
+      document.getElementById('alunoRua').value = '';
+      document.getElementById('alunoBairro').value = '';
+      document.getElementById('alunoCidade').value = '';
+      document.getElementById('alunoProvincia').value = '';
+      document.getElementById('alunoCurso').value = '';
+      document.getElementById('alunoTurma').value = '';
+      document.getElementById('alunoTransferido').checked = false;
+      document.getElementById('escolaAnterior').style.display = 'none';
+      
       const senhaSection = document.getElementById('alunoSenha')?.parentElement?.parentElement;
       if (senhaSection) senhaSection.style.display = 'block';
     });
@@ -201,11 +226,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (btn.classList.contains('btn-view')) {
         // Ver detalhes - buscar dados completos do servidor
         console.log('[ALUNOS] Carregando detalhes do aluno ID:', id);
-        DataLoader.showLoading('Carregando detalhes...');
+        
+        // Adicionar spinner ao botão
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
         
         api.getEstudante(id)
           .then(alunoData => {
-            DataLoader.hideLoading();
+            // Restaurar botão
+            btn.disabled = false;
+            btn.innerHTML = originalText;
             
             const curso = alunoData.turma?.curso?.descricao_curso || '-';
             const turma = alunoData.turma?.sigla_turma || '-';
@@ -218,51 +249,88 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('[ALUNOS] Detalhes carregados:', alunoData);
           })
           .catch(error => {
-            DataLoader.hideLoading();
+            // Restaurar botão em caso de erro
+            btn.disabled = false;
+            btn.innerHTML = originalText;
             DataLoader.showError('Erro ao carregar detalhes: ' + error.message);
             console.error('[ALUNOS] Erro ao carregar detalhes:', error);
           });
       } else if (btn.classList.contains('btn-edit')) {
         // Editar - carregar dados do aluno
         console.log('[ALUNOS] Carregando dados para edição, ID:', id);
-        DataLoader.showLoading('Carregando dados...');
         
-        api.getEstudante(id)
+        // Adicionar spinner ao botão
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        
+        // Primeiro carregar cursos e turmas, depois dados do aluno
+        Promise.all([loadCursos(), loadTurmas()])
+          .then(() => api.getEstudante(id))
           .then(alunoData => {
-            DataLoader.hideLoading();
+            // Restaurar botão
+            btn.disabled = false;
+            btn.innerHTML = originalText;
             
+            console.log('[ALUNOS] Preparando modal com dados:', alunoData);
+            
+            // Preparar dados antes de abrir o modal
             document.getElementById('alunoModalTitle').textContent = 'Editar Aluno';
             document.getElementById('alunoId').value = id;
             document.getElementById('alunoAction').value = 'edit';
             
             // Preencher formulário com dados do aluno
+            console.log('[ALUNOS] Preenchendo nome:', alunoData.nome_estudante);
             document.getElementById('alunoNome').value = alunoData.nome_estudante || '';
-            document.getElementById('alunoDataNascimento').value = alunoData.data_nascimento ? alunoData.data_nascimento.split('T')[0] : '';
+            
+            const dataNasc = alunoData.data_nascimento ? alunoData.data_nascimento.split('T')[0] : '';
+            console.log('[ALUNOS] Data nascimento:', dataNasc);
+            document.getElementById('alunoDataNascimento').value = dataNasc;
+            
             document.getElementById('alunoIdentidade').value = alunoData.numero_bi_estudante || '';
             document.getElementById('alunoTelefone').value = alunoData.telefone_estudante || '';
             document.getElementById('alunoNaturalidade').value = alunoData.naturalidade_estudante || '';
             document.getElementById('encarregadoNome').value = alunoData.encarregado_estudante || '';
             
+            // Preencher endereço (dividindo por vírgula se estiver concatenado)
+            if (alunoData.endereco_fisico_estudante) {
+              const enderecoParts = alunoData.endereco_fisico_estudante.split(',').map(p => p.trim());
+              document.getElementById('alunoRua').value = enderecoParts[0] || '';
+              document.getElementById('alunoBairro').value = enderecoParts[1] || '';
+              document.getElementById('alunoCidade').value = enderecoParts[2] || '';
+            }
+            
             // Definir curso e turma
             if (alunoData.turma?.curso?.id_curso) {
+              console.log('[ALUNOS] Setando curso:', alunoData.turma.curso.id_curso);
               document.getElementById('alunoCurso').value = alunoData.turma.curso.id_curso;
             }
             if (alunoData.turma?.id_turma) {
+              console.log('[ALUNOS] Setando turma:', alunoData.turma.id_turma);
               document.getElementById('alunoTurma').value = alunoData.turma.id_turma;
             }
             
             // Ocultar campo de email e senha em modo edição
-            const senhaSection = document.getElementById('alunoSenha')?.parentElement?.parentElement;
-            if (senhaSection) senhaSection.style.display = 'none';
+            const senhaDiv = document.getElementById('alunoEmail')?.parentElement;
+            if (senhaDiv) {
+              console.log('[ALUNOS] Ocultando seção de segurança');
+              senhaDiv.style.display = 'none';
+              const senhaPwdDiv = senhaDiv.nextElementSibling;
+              if (senhaPwdDiv) senhaPwdDiv.style.display = 'none';
+            }
             
-            // Abrir modal manualmente
+            console.log('[ALUNOS] Todos os campos preenchidos, abrindo modal...');
+            
+            // Abrir modal imediatamente após preenchimento
             const modal = new bootstrap.Modal(document.getElementById('alunoModal'));
             modal.show();
-            
+            console.log('[ALUNOS] Modal aberto');
             console.log('[ALUNOS] Dados carregados para edição:', alunoData);
           })
           .catch(error => {
-            DataLoader.hideLoading();
+            // Restaurar botão em caso de erro
+            btn.disabled = false;
+            btn.innerHTML = originalText;
             DataLoader.showError('Erro ao carregar aluno: ' + error.message);
             console.error('[ALUNOS] Erro ao carregar aluno:', error);
           });
@@ -271,15 +339,24 @@ document.addEventListener('DOMContentLoaded', function () {
         const nome = btn.getAttribute('data-name');
         if (confirm(`Deseja realmente deletar o aluno ${nome}?`)) {
           console.log('[ALUNOS] Deletando aluno ID:', id);
-          DataLoader.showLoading('Deletando aluno...');
+          
+          // Adicionar spinner ao botão
+          const originalText = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+          
           api.deleteEstudante(id)
             .then(() => {
-              DataLoader.hideLoading();
+              // Restaurar botão
+              btn.disabled = false;
+              btn.innerHTML = originalText;
               DataLoader.showSuccess('Aluno deletado com sucesso!');
               loadAlunos();
             })
             .catch(error => {
-              DataLoader.hideLoading();
+              // Restaurar botão em caso de erro
+              btn.disabled = false;
+              btn.innerHTML = originalText;
               DataLoader.showError('Erro ao deletar: ' + error.message);
             });
         }
@@ -295,6 +372,30 @@ document.addEventListener('DOMContentLoaded', function () {
       const submitBtn = formAluno.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
+
+      const alunoId = document.getElementById('alunoId').value;
+      const action = document.getElementById('alunoAction').value;
+      
+      console.log('[ALUNOS] Enviando formulário - Action:', action, 'ID:', alunoId);
+
+      // Validar email e senha APENAS para novo aluno
+      if (action === 'add' || !alunoId) {
+        const email = document.getElementById('alunoEmail').value;
+        const senha = document.getElementById('alunoSenha').value;
+        
+        if (!email || !email.trim()) {
+          DataLoader.showError('Email é obrigatório para novo aluno!');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Guardar';
+          return;
+        }
+        if (!senha || !senha.trim()) {
+          DataLoader.showError('Senha é obrigatória para novo aluno!');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Guardar';
+          return;
+        }
+      }
 
       const tipoDocumento = document.querySelector('input[name="tipoDocumento"]:checked').value;
       const turmaValue = document.getElementById('alunoTurma').value;
@@ -320,22 +421,22 @@ document.addEventListener('DOMContentLoaded', function () {
       };
 
       try {
-        const alunoId = document.getElementById('alunoId').value;
-        const action = document.getElementById('alunoAction').value;
-        
         DataLoader.showLoading(action === 'edit' ? 'Atualizando aluno...' : 'Criando aluno...');
 
         if (action === 'edit' && alunoId) {
+          // Edição - enviar apenas dados editáveis
+          console.log('[ALUNOS] Atualizando aluno ID:', alunoId);
           await api.updateEstudante(alunoId, data);
           showFlashMessage('Aluno atualizado com sucesso!');
         } else {
-          // Se for novo aluno, precisa de email, password, user_name
+          // Criação - incluir email e senha
           const newData = {
             ...data,
             email: document.getElementById('alunoEmail').value,
             password: document.getElementById('alunoSenha').value,
-            user_name: document.getElementById('alunoNome').value.toLowerCase()
+            user_name: document.getElementById('alunoEmail').value
           };
+          console.log('[ALUNOS] Criando novo aluno com email:', newData.email);
           await api.createEstudante(newData);
           showFlashMessage('Aluno criado com sucesso!');
         }
@@ -350,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function () {
       } catch (error) {
         DataLoader.hideLoading();
         DataLoader.showError('Erro: ' + (error.message || 'Erro desconhecido'));
-        console.error('Erro API:', error);
+        console.error('[ALUNOS] Erro API:', error);
         submitBtn.disabled = false;
         submitBtn.innerHTML = 'Guardar';
       }
