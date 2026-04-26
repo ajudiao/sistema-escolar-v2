@@ -161,9 +161,15 @@
                   <label class="form-label">Data</label>
                   <input type="date" class="form-control" id="dataFalta">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
                   <label class="form-label">Turma</label>
                   <select class="form-control form-select" id="selectTurma">
+                    <option value="">Selecione...</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label">Disciplina</label>
+                  <select class="form-control form-select" id="selectDisciplina">
                     <option value="">Selecione...</option>
                   </select>
                 </div>
@@ -525,24 +531,94 @@
 
       // Listener para carregar alunos automaticamente quando turma muda
       const selectTurma = document.getElementById('selectTurma');
+      const selectDisciplina = document.getElementById('selectDisciplina');
+      
       selectTurma.addEventListener('change', async function() {
         const turmaId = this.value;
-        const data = document.getElementById('dataFalta').value;
         
         console.log('%c[Faltas] TURMA SELECIONADA', 'color: purple; font-weight: bold; font-size: 12px');
-        console.log('[Faltas] TurmaId:', turmaId, '| Data:', data);
+        console.log('[Faltas] TurmaId:', turmaId);
         
         if (!turmaId) {
           console.warn('[Faltas] Turma inválida, pulando carregamento');
+          // Limpar disciplinas
+          selectDisciplina.innerHTML = '<option value="">Selecione...</option>';
+          tabela.innerHTML = '';
           return;
         }
         
         try {
-          console.log('[Faltas] Carregando estudantes da turma automaticamente...');
+          console.log('[Faltas] Carregando turma e disciplinas...');
           const turma = await api.getTurma(turmaId);
           console.log('%c[Faltas] TURMA CARREGADA AUTOMATICAMENTE', 'color: teal; font-size: 12px');
-          console.log('[Faltas] Turma:', JSON.stringify(turma, null, 2));
+          console.log('[Faltas] Turma ID:', turma.id_turma, '| Sigla:', turma.sigla_turma);
+          console.log('[Faltas] Campos disponíveis na turma:', Object.keys(turma));
+          console.log('[Faltas] Turma JSON completo:', JSON.stringify(turma, null, 2));
           
+          // 1. CARREGAR DISCIPLINAS DA TURMA
+          console.log('%c[Faltas] === PROCURANDO DISCIPLINAS ===', 'color: orange; font-weight: bold');
+          console.log('[Faltas] 1. turma.curso existe?', !!turma.curso);
+          
+          if (turma.curso) {
+            console.log('[Faltas] 2. turma.curso fields:', Object.keys(turma.curso));
+            console.log('[Faltas] 3. turma.curso.disciplinas existe?', !!turma.curso.disciplinas);
+            console.log('[Faltas] 4. turma.curso.disciplinas é array?', Array.isArray(turma.curso.disciplinas));
+            console.log('[Faltas] 5. turma.curso.disciplinas length:', turma.curso.disciplinas?.length ?? 0);
+            
+            if (turma.curso.disciplinas && turma.curso.disciplinas.length > 0) {
+              console.log('[Faltas] 6. Primeiro elemento de disciplinas:', JSON.stringify(turma.curso.disciplinas[0], null, 2));
+              console.log('[Faltas] 7. Keys do primeiro elemento:', Object.keys(turma.curso.disciplinas[0]));
+            }
+          }
+          
+          let disciplinas = [];
+          
+          // Tentar várias estruturas possíveis
+          if (turma.curso?.disciplinas && Array.isArray(turma.curso.disciplinas) && turma.curso.disciplinas.length > 0) {
+            console.log('%c[Faltas] ✓ Encontrado turma.curso.disciplinas', 'color: green');
+            
+            // Ver exatamente qual é a estrutura
+            const firstItem = turma.curso.disciplinas[0];
+            console.log('[Faltas] Estrutura do primeiro item:', firstItem);
+            console.log('[Faltas] firstItem.disciplina existe?', !!firstItem.disciplina);
+            console.log('[Faltas] firstItem.id_disc existe?', !!firstItem.id_disc);
+            console.log('[Faltas] firstItem.descricao_disc existe?', !!firstItem.descricao_disc);
+            
+            // Se tem disciplina nested, extrair
+            if (firstItem.disciplina) {
+              console.log('[Faltas] ✓ Estructura com disciplina nested - mapeando');
+              disciplinas = turma.curso.disciplinas
+                .filter(cd => cd.disciplina)
+                .map(cd => cd.disciplina);
+            } 
+            // Se a própria item já é disciplina
+            else if (firstItem.id_disc) {
+              console.log('[Faltas] ✓ Items são disciplinas diretas - usando como está');
+              disciplinas = turma.curso.disciplinas;
+            }
+          } else {
+            console.warn('[Faltas] ⚠️ turma.curso.disciplinas vazio ou não existe');
+          }
+          
+          console.log('[Faltas] Disciplinas finais a adicionar:', disciplinas.length);
+          selectDisciplina.innerHTML = '<option value="">Selecione...</option>';
+          
+          if (disciplinas && disciplinas.length > 0) {
+            console.log('[Faltas] ✓ Encontradas', disciplinas.length, 'disciplinas');
+            disciplinas.forEach((disciplina, idx) => {
+              console.log(`[Faltas] Processando disciplina ${idx}:`, disciplina);
+              const option = document.createElement('option');
+              option.value = disciplina.id_disc;
+              option.textContent = disciplina.descricao_disc || disciplina.nome_disc || `Disciplina ${disciplina.id_disc}`;
+              selectDisciplina.appendChild(option);
+              console.log('[Faltas] ✓ Adicionada disciplina:', disciplina.descricao_disc);
+            });
+            console.log('[Faltas] ✓ Total de disciplinas adicionadas:', disciplinas.length);
+          } else {
+            console.warn('[Faltas] ⚠️ Nenhuma disciplina para adicionar após processamento');
+          }
+          
+          // 2. CARREGAR ESTUDANTES
           // Clear table
           tabela.innerHTML = '';
           
@@ -576,6 +652,7 @@
           
         } catch (erro) {
           console.error('%c[Faltas] ERRO AO CARREGAR AUTOMATICAMENTE', 'color: red; font-weight: bold; font-size: 12px', erro);
+          console.error('[Faltas] Stack:', erro.stack);
           tabela.innerHTML = `<tr><td colspan="4" class="text-danger"><strong>Erro:</strong> ${erro.message}</td></tr>`;
         }
       });
@@ -584,10 +661,11 @@
       btnGuardar.addEventListener('click', async function() {
         const data = document.getElementById('dataFalta').value;
         const turmaId = document.getElementById('selectTurma').value;
+        const disciplinaId = document.getElementById('selectDisciplina').value;
 
-        if (!data || !turmaId) {
-          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data e turma.', 'warning');
-          else alert('Selecione data e turma.');
+        if (!data || !turmaId || !disciplinaId) {
+          if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data, turma e disciplina.', 'warning');
+          else alert('Selecione data, turma e disciplina.');
           return;
         }
 
@@ -601,8 +679,9 @@
           
           if (status !== 'presente' && estudanteId) {
             return {
-              estudante_id: parseInt(estudanteId),
-              turma_id: parseInt(turmaId),
+              estudante_id: parseInt(estudanteId, 10),
+              turma_id: parseInt(turmaId, 10),
+              disciplina_id: parseInt(disciplinaId, 10),
               data_falta: data,
               tipo_falta: 'INJUSTIFICADA', // default
               observacao: observacao || null
