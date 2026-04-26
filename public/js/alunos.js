@@ -240,11 +240,25 @@ document.addEventListener('DOMContentLoaded', function () {
             
             const curso = alunoData.turma?.curso?.descricao_curso || '-';
             const turma = alunoData.turma?.sigla_turma || '-';
+            const anoLetivo = alunoData.turma?.ano_lectivo_turma || '-';
             
+            // Preencher todos os campos do modal
             document.getElementById('detailNome').textContent = alunoData.nome_estudante || '-';
+            document.getElementById('detailStatus').textContent = alunoData.status || '-';
+            
+            // Data de nascimento formatada
+            const dataNasc = alunoData.data_nascimento ? new Date(alunoData.data_nascimento).toLocaleDateString('pt-AO') : '-';
+            document.getElementById('detailDataNascimento').textContent = dataNasc;
+            
+            document.getElementById('detailNaturalidade').textContent = alunoData.naturalidade_estudante || '-';
+            document.getElementById('detailIdentidade').textContent = alunoData.numero_bi_estudante || '-';
+            document.getElementById('detailTelefone').textContent = alunoData.telefone_estudante || '-';
+            document.getElementById('detailEmail').textContent = alunoData.usuario?.email || '-';
+            document.getElementById('detailEndereco').textContent = alunoData.endereco_fisico_estudante || '-';
+            document.getElementById('detailEncarregado').textContent = alunoData.encarregado_estudante || '-';
             document.getElementById('detailCurso').textContent = curso;
             document.getElementById('detailTurma').textContent = turma;
-            document.getElementById('detailTelefone').textContent = alunoData.telefone_estudante || '-';
+            document.getElementById('detailAnoLetivo').textContent = anoLetivo;
             
             console.log('[ALUNOS] Detalhes carregados:', alunoData);
           })

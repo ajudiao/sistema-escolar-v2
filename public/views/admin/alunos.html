@@ -289,31 +289,85 @@
 
         <!-- Modal: Ver Detalhes do Aluno -->
         <div class="modal fade" id="alunoDetailsModal" tabindex="-1">
-          <div class="modal-dialog modal-lg">
+          <div class="modal-dialog modal-xl">
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="alunoDetailsTitle">Detalhes do Aluno</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
               </div>
-              <div class="modal-body">
+              <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Informações Pessoais -->
+                <h6 class="text-primary border-bottom pb-2 mb-3">Informações Pessoais</h6>
                 <div class="row mb-3">
-                  <div class="col-md-6">
+                  <div class="col-md-8">
                     <label class="form-label fw-bold">Nome</label>
                     <p id="detailNome">-</p>
                   </div>
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold">Curso</label>
-                    <p id="detailCurso">-</p>
+                  <div class="col-md-4">
+                    <label class="form-label fw-bold">Status</label>
+                    <p id="detailStatus">-</p>
                   </div>
                 </div>
                 <div class="row mb-3">
-                  <div class="col-md-6">
-                    <label class="form-label fw-bold">Turma</label>
-                    <p id="detailTurma">-</p>
+                  <div class="col-md-4">
+                    <label class="form-label fw-bold">Data Nascimento</label>
+                    <p id="detailDataNascimento">-</p>
                   </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-bold">Naturalidade</label>
+                    <p id="detailNaturalidade">-</p>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-bold">Número de BI</label>
+                    <p id="detailIdentidade">-</p>
+                  </div>
+                </div>
+
+                <!-- Contacto -->
+                <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Contacto</h6>
+                <div class="row mb-3">
                   <div class="col-md-6">
                     <label class="form-label fw-bold">Telefone</label>
                     <p id="detailTelefone">-</p>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-bold">Email</label>
+                    <p id="detailEmail">-</p>
+                  </div>
+                </div>
+
+                <!-- Endereço -->
+                <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Endereço</h6>
+                <div class="row mb-3">
+                  <div class="col-md-12">
+                    <label class="form-label fw-bold">Endereço Físico</label>
+                    <p id="detailEndereco">-</p>
+                  </div>
+                </div>
+
+                <!-- Encarregado -->
+                <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Encarregado</h6>
+                <div class="row mb-3">
+                  <div class="col-md-12">
+                    <label class="form-label fw-bold">Nome do Encarregado</label>
+                    <p id="detailEncarregado">-</p>
+                  </div>
+                </div>
+
+                <!-- Escolar -->
+                <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">Informações Escolares</h6>
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label class="form-label fw-bold">Curso</label>
+                    <p id="detailCurso">-</p>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-bold">Turma</label>
+                    <p id="detailTurma">-</p>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label fw-bold">Ano Letivo</label>
+                    <p id="detailAnoLetivo">-</p>
                   </div>
                 </div>
               </div>
