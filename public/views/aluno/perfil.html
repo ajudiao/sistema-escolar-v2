@@ -392,13 +392,20 @@
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script>
-    const api = new APIService();
+    // Proteger página para ESTUDANTE
+    AuthHelper.checkRole(['ESTUDANTE']);
 
-    document.addEventListener('DOMContentLoaded', function () {
-      console.log('[PERFIL] 🔧 Página carregada - iniciando carregamento de dados');
+    document.addEventListener('DOMContentLoaded', async function () {
+      console.log('[PERFIL] 🔧 Página carregada');
+      
+      // Pequena pausa para garantir que tudo está carregado
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log('[PERFIL] 🔧 Iniciando carregamento de dados');
       initProfile();
     });
 
@@ -406,26 +413,70 @@
       try {
         console.log('[PERFIL] === CARREGAR DADOS ===');
         
+        // Verificar se api existe
+        if (typeof api === 'undefined') {
+          console.error('[PERFIL] ❌ api não está definida');
+          return;
+        }
+        
         // Obter ID do usuário logado
         const userId = api.getUserId();
-        console.log('[PERFIL] userId:', userId);
+        const userName = api.getUserName();
+        console.log('[PERFIL] userId:', userId, 'tipo:', typeof userId);
+        console.log('[PERFIL] userName:', userName);
         
         if (!userId) {
           console.error('[PERFIL] ❌ userId não encontrado no localStorage');
+          console.log('[PERFIL] localStorage contents:', {
+            authToken: localStorage.getItem('authToken') ? '✓' : '✗',
+            userRole: localStorage.getItem('userRole'),
+            userId: localStorage.getItem('userId'),
+            userName: localStorage.getItem('userName')
+          });
           return;
         }
 
-        // 1. Carregar estudante do usuário logado (único endpoint!)
+        // 1. Carregar estudantes e encontrar o do usuário logado
         let estudante = null;
         try {
-          estudante = await api.getEstudanteByUsuario(userId);
-          console.log('[PERFIL] ✓ Estudante carregado via novo endpoint:', estudante.nome_estudante);
-        } catch (err) {
-          console.warn('[PERFIL] ⚠️ Novo endpoint não funcionou, tentando fallback...');
-          // Fallback: listar todos e filtrar
+          console.log('[PERFIL] Chamando api.getEstudantes()...');
           const estudantes = await api.getEstudantes();
-          estudante = estudantes?.find(e => e.usuario_id === userId) || estudantes?.[0];
-          console.log('[PERFIL] ✓ Estudante carregado via fallback:', estudante?.nome_estudante);
+          console.log('[PERFIL] ✓ API retornou:', estudantes?.length ?? 0, 'estudantes');
+          
+          if (!estudantes || estudantes.length === 0) {
+            console.error('[PERFIL] ❌ API retornou array vazio ou null');
+            return;
+          }
+          
+          console.log('[PERFIL] Primeiro estudante:', JSON.stringify(estudantes[0], null, 2));
+          
+          // Converter userId para número para comparação segura
+          const userIdNum = parseInt(userId, 10);
+          console.log('[PERFIL] Procurando estudante com usuario_id:', userIdNum);
+          
+          // Debug: mostrar todos os usuario_id disponíveis
+          console.log('[PERFIL] usuario_ids disponíveis:', estudantes.map(e => ({
+            id_estudante: e.id_estudante,
+            usuario_id: e.usuario_id,
+            nome: e.nome_estudante
+          })));
+          
+          estudante = estudantes.find(e => {
+            const estUsuarioId = e.usuario_id ? parseInt(e.usuario_id, 10) : null;
+            return estUsuarioId === userIdNum;
+          });
+
+          if (!estudante) {
+            console.warn('[PERFIL] ⚠️ Estudante com usuario_id não encontrado');
+            console.warn('[PERFIL] ⚠️ Usando primeira da lista como fallback');
+            estudante = estudantes[0];
+          }
+          
+          console.log('[PERFIL] ✓ Estudante carregado:', estudante?.nome_estudante);
+        } catch (err) {
+          console.error('[PERFIL] ❌ Erro ao buscar estudantes:', err.message);
+          console.error('[PERFIL] Erro stack:', err.stack);
+          return;
         }
         
         if (!estudante) {
@@ -435,7 +486,17 @@
 
         // 2. Carregar turma (já vem incluída no estudante)
         let turma = estudante.turma;
-        console.log('[PERFIL] ✓ Turma:', turma?.sigla_turma);
+        if (turma && turma.id_turma) {
+          // Se precisar de mais dados da turma, buscar detalhes
+          try {
+            console.log('[PERFIL] Carregando detalhes da turma:', turma.id_turma);
+            turma = await api.getTurma(turma.id_turma);
+            console.log('[PERFIL] ✓ Turma detalhada:', turma?.sigla_turma);
+          } catch (e) {
+            console.warn('[PERFIL] ⚠️ Não conseguiu carregar detalhes da turma:', e.message);
+            turma = estudante.turma; // Usar a versão incompleta
+          }
+        }
 
         // 3. Carregar curso (já vem incluído na turma)
         let curso = turma?.curso;
@@ -450,7 +511,8 @@
         updateUI(estudante, turma, curso, notas, faltas);
         
       } catch (error) {
-        console.error('[PERFIL] ❌ Erro:', error.message);
+        console.error('[PERFIL] ❌ Erro geral:', error.message);
+        console.error('[PERFIL] Stack:', error.stack);
       }
     }
 
@@ -504,35 +566,45 @@
           value.textContent = estudante.id_estudante || 'N/A';
           console.log('[PERFIL] ✓ Info Numero:', estudante.id_estudante);
         } else if (text === 'BI') {
-          value.textContent = estudante.bi_estudante || 'N/A';
-          console.log('[PERFIL] ✓ Info BI:', estudante.bi_estudante);
+          value.textContent = estudante.numero_bi_estudante || 'N/A';
+          console.log('[PERFIL] ✓ Info BI:', estudante.numero_bi_estudante);
         } else if (text === 'Email') {
-          value.textContent = estudante.email_estudante || '--';
+          value.textContent = estudante.usuario?.email || '--';
         } else if (text === 'Telefone') {
           value.textContent = estudante.telefone_estudante || '--';
         }
       });
 
       // ===== DADOS PESSOAIS (lado direito) =====
+      const dataNascimento = estudante.data_nascimento ? new Date(estudante.data_nascimento).toLocaleDateString('pt-AO') : '--';
       updateFieldsByLabel([
         { label: 'Nome Completo', value: estudante.nome_estudante },
-        { label: 'Data de Nascimento', value: estudante.data_nascimento_estudante || '--' },
-        { label: 'Sexo', value: estudante.sexo_estudante || '--' },
+        { label: 'Data de Nascimento', value: dataNascimento },
+        { label: 'Sexo', value: '--' },
         { label: 'Naturalidade', value: estudante.naturalidade_estudante || '--' },
-        { label: 'Numero do BI', value: estudante.bi_estudante },
+        { label: 'Numero do BI', value: estudante.numero_bi_estudante },
         { label: 'Numero de Aluno', value: estudante.id_estudante }
       ]);
 
       // ===== INFORMAÇÕES ACADÊMICAS =====
       const ano = turma?.ano_lectivo_turma || new Date().getFullYear();
       const turno = turma?.turno_turma || 'Manha';
+      const directorNome = turma?.diretor?.nome_prof || '--';
       updateFieldsByLabel([
         { label: 'Classe / Turma', value: turma?.sigla_turma },
         { label: 'Curso', value: curso?.descricao_curso },
         { label: 'Periodo', value: turno.charAt(0).toUpperCase() + turno.slice(1).toLowerCase() + ' (07:30 - 12:30)' },
         { label: 'Ano Lectivo', value: ano + '/' + (ano - 1) },
-        { label: 'Escola', value: '--' },
-        { label: 'Director de Turma', value: '--' }
+        { label: 'Escola', value: 'Escola Secundária do I e EIA-10AD nº 1234' },
+        { label: 'Director de Turma', value: directorNome }
+      ]);
+
+      // ===== ENCARREGADO DE EDUCAÇÃO =====
+      updateFieldsByLabel([
+        { label: 'Nome', value: estudante.encarregado_estudante || '--' },
+        { label: 'Parentesco', value: '--' },
+        { label: 'Telefone', value: '--' },
+        { label: 'Email', value: '--' }
       ]);
 
       // ===== RESUMO ACADÊMICO =====
@@ -541,8 +613,8 @@
       if (stats[0]) {
         let soma = 0, count = 0;
         notas.forEach(n => {
-          if (n.mac_notas && n.mac_notas > 0) {
-            soma += parseFloat(n.mac_notas);
+          if (n.pt_notas && n.pt_notas > 0) {
+            soma += parseFloat(n.pt_notas);
             count++;
           }
         });
@@ -557,7 +629,7 @@
       }
 
       if (stats[1]) {
-        const positivas = notas.filter(n => n.mac_notas && parseFloat(n.mac_notas) >= 10).length;
+        const positivas = notas.filter(n => n.pt_notas && parseFloat(n.pt_notas) >= 10).length;
         const total = notas.length || 10;
         const value = stats[1].querySelector('.perfil-stat-value');
         if (value) {
