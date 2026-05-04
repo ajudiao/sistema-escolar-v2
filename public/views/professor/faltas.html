@@ -229,6 +229,23 @@
             </div>
           </div>
         </div>
+
+        <!-- Estatísticas de Faltas Histórico -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="card-title mb-0">📋 Estudantes com Faltas Registadas</h6>
+          </div>
+          <div class="card-body">
+            <div id="estatisticasFaltasContainer" style="display: none;">
+              <div id="listaEstudantesComFaltas" style="max-height: 400px; overflow-y: auto;">
+                <!-- Lista dinamicamente preenchida -->
+              </div>
+            </div>
+            <div id="semFaltasMsg" class="text-center text-muted py-4" style="display: none;">
+              <p>✓ Nenhuma falta registada para este filtro</p>
+            </div>
+          </div>
+        </div>
         
         <!-- Attendance Table -->
         <div class="card">
@@ -497,7 +514,61 @@
           console.log('[Faltas]   - Detalhes por disciplina:', porDisciplina);
           console.log('[Faltas]   - Detalhes por estudante:', porEstudante);
           
-          // IMPRIMIR LISTA FORMATADA
+          // ===== RENDERIZAR NA PÁGINA =====
+          const containerEstatisticas = document.getElementById('estatisticasFaltasContainer');
+          const listaEstudantes = document.getElementById('listaEstudantesComFaltas');
+          const semFaltasMsg = document.getElementById('semFaltasMsg');
+          
+          if (estudantesComFaltas.length === 0) {
+            console.log('%c✓ Nenhuma falta encontrada para este filtro', 'color: green; font-style: italic');
+            containerEstatisticas.style.display = 'none';
+            semFaltasMsg.style.display = 'block';
+          } else {
+            containerEstatisticas.style.display = 'block';
+            semFaltasMsg.style.display = 'none';
+            
+            // Criar HTML da lista
+            let htmlLista = '<div class="list-group list-group-flush">';
+            
+            estudantesComFaltas.forEach((falta, idx) => {
+              const numero = idx + 1;
+              const marcador = falta.tipo === 'JUSTIFICADA' ? '📋' : '';
+              const badgeClass = falta.tipo === 'JUSTIFICADA' ? 'badge bg-warning text-dark' : 'badge bg-danger';
+              
+              htmlLista += `
+                <div class="list-group-item px-3 py-3">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="flex-grow-1">
+                      <h6 class="mb-1">
+                        <span style="font-size: 1.3em; margin-right: 8px;">${marcador}</span>
+                        ${falta.nome}
+                        <span class="${badgeClass}" style="margin-left: 8px; font-size: 0.75rem;">
+                          ${falta.tipo === 'JUSTIFICADA' ? 'Justificada' : 'Injustificada'}
+                        </span>
+                      </h6>
+                      <p class="mb-2 text-muted">
+                        <small>
+                          📚 <strong>${falta.disciplina}</strong> | 
+                          📅 ${falta.data}
+                        </small>
+                      </p>
+                      <p class="mb-0">
+                        <small class="text-secondary">
+                          <strong>Observação:</strong> ${falta.observacao}
+                        </small>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              `;
+            });
+            
+            htmlLista += '</div>';
+            listaEstudantes.innerHTML = htmlLista;
+            console.log('[Faltas] ✓ Lista renderizada na página com', estudantesComFaltas.length, 'faltas');
+          }
+          
+          // IMPRIMIR LISTA FORMATADA NO CONSOLE
           console.log('%c\n╔════════════════════════════════════════════════════════════════╗', 'color: #3b82f6; font-weight: bold');
           console.log('%c║           ESTUDANTES COM FALTAS - CONSULTA DO PROFESSOR         ║', 'color: #3b82f6; font-weight: bold');
           console.log('%c╚════════════════════════════════════════════════════════════════╝', 'color: #3b82f6; font-weight: bold');
@@ -597,6 +668,30 @@
           // Check if estudantes exist and is an array
           if (turma.estudantes && Array.isArray(turma.estudantes) && turma.estudantes.length > 0) {
             console.log('[Faltas] Encontrados', turma.estudantes.length, 'estudantes');
+            
+            // Carregar as faltas já registadas para a data selecionada
+            console.log('[Faltas] Carregando faltas registadas para:', data);
+            
+            let faltasNaData = {};
+            try {
+              const todasAsFaltas = await api.getFaltas(null, null, turmaId);
+              console.log('[Faltas] Todas as faltas da turma:', todasAsFaltas);
+              
+              // Filtrar apenas as faltas da data selecionada
+              if (todasAsFaltas && Array.isArray(todasAsFaltas)) {
+                todasAsFaltas.forEach(falta => {
+                  if (falta.data_falta === data) {
+                    const key = falta.estudante_id;
+                    faltasNaData[key] = falta;
+                    console.log('[Faltas] Falta encontrada para estudante', key, ':', falta);
+                  }
+                });
+              }
+              console.log('[Faltas] Total de faltas na data mapeadas:', Object.keys(faltasNaData).length);
+            } catch (erro) {
+              console.warn('[Faltas] Erro ao carregar faltas da data:', erro);
+            }
+            
             turma.estudantes.forEach((estudante, idx) => {
               console.log(`[Faltas] Processando estudante ${idx}:`, estudante);
               
@@ -612,6 +707,22 @@
               
               console.log('[Faltas] Adicionando aluno:', aluno);
               const linha = criarLinhaAluno(aluno);
+              
+              // Se este aluno tem falta registada nesta data, atualizar o select
+              const faltaDoAluno = faltasNaData[aluno.id];
+              if (faltaDoAluno) {
+                const select = linha.querySelector('.status-select');
+                select.value = 'falta';
+                console.log(`[Faltas] ✓ Estudante ${aluno.nome} marcado como falta`);
+                
+                // Atualizar observação se existe
+                const obsInput = linha.querySelector('.obs-input');
+                if (faltaDoAluno.observacao && obsInput) {
+                  obsInput.value = faltaDoAluno.observacao;
+                  console.log(`[Faltas] ✓ Observação adicionada: ${faltaDoAluno.observacao}`);
+                }
+              }
+              
               tabela.appendChild(linha);
             });
             
@@ -740,6 +851,31 @@
           // Check if estudantes exist and is an array
           if (turma.estudantes && Array.isArray(turma.estudantes) && turma.estudantes.length > 0) {
             console.log('[Faltas] Encontrados', turma.estudantes.length, 'estudantes');
+            
+            // Carregar as faltas já registadas para hoje
+            const dataHoje = document.getElementById('dataFalta').value;
+            console.log('[Faltas] Carregando faltas registadas para:', dataHoje);
+            
+            let faltasHoje = {};
+            try {
+              const todasAsFaltas = await api.getFaltas(null, null, turmaId);
+              console.log('[Faltas] Todas as faltas da turma:', todasAsFaltas);
+              
+              // Filtrar apenas as faltas de hoje
+              if (todasAsFaltas && Array.isArray(todasAsFaltas)) {
+                todasAsFaltas.forEach(falta => {
+                  if (falta.data_falta === dataHoje) {
+                    const key = falta.estudante_id;
+                    faltasHoje[key] = falta;
+                    console.log('[Faltas] Falta encontrada para estudante', key, ':', falta);
+                  }
+                });
+              }
+              console.log('[Faltas] Total de faltas de hoje mapeadas:', Object.keys(faltasHoje).length);
+            } catch (erro) {
+              console.warn('[Faltas] Erro ao carregar faltas de hoje:', erro);
+            }
+            
             turma.estudantes.forEach((estudante, idx) => {
               console.log(`[Faltas] Processando estudante ${idx}:`, estudante);
               
@@ -754,6 +890,23 @@
               }
               
               const linha = criarLinhaAluno(aluno);
+              
+              // Se este aluno tem falta registada, atualizar o select
+              const faltaDoAluno = faltasHoje[aluno.id];
+              if (faltaDoAluno) {
+                const select = linha.querySelector('.status-select');
+                const tipoStatus = faltaDoAluno.tipo_falta === 'JUSTIFICADA' ? 'falta' : 'falta';
+                select.value = tipoStatus;
+                console.log(`[Faltas] ✓ Estudante ${aluno.nome} marcado como ${tipoStatus}`);
+                
+                // Atualizar observação se existe
+                const obsInput = linha.querySelector('.obs-input');
+                if (faltaDoAluno.observacao && obsInput) {
+                  obsInput.value = faltaDoAluno.observacao;
+                  console.log(`[Faltas] ✓ Observação adicionada: ${faltaDoAluno.observacao}`);
+                }
+              }
+              
               tabela.appendChild(linha);
             });
             
