@@ -282,6 +282,7 @@
   <!-- Global JS -->
   <script src="../../js/global.js"></script>
   <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script>
     // ========== FUNÇÕES UTILITÁRIAS ==========
@@ -453,43 +454,9 @@
         dataAvaliacao.value = today;
         
         // ========== SELEÇÕES AUTOMÁTICAS ==========
-        // 1. Detectar e selecionar trimestre
-        const trimestreDetectado = detectarTrimestre();
-        document.getElementById('trimestreSelect').value = trimestreDetectado;
-        console.log(`%c[NOTAS] Trimestre detectado e selecionado: ${trimestreDetectado}`, 'color: blue;');
-        
-        // 2. Selecionar primeira turma
-        console.log('%c[NOTAS] Tentando selecionar primeira turma...', 'color: blue;');
-        console.log('%c[NOTAS] Total de options no select:', 'color: blue;', turmaSelect.options.length);
-        
-        if (turmaSelect.options.length > 1) {
-          const primeiraOpcao = turmaSelect.options[1];
-          const turmaValueId = primeiraOpcao.value;
-          console.log(`%c[NOTAS] ✓ Primeira turma encontrada: text="${primeiraOpcao.text}", value="${turmaValueId}"`, 'color: green;');
-          turmaSelect.value = turmaValueId;
-          console.log(`%c[NOTAS] ✓ Primeira turma selecionada: value=${turmaSelect.value}`, 'color: green;');
-        } else {
-          console.warn('%c[NOTAS] ✗ AVISO: Nenhuma turma disponível no dropdown para selecionar!', 'color: red; font-weight: bold;');
-        }
-        
-        // 3. Procurar por "Língua Portuguesa" ou selecionar primeira disciplina
-        let disciplinaSeleccionada = false;
-        for (let i = 1; i < disciplinaSelect.options.length; i++) {
-          const option = disciplinaSelect.options[i];
-          if (option.text && option.text.toLowerCase().includes('português')) {
-            disciplinaSelect.value = option.value;
-            console.log(`%c[NOTAS] Disciplina "Língua Portuguesa" selecionada automaticamente (value=${disciplinaSelect.value})`, 'color: blue;');
-            disciplinaSeleccionada = true;
-            break;
-          }
-        }
-        
-        // Se não encontrou Língua Portuguesa, selecionar primeira disciplina
-        if (!disciplinaSeleccionada && disciplinaSelect.options.length > 1) {
-          const primeiraOpcaoDisciplina = disciplinaSelect.options[1];
-          disciplinaSelect.value = primeiraOpcaoDisciplina.value;
-          console.log(`%c[NOTAS] Primeira disciplina selecionada: ${primeiraOpcaoDisciplina.text} (value=${disciplinaSelect.value})`, 'color: blue;');
-        }
+        // 1. Não selecionar automaticamente trimestre, turma ou disciplina.
+        // O professor deve escolher manualmente antes de carregar os alunos.
+        console.log('%c[NOTAS] Os filtros de trimestre, turma e disciplina permanecem vazios para seleção manual.', 'color: blue;');
         
         // Esconder spinner e mostrar conteúdo
         spinner.style.display = 'none';
@@ -510,14 +477,10 @@
         console.log('%c[NOTAS] Data:', 'color: orange;', dataVal, '✓');
         console.log('%c[NOTAS] ========== FIM RESUMO ==========', 'color: orange; font-weight: bold;');
         
-        // ========== CARREGAR PAUTA AUTOMATICAMENTE ==========
-        if (turmaVal && disciplinaVal) {
-          setTimeout(() => {
-            console.log('%c[NOTAS] Carregando pauta automaticamente...', 'color: blue;');
-            carregarAlunos();
-          }, 500);
-        } else {
-          console.warn('%c[NOTAS] AVISO: Turma ou Disciplina não foram selecionadas corretamente!', 'color: red;');
+        // ========== NÃO CARREGAR PAUTA AUTOMATICAMENTE ==========
+        // O professor deve selecionar filtros e clicar em "Carregar Alunos".
+        if (!turmaVal || !disciplinaVal) {
+          console.warn('%c[NOTAS] AVISO: Turma ou Disciplina não foram selecionadas corretamente. A carga de alunos será feita apenas quando clicar no botão.', 'color: red;');
         }
         
         

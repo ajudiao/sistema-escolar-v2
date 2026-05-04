@@ -199,6 +199,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../../js/global.js"></script>
   <script src="../../js/api-service.js"></script>
+  <script src="../../js/auth-helper.js"></script>
   <script src="../../js/sidebar.js"></script>
   <script src="js/professor.js"></script>
   <script>
@@ -343,7 +344,7 @@
         });
         
         // Setup event listeners
-        setupEventListeners();
+        // setupEventListeners(); // Removido - botão "Marcar como Lido" foi removido
         
         spinner.style.display = 'none';
         content.style.display = 'block';
@@ -385,9 +386,7 @@
         const badgeColor = badgesClasses[1] || 'badge-secondary';
         
         // Se já está lido, não mostrar o botão "Marcar como Lido"
-        const botaoMarcarLido = jaLido 
-          ? `<span class="text-muted small">Lido em ${new Date().toLocaleDateString('pt-AO')}</span>`
-          : `<button class="btn btn-sm btn-outline-primary btn-marcar-lido" data-id="${aviso.id}">Marcar como Lido</button>`;
+        const botaoMarcarLido = '';
         
         avisoCard.innerHTML = `
           <div class="aviso-header">
@@ -437,77 +436,6 @@
       });
     }
 
-    // ========== MARCAR COMO LIDO ==========
-    async function marcarComoLido(avisoId) {
-      console.log('%c[AVISOS] Marcando aviso como lido - ID:', 'color: blue; font-weight: bold;', avisoId);
-      
-      if (!avisoId) {
-        console.error('%c[AVISOS] Erro: ID do aviso está vazio!', 'color: red;');
-        return;
-      }
-      
-      // Selecionar o card específico pelo data-id
-      const aviso = document.querySelector(`[data-id="${avisoId}"]`);
-      
-      if (!aviso) {
-        console.error('%c[AVISOS] Erro: Aviso não encontrado no DOM!', 'color: red;', `ID procurado: ${avisoId}`);
-        return;
-      }
-
-      console.log('%c[AVISOS] Aviso encontrado:', 'color: green;', aviso);
-
-      try {
-        console.log('%c[AVISOS] Iniciando processo de marcar como lido...', 'color: blue;');
-        
-        // Tentar chamar a API se disponível
-        if (typeof api !== 'undefined' && api.marcarAvisoComoLido) {
-          try {
-            await api.marcarAvisoComoLido(avisoId);
-            console.log('%c[AVISOS] Aviso marcado como lido na API', 'color: green;');
-          } catch (apiError) {
-            console.warn('%c[AVISOS] Aviso marcado localmente (API indisponível)', 'color: orange;', apiError);
-          }
-        }
-        
-        // Salvar no localStorage
-        salvarAvisoComoLidoNoLocalStorage(avisoId);
-        console.log('%c[AVISOS] localStorage após guardar:', 'color: blue;', getAvisosLidosDoLocalStorage());
-        
-        // Atualizar UI imediatamente
-        aviso.dataset.status = 'lido';
-        aviso.classList.remove('aviso-nao_lido');
-        aviso.classList.add('aviso-lido');
-
-        const badgesContainer = aviso.querySelector('.aviso-badges');
-        const badgeNaoLido = badgesContainer.querySelector('.badge-warning');
-        
-        if (badgeNaoLido) {
-          badgeNaoLido.textContent = 'Lido';
-          badgeNaoLido.className = 'badge badge-secondary';
-        }
-
-        const footer = aviso.querySelector('.aviso-footer');
-        const btnMarcarLido = footer.querySelector('.btn-marcar-lido');
-        if (btnMarcarLido) {
-          btnMarcarLido.remove();
-        }
-
-        const dataLeitura = document.createElement('span');
-        dataLeitura.className = 'text-muted small';
-        dataLeitura.textContent = `Lido em ${new Date().toLocaleDateString('pt-AO')}`;
-        footer.appendChild(dataLeitura);
-
-        atualizarContadorNaoLidos();
-        showFlashMessage('Aviso marcado como lido!');
-        
-        console.log('%c[AVISOS] Aviso marcado com sucesso!', 'color: green; font-weight: bold;');
-        
-      } catch (erro) {
-        console.error('%c[AVISOS] Erro ao marcar lido:', 'color: red;', erro);
-        showFlashMessage(`Erro ao marcar aviso: ${erro.message}`, 'danger');
-      }
-    }
-
     // ========== ATUALIZAR CONTADOR ==========
     function atualizarContadorNaoLidos() {
       const naoLidos = document.querySelectorAll('.aviso-card[data-status="nao_lido"]').length;
@@ -543,13 +471,7 @@
       }
 
       document.addEventListener('click', function (e) {
-        // Encontrar o botão clicado (importante para quando SVG é clicado)
-        const btnMarcarLido = e.target.closest('.btn-marcar-lido');
-        if (btnMarcarLido) {
-          const avisoId = btnMarcarLido.dataset.id;
-          console.log('%c[AVISOS] Clique capturado - ID do aviso:', 'color: blue;', avisoId);
-          marcarComoLido(avisoId);
-        }
+        // Event listener para botões "Marcar como Lido" removido - botão foi removido
       });
 
       atualizarContadorNaoLidos();
