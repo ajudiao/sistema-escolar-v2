@@ -224,8 +224,8 @@
         <div class="header-right">
           <div class="header-user">
             <div class="header-user-avatar">AD</div>
-            <div class="header-user-info"><span class="header-user-name">Administrador</span><span
-                class="header-user-role">Administração</span></div>
+            <div class="header-user-info"><span class="header-user-name" data-user-name>Administrador</span><span
+                class="header-user-role" data-user-role>Administração</span></div>
           </div>
         </div>
       </header>
@@ -378,7 +378,7 @@
 
                     <div class="col-md-3 mb-3">
                       <label class="form-label">Data de Nascimento</label>
-                      <input type="date" class="form-control" name="data_nascimento" autocomplete="bday">
+                      <input type="date" class="form-control" name="data_nascimento" autocomplete="bday" required>
                     </div>
 
                     <div class="col-md-3 mb-3">
@@ -656,6 +656,12 @@
       if (!dataNasc) {
         DataLoader.showError('Data de nascimento é obrigatória');
         isValid = false;
+      } else {
+        const dataNascError = Utils.validarDataNascimento(dataNasc, 18, 100);
+        if (dataNascError) {
+          DataLoader.showError(dataNascError);
+          isValid = false;
+        }
       }
       
       // Data de emissão do BI obrigatória

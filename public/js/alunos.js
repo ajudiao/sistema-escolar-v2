@@ -414,8 +414,17 @@ document.addEventListener('DOMContentLoaded', function () {
       const tipoDocumento = document.querySelector('input[name="tipoDocumento"]:checked').value;
       const turmaValue = document.getElementById('alunoTurma').value;
       
-      // Converter data para ISO-8601 DateTime
+      // Validar data de nascimento antes de enviar
       const dataNascimentoInput = document.getElementById('alunoDataNascimento').value;
+      const dataNascimentoError = Utils.validarDataNascimento(dataNascimentoInput, 4, 100);
+      if (dataNascimentoError) {
+        DataLoader.showError(dataNascimentoError);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Guardar';
+        return;
+      }
+
+      // Converter data para ISO-8601 DateTime
       const dataNascimento = dataNascimentoInput ? new Date(dataNascimentoInput + 'T00:00:00Z').toISOString() : null;
       
       const data = {

@@ -248,6 +248,37 @@ const Utils = {
   },
 
   /**
+   * Validar data de nascimento.
+   * minAge e maxAge são faixas de idade aceitáveis.
+   */
+  validarDataNascimento: function(dataString, minAge = 4, maxAge = 100) {
+    if (!dataString) {
+      return 'Data de nascimento é obrigatória';
+    }
+
+    const date = new Date(dataString + 'T00:00:00');
+    if (Number.isNaN(date.getTime())) {
+      return 'Data de nascimento inválida';
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date > today) {
+      return 'Data de nascimento não pode ser no futuro';
+    }
+
+    const age = today.getFullYear() - date.getFullYear() - ((today.getMonth() < date.getMonth() || (today.getMonth() === date.getMonth() && today.getDate() < date.getDate())) ? 1 : 0);
+    if (age < minAge) {
+      return `Idade mínima permitida é ${minAge} anos`;
+    }
+    if (age > maxAge) {
+      return `Idade máxima permitida é ${maxAge} anos`;
+    }
+
+    return null;
+  },
+
+  /**
    * Mostrar notificação Toast
    */
   mostrarNotificacao: function(mensagem, tipo = 'info') {
