@@ -60,7 +60,14 @@ class APIService {
     };
 
     try {
+      console.log('[API-SERVICE] Requisição:', options.method || 'GET', url);
+      if (options.body) {
+        console.log('[API-SERVICE] Body:', options.body);
+      }
+
       const response = await fetch(url, config);
+
+      console.log('[API-SERVICE] Resposta:', response.status, response.statusText);
 
       // Se retornar 401 (não autorizado), fazer logout
       if (response.status === 401) {
@@ -71,14 +78,21 @@ class APIService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `Erro ${response.status}: ${response.statusText}`
-        );
+        const errorMsg = errorData.message || errorData.error || `Erro ${response.status}: ${response.statusText}`;
+        console.error('[API-SERVICE] ✗ Erro na resposta:', {
+          status: response.status,
+          statusText: response.statusText,
+          message: errorMsg,
+          data: errorData
+        });
+        throw new Error(errorMsg);
       }
 
-      return await response.json();
+      const responseData = await response.json();
+      console.log('[API-SERVICE] ✓ Sucesso:', responseData);
+      return responseData;
     } catch (error) {
-      console.error('Erro de API:', error);
+      console.error('[API-SERVICE] ✗ Erro geral na requisição:', error);
       throw error;
     }
   }
@@ -484,18 +498,22 @@ class APIService {
   /**
    * Listar faltas
    */
-  async getFaltas(estudanteId = null, disciplinaId = null) {
+  async getFaltas(estudanteId = null, disciplinaId = null, turmaId = null) {
     let endpoint = '/faltas';
     const params = new URLSearchParams();
 
     if (estudanteId) params.append('estudanteId', estudanteId);
     if (disciplinaId) params.append('disciplinaId', disciplinaId);
+    if (turmaId) params.append('turmaId', turmaId);
 
     if (params.toString()) {
       endpoint += `?${params.toString()}`;
     }
 
-    return this.get(endpoint);
+    console.log('[API-SERVICE] Buscando faltas:', { estudanteId, disciplinaId, turmaId, endpoint });
+    const resultado = await this.get(endpoint);
+    console.log('[API-SERVICE] Faltas retornadas:', resultado);
+    return resultado;
   }
 
   /**
@@ -509,7 +527,28 @@ class APIService {
    * Criar nova falta
    */
   async createFalta(data) {
-    return this.post('/faltas', data);
+    try {
+      console.log('[API-SERVICE] Enviando falta para backend:', data);
+      
+      // Validação básica
+      if (!data.estudante_id || !data.disciplina_id || !data.turma_id || !data.data_falta || !data.tipo_falta) {
+        throw new Error('Falta incompleta - campos obrigatórios faltando: ' + 
+          JSON.stringify({
+            estudante_id: data.estudante_id,
+            disciplina_id: data.disciplina_id,
+            turma_id: data.turma_id,
+            data_falta: data.data_falta,
+            tipo_falta: data.tipo_falta
+          }));
+      }
+      
+      const resultado = await this.post('/faltas', data);
+      console.log('[API-SERVICE] ✓ Falta criada com sucesso:', resultado);
+      return resultado;
+    } catch (error) {
+      console.error('[API-SERVICE] ✗ Erro ao criar falta:', error);
+      throw error;
+    }
   }
 
   /**
@@ -524,6 +563,160 @@ class APIService {
    */
   async deleteFalta(id) {
     return this.delete(`/faltas/${id}`);
+  }
+
+  /**
+   * Obter estatísticas de faltas por turma e disciplina
+   */
+  async getFaltasEstatisticas(turmaId = null, disciplinaId = null) {
+    try {
+      console.log('%c[API-SERVICE] === INICIANDO CÁLCULO DE ESTATÍSTICAS ===', 'color: darkblue; font-weight: bold; font-size: 12px');
+      console.log('[API-SERVICE] Parâmetros:', { turmaId, disciplinaId });
+      
+      // Buscar todas as faltas com filtros
+      console.log('[API-SERVICE] Chamando getFaltas com turmaId:', turmaId);
+      const faltas = await this.getFaltas(null, null, turmaId);
+      
+      console.log('[API-SERVICE] Faltas recebidas do backend:', faltas);
+      console.log('[API-SERVICE] Quantidade de faltas:', faltas ? faltas.length : 0);
+      
+      if (!faltas || faltas.length === 0) {
+        console.warn('[API-SERVICE] ⚠️ Nenhuma falta encontrada para a turma', turmaId);
+        return {
+          totalFaltas: 0,
+          totalAlunos: 0,
+          totalPresentes: 0,
+          taxaMédia: 0,
+          porDisciplina: {},
+          porEstudante: {},
+          estudantesComFaltas: []
+        };
+      }
+
+      // Filtrar por disciplina se especificado
+      let faltasFiltradas = faltas;
+      if (disciplinaId) {
+        console.log('[API-SERVICE] Filtrando por disciplinaId:', disciplinaId);
+        faltasFiltradas = faltas.filter(f => f.disciplina_id === parseInt(disciplinaId));
+        console.log('[API-SERVICE] Faltas após filtro de disciplina:', faltasFiltradas.length);
+      }
+
+      // Calcular estatísticas
+      const porEstudante = {};
+      const porDisciplina = {};
+      const estudantesComFaltas = []; // Lista de estudantes com faltas
+      
+      console.log('[API-SERVICE] Processando', faltasFiltradas.length, 'faltas...');
+      
+      faltasFiltradas.forEach((falta, idx) => {
+        console.log(`[API-SERVICE] Falta ${idx}:`, {
+          estudante_id: falta.estudante_id,
+          disciplina_id: falta.disciplina_id,
+          tipo_falta: falta.tipo_falta,
+          observacao: falta.observacao,
+          estudante_nome: falta.estudante?.nome_estudante,
+          disciplina_nome: falta.disciplina?.descricao_disc
+        });
+
+        // Adicionar à lista de estudantes com faltas
+        estudantesComFaltas.push({
+          id: falta.estudante_id,
+          nome: falta.estudante?.nome_estudante || 'Desconhecido',
+          disciplina: falta.disciplina?.descricao_disc || falta.disciplina?.sigla_disc || 'Desconhecida',
+          tipo: falta.tipo_falta,
+          data: falta.data_falta,
+          observacao: falta.observacao || '(sem observação)'
+        });
+
+        // Por estudante
+        if (!porEstudante[falta.estudante_id]) {
+          porEstudante[falta.estudante_id] = {
+            nome: falta.estudante?.nome_estudante || 'Desconhecido',
+            id: falta.estudante_id,
+            total: 0,
+            justificadas: 0,
+            injustificadas: 0
+          };
+        }
+        porEstudante[falta.estudante_id].total++;
+        if (falta.tipo_falta === 'JUSTIFICADA') {
+          porEstudante[falta.estudante_id].justificadas++;
+        } else {
+          porEstudante[falta.estudante_id].injustificadas++;
+        }
+
+        // Por disciplina
+        const disciplinaIdAtual = falta.disciplina_id;
+        if (!porDisciplina[disciplinaIdAtual]) {
+          porDisciplina[disciplinaIdAtual] = {
+            nome: falta.disciplina?.descricao_disc || falta.disciplina?.sigla_disc || 'Desconhecida',
+            id: disciplinaIdAtual,
+            total: 0,
+            justificadas: 0,
+            injustificadas: 0
+          };
+        }
+        porDisciplina[disciplinaIdAtual].total++;
+        if (falta.tipo_falta === 'JUSTIFICADA') {
+          porDisciplina[disciplinaIdAtual].justificadas++;
+        } else {
+          porDisciplina[disciplinaIdAtual].injustificadas++;
+        }
+      });
+
+      // Contar estudantes únicos
+      const estudantesUnicos = Object.keys(porEstudante).length;
+
+      const resultado = {
+        totalFaltas: faltasFiltradas.length,
+        totalAlunos: estudantesUnicos,
+        porDisciplina,
+        porEstudante,
+        estudantesComFaltas
+      };
+
+      console.log('%c[API-SERVICE] ✓ ESTATÍSTICAS CALCULADAS COM SUCESSO', 'color: green; font-weight: bold; font-size: 12px');
+      console.log('[API-SERVICE] Resultado:', resultado);
+      
+      // IMPRIMIR LISTA FORMATADA DE ESTUDANTES COM FALTAS
+      console.log('%c\n╔════════════════════════════════════════════════════════════════╗', 'color: #3b82f6; font-weight: bold');
+      console.log('%c║           LISTA DE ESTUDANTES COM FALTAS REGISTADAS             ║', 'color: #3b82f6; font-weight: bold');
+      console.log('%c╚════════════════════════════════════════════════════════════════╝', 'color: #3b82f6; font-weight: bold');
+      
+      if (estudantesComFaltas.length === 0) {
+        console.log('%c✓ Nenhuma falta registada para este filtro', 'color: green; font-style: italic');
+      } else {
+        estudantesComFaltas.forEach((falta, idx) => {
+          const numeroFalta = idx + 1;
+          const marcador = falta.tipo === 'JUSTIFICADA' ? '📋' : '❌';
+          console.log(`${marcador} [${numeroFalta}] ${falta.nome}`);
+          console.log(`    📚 Disciplina: ${falta.disciplina}`);
+          console.log(`    📅 Data: ${falta.data}`);
+          console.log(`    🏷️  Tipo: ${falta.tipo === 'JUSTIFICADA' ? 'Justificada' : 'Injustificada'}`);
+          console.log(`    💬 Observação: ${falta.observacao}`);
+          console.log('    ─────────────────────────────────────────────');
+        });
+      }
+      
+      // TABELA DE RESUMO
+      console.log('%c\n═══ RESUMO DAS ESTATÍSTICAS ═══', 'color: #10b981; font-weight: bold; font-size: 12px');
+      console.table({
+        'Total de Faltas': resultado.totalFaltas,
+        'Total de Alunos': resultado.totalAlunos,
+        'Disciplinas': Object.keys(resultado.porDisciplina).length
+      });
+      
+      return resultado;
+    } catch (error) {
+      console.error('%c[API-SERVICE] ✗ ERRO AO BUSCAR ESTATÍSTICAS', 'color: red; font-weight: bold; font-size: 12px', error);
+      return {
+        totalFaltas: 0,
+        totalAlunos: 0,
+        porDisciplina: {},
+        porEstudante: {},
+        estudantesComFaltas: []
+      };
+    }
   }
 
   // ============= AVISOS ENDPOINTS =============

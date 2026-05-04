@@ -448,10 +448,115 @@
         
         console.log('[Faltas] Totais - Alunos:', rows.length, 'Presentes:', presentes, 'Faltas:', faltas, 'Atrasos:', atrasos);
         
-        document.getElementById('totalAlunos').textContent = rows.length;
-        totalPresentesEl.textContent = presentes;
-        totalFaltasEl.textContent = faltas;
-        totalAtrasosEl.textContent = atrasos;
+        // Atualizar cards
+        const totalAllunosCard = document.getElementById('totalAlunos');
+        const totalPresentesCard = document.getElementById('totalPresentes');
+        const totalFaltasCard = document.getElementById('totalFaltas');
+        const totalAtrasosCard = document.getElementById('totalAtrasos');
+        
+        if (totalAllunosCard) totalAllunosCard.textContent = rows.length;
+        if (totalPresentesCard) totalPresentesCard.textContent = presentes;
+        if (totalFaltasCard) totalFaltasCard.textContent = faltas;
+        if (totalAtrasosCard) totalAtrasosCard.textContent = atrasos;
+        
+        console.log('[Faltas] ✓ Cards atualizados com totais em tempo real');
+      }
+
+      // Carregar estatísticas de faltas histórico do banco de dados
+      async function carregarEstatisticasFaltas(turmaId, disciplinaId = null) {
+        try {
+          console.log('%c[Faltas] === CARREGANDO ESTATÍSTICAS REAIS ===', 'color: darkblue; font-weight: bold; font-size: 12px');
+          console.log('[Faltas] TurmaId:', turmaId, '| DisciplinaId:', disciplinaId);
+          
+          if (!turmaId) {
+            console.warn('[Faltas] ⚠️ TurmaId nulo, não carregando estatísticas');
+            return null;
+          }
+          
+          const estatisticas = await api.getFaltasEstatisticas(turmaId, disciplinaId);
+          console.log('%c[Faltas] ✓ ESTATÍSTICAS RECEBIDAS DO API-SERVICE', 'color: green; font-weight: bold; font-size: 12px');
+          console.log('[Faltas] Objeto completo de estatísticas:', estatisticas);
+          
+          if (!estatisticas) {
+            console.warn('[Faltas] ⚠️ Estatísticas retornou nulo');
+            return null;
+          }
+          
+          // Atualizar cards com dados históricos (já registados no banco)
+          const totalAlunos = estatisticas.totalAlunos || 0;
+          const totalFaltasRegistadas = estatisticas.totalFaltas || 0;
+          const porEstudante = estatisticas.porEstudante || {};
+          const porDisciplina = estatisticas.porDisciplina || {};
+          const estudantesComFaltas = estatisticas.estudantesComFaltas || [];
+          
+          console.log('[Faltas] Estatísticas calculadas:');
+          console.log('[Faltas]   - Total Alunos com faltas:', totalAlunos);
+          console.log('[Faltas]   - Total de faltas registadas:', totalFaltasRegistadas);
+          console.log('[Faltas]   - Disciplinas:', Object.keys(porDisciplina).length);
+          console.log('[Faltas]   - Estudantes com faltas:', Object.keys(porEstudante).length);
+          console.log('[Faltas]   - Detalhes por disciplina:', porDisciplina);
+          console.log('[Faltas]   - Detalhes por estudante:', porEstudante);
+          
+          // IMPRIMIR LISTA FORMATADA
+          console.log('%c\n╔════════════════════════════════════════════════════════════════╗', 'color: #3b82f6; font-weight: bold');
+          console.log('%c║           ESTUDANTES COM FALTAS - CONSULTA DO PROFESSOR         ║', 'color: #3b82f6; font-weight: bold');
+          console.log('%c╚════════════════════════════════════════════════════════════════╝', 'color: #3b82f6; font-weight: bold');
+          
+          if (estudantesComFaltas.length === 0) {
+            console.log('%c✓ Nenhuma falta encontrada para este filtro', 'color: green; font-style: italic');
+          } else {
+            estudantesComFaltas.forEach((falta, idx) => {
+              const numeroFalta = idx + 1;
+              const marcador = falta.tipo === 'JUSTIFICADA' ? '📋' : '❌';
+              console.log(`${marcador} [${numeroFalta}] ${falta.nome}`);
+              console.log(`    📚 Disciplina: ${falta.disciplina}`);
+              console.log(`    📅 Data: ${falta.data}`);
+              console.log(`    🏷️  Tipo: ${falta.tipo === 'JUSTIFICADA' ? 'Justificada' : 'Injustificada'}`);
+              console.log(`    💬 Observação: ${falta.observacao}`);
+              console.log('    ─────────────────────────────────────────────');
+            });
+          }
+          
+          // ATUALIZAR OS CARDS COM OS DADOS DO BANCO
+          console.log('%c[Faltas] === ATUALIZANDO CARDS ===', 'color: orange; font-weight: bold; font-size: 12px');
+          
+          // Verificar se elementos existem
+          console.log('[Faltas] Verificando elementos dos cards:');
+          const totalAllunosCard = document.getElementById('totalAlunos');
+          const totalFaltasCard = document.getElementById('totalFaltas');
+          console.log('[Faltas]   - totalAlunos elemento:', totalAllunosCard ? '✓ Encontrado' : '✗ NÃO ENCONTRADO');
+          console.log('[Faltas]   - totalFaltas elemento:', totalFaltasCard ? '✓ Encontrado' : '✗ NÃO ENCONTRADO');
+          
+          // Atualizar card de Total Alunos (com faltas registadas)
+          if (totalAllunosCard) {
+            const valorAnterior = totalAllunosCard.textContent;
+            totalAllunosCard.textContent = totalAlunos;
+            console.log(`[Faltas] ✓ Card "Total Alunos" atualizado: ${valorAnterior} → ${totalAlunos}`);
+          } else {
+            console.warn('[Faltas] ✗ Card "totalAlunos" não encontrado');
+          }
+          
+          // Atualizar card de Faltas (total de faltas registadas)
+          if (totalFaltasCard) {
+            const valorAnterior = totalFaltasCard.textContent;
+            totalFaltasCard.textContent = totalFaltasRegistadas;
+            console.log(`[Faltas] ✓ Card "Total Faltas" atualizado: ${valorAnterior} → ${totalFaltasRegistadas}`);
+          } else {
+            console.warn('[Faltas] ✗ Card "totalFaltas" não encontrado');
+          }
+          
+          // Nota: Os cards "Presentes" e "Atrasos" continuam mostrando dados em tempo real da tabela
+          // Armazenar as estatísticas para referência
+          window.estatisticasFaltasAtuais = estatisticas;
+          console.log('[Faltas] ✓ Estatísticas armazenadas em window.estatisticasFaltasAtuais');
+          console.log('%c[Faltas] ✓ CARDS ATUALIZADOS COM SUCESSO', 'color: green; font-weight: bold; font-size: 12px');
+          
+          return estatisticas;
+        } catch (erro) {
+          console.error('%c[Faltas] ✗ ERRO AO CARREGAR ESTATÍSTICAS', 'color: red; font-weight: bold; font-size: 12px', erro);
+          console.error('[Faltas] Stack:', erro.stack);
+          return null;
+        }
       }
 
       btnCarregar.addEventListener('click', async function() {
@@ -469,6 +574,10 @@
         }
         
         try {
+          // Carregar estatísticas atualizado
+          console.log('[Faltas] Carregando estatísticas para turma:', turmaId);
+          await carregarEstatisticasFaltas(turmaId);
+          
           console.log('[Faltas] Chamando api.getTurma com turmaId:', turmaId);
           const turma = await api.getTurma(turmaId);
           console.log('%c[Faltas] TURMA RECEBIDA COM SUCESSO', 'color: green; font-size: 12px');
@@ -554,6 +663,12 @@
           console.log('[Faltas] Turma ID:', turma.id_turma, '| Sigla:', turma.sigla_turma);
           console.log('[Faltas] Campos disponíveis na turma:', Object.keys(turma));
           console.log('[Faltas] Turma JSON completo:', JSON.stringify(turma, null, 2));
+          
+          // CARREGAR ESTATÍSTICAS DE FALTAS HISTÓRICO
+          console.log('%c[Faltas] === INICIANDO CARREGAMENTO DE ESTATÍSTICAS ===', 'color: darkgreen; font-weight: bold');
+          const estatisticas = await carregarEstatisticasFaltas(turmaId);
+          console.log('%c[Faltas] ✓ ESTATÍSTICAS CARREGADAS COM SUCESSO', 'color: darkgreen; font-weight: bold; font-size: 12px');
+          console.log('[Faltas] Estatísticas:', estatisticas);
           
           // 1. CARREGAR DISCIPLINAS DA TURMA
           console.log('%c[Faltas] === PROCURANDO DISCIPLINAS ===', 'color: orange; font-weight: bold');
@@ -663,7 +778,13 @@
         const turmaId = document.getElementById('selectTurma').value;
         const disciplinaId = document.getElementById('selectDisciplina').value;
 
+        console.log('%c[Faltas] === INICIANDO ENVIO DE FALTAS ===', 'color: blue; font-weight: bold; font-size: 14px');
+        console.log('[Faltas] Data:', data);
+        console.log('[Faltas] TurmaId:', turmaId);
+        console.log('[Faltas] DisciplinaId:', disciplinaId);
+
         if (!data || !turmaId || !disciplinaId) {
+          console.warn('[Faltas] Validação falhou - campos vazios');
           if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Selecione data, turma e disciplina.', 'warning');
           else alert('Selecione data, turma e disciplina.');
           return;
@@ -671,55 +792,106 @@
 
         // Carregar apenas os registos com "falta" ou "atraso"
         const rows = Array.from(tabela.querySelectorAll('tr'));
-        const faltasParaEnviar = rows.map(r => {
+        console.log('[Faltas] Total de linhas na tabela:', rows.length);
+        
+        const faltasParaEnviar = rows.map((r, idx) => {
           const statusSelect = r.querySelector('.status-select');
-          const estudanteId = statusSelect ? statusSelect.getAttribute('data-aluno-id') : '';
-          const status = statusSelect ? statusSelect.value : '';
+          const estudanteId = statusSelect ? statusSelect.getAttribute('data-aluno-id') : null;
+          const status = statusSelect ? statusSelect.value : 'presente';
           const observacao = r.querySelector('.obs-input') ? r.querySelector('.obs-input').value : '';
           
-          if (status !== 'presente' && estudanteId) {
-            return {
+          console.log(`[Faltas] Linha ${idx}: estudanteId=${estudanteId}, status=${status}, obs=${observacao}`);
+          
+          if (status !== 'presente' && estudanteId && estudanteId.trim() !== '') {
+            const falta = {
               estudante_id: parseInt(estudanteId, 10),
               turma_id: parseInt(turmaId, 10),
               disciplina_id: parseInt(disciplinaId, 10),
-              data_falta: data,
-              tipo_falta: 'INJUSTIFICADA', // default
+              data_falta: data, // ISO string como "2026-05-04"
+              tipo_falta: status === 'falta' ? 'INJUSTIFICADA' : 'INJUSTIFICADA',
               observacao: observacao || null
             };
+            console.log('[Faltas] ✓ Falta adicionada:', falta);
+            return falta;
+          } else {
+            console.log(`[Faltas] ✗ Linha ${idx} ignorada - status presente ou estudanteId vazio`);
           }
           return null;
         }).filter(x => x !== null);
 
+        console.log('[Faltas] Total de faltas a enviar:', faltasParaEnviar.length);
+        console.log('[Faltas] Detalhes das faltas:', JSON.stringify(faltasParaEnviar, null, 2));
+
         if (faltasParaEnviar.length === 0) {
+          console.warn('[Faltas] Nenhuma falta para registar');
           if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Nenhuma falta para registar.', 'info');
           else alert('Nenhuma falta para registar.');
           return;
         }
 
-        console.log('Enviando faltas:', faltasParaEnviar);
+        console.log('%c[Faltas] ENVIANDO FALTAS PARA BACKEND...', 'color: darkblue; font-weight: bold; font-size: 12px');
 
         try {
           // Enviar cada falta individualmente usando a API service
-          const promessas = faltasParaEnviar.map(falta => api.createFalta(falta));
+          const promessas = faltasParaEnviar.map((falta, idx) => {
+            console.log(`[Faltas] Enviando falta ${idx}:`, falta);
+            return api.createFalta(falta);
+          });
 
           const respostas = await Promise.allSettled(promessas);
           const sucessos = respostas.filter(r => r.status === 'fulfilled').length;
           const falhas = respostas.filter(r => r.status === 'rejected').length;
 
+          console.log('%c[Faltas] RESPOSTA DO SERVIDOR', 'color: purple; font-weight: bold; font-size: 12px');
+          console.log('[Faltas] Sucessos:', sucessos);
+          console.log('[Faltas] Falhas:', falhas);
+          respostas.forEach((r, idx) => {
+            if (r.status === 'fulfilled') {
+              console.log(`[Faltas] ✓ Falta ${idx} enviada com sucesso:`, r.value);
+            } else {
+              console.error(`[Faltas] ✗ Falta ${idx} falhou:`, r.reason);
+            }
+          });
+
           if (falhas === 0) {
-            console.log('Todas as faltas foram enviadas com sucesso');
+            console.log('%c[Faltas] ✓✓✓ TODAS AS FALTAS FORAM GUARDADAS COM SUCESSO ✓✓✓', 'color: green; font-weight: bold; font-size: 14px');
             if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao(`${sucessos} falta(s) registada(s) com sucesso.`, 'success');
             // Limpar tabela
             tabela.innerHTML = '';
             atualizarTotais();
           } else {
-            console.error(`${sucessos} faltas registadas, ${falhas} falharam`);
+            console.error(`[Faltas] ✗✗✗ ${sucessos} faltas registadas, ${falhas} falharam ✗✗✗`, 'color: red; font-weight: bold');
             if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao(`${sucessos} faltas registadas, ${falhas} falharam.`, 'warning');
           }
         } catch (err) {
-          console.error('Erro ao enviar faltas:', err);
+          console.error('%c[Faltas] ✗✗✗ ERRO CRÍTICO AO ENVIAR FALTAS ✗✗✗', 'color: red; font-weight: bold; font-size: 14px', err);
+          console.error('[Faltas] Stack:', err.stack);
           if (window.Utils && Utils.mostrarNotificacao) Utils.mostrarNotificacao('Erro ao enviar faltas: ' + err.message, 'danger');
           else alert('Erro ao enviar faltas: ' + err.message);
+        }
+      });
+
+      // Listener para atualizar estatísticas quando disciplina é selecionada
+      selectDisciplina.addEventListener('change', async function() {
+        const turmaId = document.getElementById('selectTurma').value;
+        const disciplinaId = this.value;
+        
+        if (!turmaId) {
+          console.log('[Faltas] Nenhuma turma selecionada, pulando carregamento de estatísticas');
+          return;
+        }
+        
+        if (disciplinaId) {
+          console.log('%c[Faltas] DISCIPLINA SELECIONADA', 'color: purple; font-weight: bold; font-size: 12px');
+          console.log('[Faltas] DisciplinaId:', disciplinaId, '| TurmaId:', turmaId);
+          
+          try {
+            const estatisticas = await carregarEstatisticasFaltas(turmaId, disciplinaId);
+            console.log('[Faltas] ✓ Estatísticas filtradas por disciplina carregadas');
+            console.log('[Faltas] Estatísticas:', estatisticas);
+          } catch (erro) {
+            console.error('[Faltas] Erro ao carregar estatísticas filtradas:', erro);
+          }
         }
       });
     });
