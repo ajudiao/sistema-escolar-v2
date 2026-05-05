@@ -357,7 +357,53 @@ class APIService {
    * Obter professor por usuário ID (para o professor logado)
    */
   async getProfessorByUsuario(usuarioId) {
-    return this.get(`/professores/usuario/${usuarioId}`);
+    console.log('%c[API-SERVICE] === getProfessorByUsuario ===', 'color: #f59e0b; font-weight: bold');
+    console.log('[API-SERVICE] usuarioId:', usuarioId);
+    
+    if (!usuarioId) {
+      console.error('[API-SERVICE] ✗ usuarioId é obrigatório');
+      throw new Error('usuarioId é obrigatório para buscar professor');
+    }
+    
+    try {
+      const endpoint = `/professores/usuario/${usuarioId}`;
+      console.log('[API-SERVICE] GET', endpoint);
+      
+      const resposta = await this.get(endpoint);
+      console.log('[API-SERVICE] ✓ Resposta recebida');
+      console.log('[API-SERVICE] Resposta completa:', resposta);
+      
+      // Se a resposta vem como { data: {...} }, extrair o data
+      if (resposta && resposta.data && typeof resposta.data === 'object') {
+        console.log('[API-SERVICE] Extraindo .data da resposta');
+        const professor = resposta.data;
+        console.log('[API-SERVICE] ✓ Professor extraído:', professor);
+        return professor;
+      }
+      
+      // Se for um objeto direto com id_prof, retornar
+      if (resposta && resposta.id_prof) {
+        console.log('[API-SERVICE] ✓ Resposta é objeto professor direto');
+        console.log('[API-SERVICE] id_prof:', resposta.id_prof);
+        console.log('[API-SERVICE] nome_prof:', resposta.nome_prof);
+        console.log('[API-SERVICE] turmas_dirigidas:', resposta.turmas_dirigidas);
+        console.log('[API-SERVICE] turmas:', resposta.turmas);
+        console.log('[API-SERVICE] disciplinas:', resposta.disciplinas);
+        return resposta;
+      }
+      
+      console.error('[API-SERVICE] ✗ Resposta inesperada:', resposta);
+      return null;
+    } catch (error) {
+      if (error.message && error.message.includes('401')) {
+        console.error('[API-SERVICE] ✗ 401 Não autorizado - token pode estar expirado');
+      } else if (error.message && error.message.includes('404')) {
+        console.warn('[API-SERVICE] ⚠️ 404 Professor não encontrado para usuarioId:', usuarioId);
+      } else {
+        console.error('[API-SERVICE] ✗ Erro ao buscar professor:', error.message);
+      }
+      throw error;
+    }
   }
 
   /**

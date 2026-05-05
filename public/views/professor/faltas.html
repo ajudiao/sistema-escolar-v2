@@ -328,6 +328,7 @@
         const professor = await api.getProfessorByUsuario(usuarioId);
         console.log('%c[Faltas] PROFESSOR RECEBIDO COM SUCESSO', 'color: green; font-size: 12px');
         console.log('[Faltas] Estrutura completa:', JSON.stringify(professor, null, 2));
+        console.log('[Faltas] Campos do professor:', Object.keys(professor));
         
         // 3. Update professor name in header
         document.querySelector('.header-user-name').textContent = professor.nome_prof;
@@ -335,8 +336,29 @@
         
         // 4. Populate turmas dropdown
         const selectTurma = document.getElementById('selectTurma');
-        const todasAsTurmas = professor.turmas_dirigidas || professor.turmas || [];
-        console.log('[Faltas] Turmas disponíveis (turmas_dirigidas ou turmas):', todasAsTurmas);
+        
+        // Tentar obter turmas de vários campos possíveis
+        let todasAsTurmas = [];
+        
+        // Opção 1: turmas_dirigidas
+        if (professor.turmas_dirigidas && Array.isArray(professor.turmas_dirigidas) && professor.turmas_dirigidas.length > 0) {
+          console.log('[Faltas] Turmas encontradas em turmas_dirigidas:', professor.turmas_dirigidas.length);
+          todasAsTurmas = professor.turmas_dirigidas;
+        }
+        // Opção 2: turmas (array de objetos com turma dentro)
+        else if (professor.turmas && Array.isArray(professor.turmas) && professor.turmas.length > 0) {
+          console.log('[Faltas] Turmas encontradas em turmas (ProfessorTurma):', professor.turmas.length);
+          // Extrair objetos turma de dentro do array
+          todasAsTurmas = professor.turmas
+            .map(pt => pt.turma)
+            .filter(t => t !== null && t !== undefined);
+          console.log('[Faltas] Após extração:', todasAsTurmas.length, 'turmas válidas');
+        }
+        // Opção 3: nenhuma encontrada
+        else {
+          console.warn('[Faltas] AVISO: Nenhuma turma encontrada');
+        }
+        
         console.log('[Faltas] Quantidade de turmas:', todasAsTurmas.length);
         
         if (todasAsTurmas.length > 0) {
@@ -345,8 +367,14 @@
             
             // Try different possible structures
             let turma = null;
+            
+            // Opção 1: É um objeto turma direto
             if (item && item.id_turma) {
               turma = item;
+            }
+            // Opção 2: É um objeto ProfessorTurma com turma dentro
+            else if (item && item.turma && item.turma.id_turma) {
+              turma = item.turma;
             }
             
             if (!turma) {
@@ -358,10 +386,13 @@
             option.value = turma.id_turma;
             option.textContent = turma.sigla_turma || `Turma ${turma.id_turma}`;
             selectTurma.appendChild(option);
-            console.log('[Faltas] Turma adicionada:', turma.sigla_turma);
+            console.log('[Faltas] Turma adicionada:', turma.sigla_turma, '(ID:', turma.id_turma + ')');
           });
         } else {
           console.warn('[Faltas] AVISO: Nenhuma turma encontrada para o professor');
+          console.log('[Faltas] Campos de turmas analisados:');
+          console.log('[Faltas] - professor.turmas_dirigidas:', professor.turmas_dirigidas);
+          console.log('[Faltas] - professor.turmas:', professor.turmas);
           spinner.innerHTML = `<div class="alert alert-warning">Nenhuma turma encontrada para este professor. Entre em contato com o administrador.</div>`;
           return;
         }
