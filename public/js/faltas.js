@@ -50,10 +50,13 @@ document.addEventListener('DOMContentLoaded', function () {
     
     // Depois carregar faltas
     console.log('[FALTAS] Chamando loadFaltas()...');
-    loadFaltas();
+    return loadFaltas();
+  }).then(() => {
+    console.log('[FALTAS] ✓ loadFaltas concluído');
   }).catch(erro => {
-    console.error('[FALTAS] ✗ Erro em loadTurmaComDisciplinas:', erro);
+    console.error('[FALTAS] ✗ Erro crítico:', erro);
     console.error('[FALTAS] Stack:', erro.stack);
+    DataLoader.showError('Erro ao carregar dados de faltas: ' + erro.message);
   });
 
   // Event listener para botão de carregar faltas
@@ -233,11 +236,10 @@ async function loadFaltas() {
     }
     
     // Obter filtros selecionados
-    const trimestre = document.getElementById('trimestreSelect')?.value || '1';
     const ano = document.getElementById('anoSelect')?.value || '2026';
     const disciplina = document.getElementById('disciplinaSelect')?.value || 'todas';
 
-    console.log('[FALTAS] Filtros selecionados:', { trimestre, ano, disciplina });
+    console.log('[FALTAS] Filtros selecionados:', { ano, disciplina });
 
     // Carregar faltas da API
     console.log('[FALTAS] Chamando api.getFaltas com estudanteId:', idEstudanteReal);
@@ -263,7 +265,7 @@ async function loadFaltas() {
 
     // Renderizar tabela com filtros
     console.log('[FALTAS] Chamando renderFaltasTable()');
-    renderFaltasTable(trimestre, ano, disciplina);
+    renderFaltasTable(ano, disciplina);
 
     // Atualizar cards de resumo
     console.log('[FALTAS] Chamando updateFaltasStatistics()');
@@ -411,53 +413,72 @@ function updateDisciplinaSelect() {
 /**
  * Renderizar tabela de faltas com filtros
  */
-function renderFaltasTable(trimestre, ano, disciplina) {
+function renderFaltasTable(ano, disciplina) {
+  console.log('%c[FALTAS] === renderFaltasTable INICIADO ===', 'color: #6366f1; font-weight: bold');
+  console.log('[FALTAS] Parâmetros:', { ano, disciplina });
+  console.log('[FALTAS] faltasData:', faltasData);
+  console.log('[FALTAS] faltasData.length:', faltasData ? faltasData.length : 0);
+  
   const tbody = document.getElementById('faltasTableBody');
   if (!tbody) {
-    console.warn('[FALTAS] tbody não encontrado');
+    console.warn('[FALTAS] ✗ tbody (faltasTableBody) não encontrado');
     return;
   }
 
   tbody.innerHTML = '';
 
   if (!faltasData || faltasData.length === 0) {
+    console.log('[FALTAS] Nenhuma falta carregada, mostrando mensagem');
     tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma falta encontrada</td></tr>';
-    console.log('[FALTAS] Nenhuma falta carregada');
     renderFaltasDetalhes([], disciplina);
     return;
   }
 
   // Filtrar faltas baseado nos critérios selecionados
-  let filteredData = faltasData.filter(falta => {
-    // Filtrar por trimestre (se houver data)
+  console.log('[FALTAS] Iniciando filtro de faltas...');
+  let filteredData = faltasData.filter((falta, idx) => {
+    console.log(`[FALTAS] Analisando falta ${idx}:`, {
+      data_falta: falta.data_falta,
+      disciplina_nome: falta.disciplina?.descricao_disc || falta.disciplina?.descricao_disciplina,
+      tipo: falta.tipo_falta
+    });
+
+    // Filtrar por ano (se houver data)
     if (falta.data_falta) {
       const faltaDate = new Date(falta.data_falta);
       const year = faltaDate.getFullYear();
       
+      console.log(`[FALTAS]   - Ano: ${year} (procurando: ${ano})`);
+      
       // Verificar se está no ano correto
       if (year.toString() !== ano) {
+        console.log(`[FALTAS]   - ✗ Descartada: ano não corresponde`);
         return false;
       }
-
-      // Verificar se está no trimestre correto
-      const month = faltaDate.getMonth();
-      let faltaTrimestre = 1;
-      
-      if (month >= 3 && month < 6) faltaTrimestre = 2;
-      else if (month >= 6 && month < 9) faltaTrimestre = 3;
-
-      if (faltaTrimestre.toString() !== trimestre) {
-        return false;
-      }
+    } else {
+      console.log(`[FALTAS]   - ⚠️ Falta sem data_falta`);
     }
 
     // Filtrar por disciplina
-    if (disciplina !== 'todas' && falta.disciplina?.descricao_disc !== disciplina) {
-      return false;
+    if (disciplina !== 'todas') {
+      const nomeDisciplinaFalta = falta.disciplina?.descricao_disc || 
+                                  falta.disciplina?.descricao_disciplina ||
+                                  falta.disciplina?.nome ||
+                                  'Desconhecida';
+      
+      console.log(`[FALTAS]   - Disciplina: "${nomeDisciplinaFalta}" (procurando: "${disciplina}")`);
+      
+      if (nomeDisciplinaFalta !== disciplina) {
+        console.log(`[FALTAS]   - ✗ Descartada: disciplina não corresponde`);
+        return false;
+      }
     }
 
+    console.log(`[FALTAS]   - ✓ Incluída`);
     return true;
   });
+
+  console.log('[FALTAS] Após filtro:', filteredData.length, 'faltas');
 
   // Ordenar por data descendente
   filteredData.sort((a, b) => {
@@ -467,12 +488,13 @@ function renderFaltasTable(trimestre, ano, disciplina) {
   });
 
   if (filteredData.length === 0) {
+    console.log('[FALTAS] Nenhuma falta após filtro');
     tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma falta encontrada para os filtros selecionados.</td></tr>';
     renderFaltasDetalhes([], disciplina);
     return;
   }
 
-  console.log(`[FALTAS] Renderizando ${filteredData.length} faltas`);
+  console.log(`[FALTAS] Renderizando ${filteredData.length} faltas na tabela`);
 
   // Agrupar faltas por data e disciplina
   const faltasAgrupadas = {};
@@ -517,6 +539,9 @@ function renderFaltasTable(trimestre, ano, disciplina) {
 
   // Renderizar detalhes das faltas filtradas
   renderFaltasDetalhes(filteredData, disciplina);
+  
+  console.log('%c[FALTAS] ✓ === renderFaltasTable CONCLUÍDO ===', 'color: green; font-weight: bold');
+  console.log('[FALTAS] Total renderizado na tabela:', Object.keys(faltasAgrupadas).length, 'agrupamentos');
 }
 
 /**
@@ -524,31 +549,44 @@ function renderFaltasTable(trimestre, ano, disciplina) {
  */
 function renderFaltasDetalhes(faltas, disciplinaFiltro = 'todas') {
   try {
+    console.log('%c[FALTAS] === renderFaltasDetalhes INICIADO ===', 'color: #8b5cf6; font-weight: bold');
+    console.log('[FALTAS] Faltas recebidas:', faltas);
+    console.log('[FALTAS] Faltas.length:', faltas ? faltas.length : 0);
+    console.log('[FALTAS] Filtro disciplina:', disciplinaFiltro);
+    
     const containerDetalhes = document.getElementById('faltasDetalhesContainer');
     const listaDetalhes = document.getElementById('listaFaltasDetalhes');
     const semFaltasMsg = document.getElementById('semFaltasMsg');
 
     if (!containerDetalhes || !listaDetalhes) {
-      console.warn('[FALTAS] Elementos para renderizar detalhes não encontrados');
+      console.warn('[FALTAS] ✗ Elementos para renderizar detalhes não encontrados');
+      console.warn('[FALTAS]   - faltasDetalhesContainer:', !!containerDetalhes);
+      console.warn('[FALTAS]   - listaFaltasDetalhes:', !!listaDetalhes);
       return;
     }
 
     // Filtrar faltas se houver filtro de disciplina
     let faltasFiltradas = faltas;
     if (disciplinaFiltro && disciplinaFiltro !== 'todas') {
-      faltasFiltradas = faltas.filter(f => 
-        (f.disciplina?.descricao_disc || f.disciplina?.descricao_disciplina) === disciplinaFiltro
-      );
-      console.log('[FALTAS] Faltas filtradas por disciplina:', faltasFiltradas.length);
+      console.log('[FALTAS] Filtrando faltas por disciplina:', disciplinaFiltro);
+      faltasFiltradas = faltas.filter(f => {
+        const nomeDisciplina = f.disciplina?.descricao_disc || 
+                              f.disciplina?.descricao_disciplina ||
+                              f.disciplina?.nome;
+        console.log('[FALTAS]   - Falta tem disciplina:', nomeDisciplina);
+        return nomeDisciplina === disciplinaFiltro;
+      });
+      console.log('[FALTAS] Faltas após filtro de disciplina:', faltasFiltradas.length);
     }
 
     if (!faltasFiltradas || faltasFiltradas.length === 0) {
-      console.log('[FALTAS] Nenhuma falta para exibir detalhes');
+      console.log('[FALTAS] ✓ Nenhuma falta para exibir detalhes');
       containerDetalhes.style.display = 'none';
       semFaltasMsg.style.display = 'block';
       return;
     }
 
+    console.log('[FALTAS] ✓ Renderizando', faltasFiltradas.length, 'faltas em detalhes');
     containerDetalhes.style.display = 'block';
     semFaltasMsg.style.display = 'none';
 
@@ -608,10 +646,12 @@ function renderFaltasDetalhes(faltas, disciplinaFiltro = 'todas') {
 
     htmlLista += '</div>';
     listaDetalhes.innerHTML = htmlLista;
-    console.log('[FALTAS] ✓ Lista detalhada renderizada com', faltasFiltradas.length, 'faltas');
+    console.log('%c[FALTAS] ✓ Lista detalhada renderizada com ' + faltasFiltradas.length + ' faltas', 'color: green; font-weight: bold');
+    console.log('[FALTAS] HTML renderizado, length:', htmlLista.length);
 
   } catch (error) {
-    console.error('[FALTAS] Erro ao renderizar detalhes de faltas:', error);
+    console.error('%c[FALTAS] ✗ Erro ao renderizar detalhes:', 'color: red', error);
+    console.error('[FALTAS] Stack:', error.stack);
   }
 }
 

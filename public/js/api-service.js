@@ -535,6 +535,8 @@ class APIService {
    * Listar faltas
    */
   async getFaltas(estudanteId = null, disciplinaId = null, turmaId = null) {
+    console.log('[API-SERVICE] getFaltas chamado com:', { estudanteId, disciplinaId, turmaId });
+    
     let endpoint = '/faltas';
     const params = new URLSearchParams();
 
@@ -546,10 +548,33 @@ class APIService {
       endpoint += `?${params.toString()}`;
     }
 
-    console.log('[API-SERVICE] Buscando faltas:', { estudanteId, disciplinaId, turmaId, endpoint });
-    const resultado = await this.get(endpoint);
-    console.log('[API-SERVICE] Faltas retornadas:', resultado);
-    return resultado;
+    console.log('[API-SERVICE] Buscando faltas, endpoint:', endpoint);
+    
+    try {
+      const resultado = await this.get(endpoint);
+      console.log('[API-SERVICE] Resposta bruta de getFaltas:', resultado);
+      console.log('[API-SERVICE] Tipo de resultado:', typeof resultado);
+      console.log('[API-SERVICE] É array?', Array.isArray(resultado));
+      
+      // Se a resposta vem como { data: [...] }, extrair o data
+      if (resultado && resultado.data && Array.isArray(resultado.data)) {
+        console.log('[API-SERVICE] Extraindo .data da resposta (é um objeto com propriedade data)');
+        return resultado.data;
+      }
+      
+      // Se for um array direto, retornar
+      if (Array.isArray(resultado)) {
+        console.log('[API-SERVICE] Resultado é array direto, retornando como está');
+        return resultado;
+      }
+      
+      console.warn('[API-SERVICE] ⚠️ Resultado não é array nem tem propriedade .data:', resultado);
+      return [];
+    } catch (error) {
+      console.error('[API-SERVICE] ✗ Erro em getFaltas:', error);
+      console.error('[API-SERVICE] Stack:', error.stack);
+      throw error;
+    }
   }
 
   /**
