@@ -42,8 +42,14 @@ class APIService {
       'Content-Type': 'application/json',
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    // IMPORTANTE: Ler o token do localStorage em CADA requisição
+    // Não usar this.token porque ele pode estar desatualizado
+    const token = this.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+      console.log('[API-SERVICE] ✓ Token JWT adicionado aos headers');
+    } else {
+      console.warn('[API-SERVICE] ⚠️ Nenhum token JWT encontrado - requisição pode falhar com 401');
     }
 
     return headers;
@@ -257,31 +263,49 @@ class APIService {
    * Obter estudante do usuário logado por usuário ID
    */
   async getEstudanteByUsuario(usuarioId) {
-    console.log('[API-SERVICE] getEstudanteByUsuario chamado com usuarioId:', usuarioId);
-    console.log('[API-SERVICE] Tipo de usuarioId:', typeof usuarioId);
+    console.log('%c[API-SERVICE] === getEstudanteByUsuario ===', 'color: #8b5cf6; font-weight: bold');
+    console.log('[API-SERVICE] usuarioId:', usuarioId, '| Type:', typeof usuarioId);
+    
+    if (!usuarioId) {
+      console.error('[API-SERVICE] ✗ usuarioId é obrigatório');
+      throw new Error('usuarioId é obrigatório para buscar estudante');
+    }
     
     try {
       const endpoint = `/estudantes/usuario/${usuarioId}`;
-      console.log('[API-SERVICE] Endpoint:', endpoint);
+      console.log('[API-SERVICE] GET', endpoint);
       
       const resposta = await this.get(endpoint);
-      console.log('[API-SERVICE] Resposta bruta de getEstudanteByUsuario:', resposta);
+      console.log('[API-SERVICE] ✓ Resposta recebida');
       console.log('[API-SERVICE] Tipo da resposta:', typeof resposta);
-      console.log('[API-SERVICE] Resposta é null?', resposta === null);
-      console.log('[API-SERVICE] Resposta é undefined?', resposta === undefined);
+      console.log('[API-SERVICE] Resposta:', resposta);
       
       // Se a resposta vem como { data: {...} }, extrair o data
-      if (resposta && resposta.data) {
+      if (resposta && resposta.data && typeof resposta.data === 'object') {
         console.log('[API-SERVICE] Extraindo .data da resposta');
-        return resposta.data;
+        const estudante = resposta.data;
+        console.log('[API-SERVICE] ✓ Estudante extraído:', estudante);
+        return estudante;
       }
       
-      console.log('[API-SERVICE] Retornando resposta como está');
-      return resposta;
+      // Se for um objeto direto com id_estudante, retornar
+      if (resposta && resposta.id_estudante) {
+        console.log('[API-SERVICE] ✓ Resposta é objeto estudante direto');
+        console.log('[API-SERVICE] id_estudante:', resposta.id_estudante);
+        console.log('[API-SERVICE] nome_estudante:', resposta.nome_estudante);
+        return resposta;
+      }
+      
+      console.error('[API-SERVICE] ✗ Resposta inesperada:', resposta);
+      return null;
     } catch (error) {
-      console.error('[API-SERVICE] ✗ Erro em getEstudanteByUsuario:', error);
-      console.error('[API-SERVICE] Message:', error.message);
-      console.error('[API-SERVICE] Stack:', error.stack);
+      if (error.message && error.message.includes('401')) {
+        console.error('[API-SERVICE] ✗ 401 Não autorizado - token pode estar expirado');
+      } else if (error.message && error.message.includes('404')) {
+        console.warn('[API-SERVICE] ⚠️ 404 Estudante não encontrado para usuarioId:', usuarioId);
+      } else {
+        console.error('[API-SERVICE] ✗ Erro ao buscar estudante:', error.message);
+      }
       throw error;
     }
   }
@@ -535,43 +559,57 @@ class APIService {
    * Listar faltas
    */
   async getFaltas(estudanteId = null, disciplinaId = null, turmaId = null) {
-    console.log('[API-SERVICE] getFaltas chamado com:', { estudanteId, disciplinaId, turmaId });
+    console.log('%c[API-SERVICE] === getFaltas CHAMADO ===', 'color: #0ea5e9; font-weight: bold');
+    console.log('[API-SERVICE] Parâmetros:', { estudanteId, disciplinaId, turmaId });
+    
+    // IMPORTANTE: Pelo menos um filtro deve ser fornecido
+    if (!estudanteId && !turmaId && !disciplinaId) {
+      console.error('[API-SERVICE] ✗ Erro: Nenhum filtro fornecido (estudanteId, turmaId ou disciplinaId obrigatório)');
+      return [];
+    }
     
     let endpoint = '/faltas';
     const params = new URLSearchParams();
 
-    if (estudanteId) params.append('estudanteId', estudanteId);
+    if (estudanteId) {
+      console.log('[API-SERVICE] Adicionando estudanteId:', estudanteId);
+      params.append('estudanteId', estudanteId);
+    }
     if (disciplinaId) params.append('disciplinaId', disciplinaId);
-    if (turmaId) params.append('turmaId', turmaId);
+    if (turmaId) {
+      console.log('[API-SERVICE] Adicionando turmaId:', turmaId);
+      params.append('turmaId', turmaId);
+    }
 
     if (params.toString()) {
       endpoint += `?${params.toString()}`;
     }
 
-    console.log('[API-SERVICE] Buscando faltas, endpoint:', endpoint);
+    console.log('[API-SERVICE] Endpoint completo:', `${this.baseURL}${endpoint}`);
     
     try {
       const resultado = await this.get(endpoint);
-      console.log('[API-SERVICE] Resposta bruta de getFaltas:', resultado);
-      console.log('[API-SERVICE] Tipo de resultado:', typeof resultado);
-      console.log('[API-SERVICE] É array?', Array.isArray(resultado));
+      console.log('[API-SERVICE] ✓ Resposta recebida');
+      console.log('[API-SERVICE] Tipo:', typeof resultado, '| É array?', Array.isArray(resultado));
       
       // Se a resposta vem como { data: [...] }, extrair o data
       if (resultado && resultado.data && Array.isArray(resultado.data)) {
-        console.log('[API-SERVICE] Extraindo .data da resposta (é um objeto com propriedade data)');
+        console.log('[API-SERVICE] Extraindo .data da resposta');
+        console.log('[API-SERVICE] ✓ Total de faltas:', resultado.data.length);
         return resultado.data;
       }
       
       // Se for um array direto, retornar
       if (Array.isArray(resultado)) {
-        console.log('[API-SERVICE] Resultado é array direto, retornando como está');
+        console.log('[API-SERVICE] ✓ Resultado é array direto');
+        console.log('[API-SERVICE] ✓ Total de faltas:', resultado.length);
         return resultado;
       }
       
-      console.warn('[API-SERVICE] ⚠️ Resultado não é array nem tem propriedade .data:', resultado);
+      console.warn('[API-SERVICE] ⚠️ Formato inesperado de resposta:', resultado);
       return [];
     } catch (error) {
-      console.error('[API-SERVICE] ✗ Erro em getFaltas:', error);
+      console.error('%c[API-SERVICE] ✗ ERRO em getFaltas:', 'color: red; font-weight: bold', error.message);
       console.error('[API-SERVICE] Stack:', error.stack);
       throw error;
     }

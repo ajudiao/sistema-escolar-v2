@@ -217,23 +217,20 @@ async function loadFaltas() {
     // Dados do estudante
     console.log('[FALTAS] userId (do localStorage):', estudanteId);
     console.log('[FALTAS] Objeto estudante:', estudante);
-    console.log('[FALTAS] Estudante.id_estudante:', estudante?.id_estudante);
-    console.log('[FALTAS] Estudante.nome_estudante:', estudante?.nome_estudante);
+    console.log('[FALTAS] id_estudante:', estudante?.id_estudante);
+    console.log('[FALTAS] nome_estudante:', estudante?.nome_estudante);
     
-    // Usar o ID real do estudante
+    // IMPORTANTE: Usar o ID REAL do estudante (id_estudante) do objeto estudante
+    // NÃO usar userId que é o ID de login do usuário
     let idEstudanteReal = estudante?.id_estudante;
     
     if (!idEstudanteReal) {
-      console.warn('[FALTAS] ⚠️ ID do estudante (id_estudante) não encontrado. Tentando fallback com userId');
-      console.warn('[FALTAS] Usando userId como fallback:', estudanteId);
-      idEstudanteReal = estudanteId;
-      
-      if (!idEstudanteReal) {
-        throw new Error('Nenhum ID de estudante disponível (nem id_estudante nem userId)');
-      }
-    } else {
-      console.log('[FALTAS] ✓ Usando ID real do estudante:', idEstudanteReal);
+      console.error('[FALTAS] ✗ ERRO CRÍTICO: id_estudante não encontrado no objeto estudante');
+      console.log('[FALTAS] Objeto estudante:', JSON.stringify(estudante, null, 2));
+      throw new Error('Impossível carregar faltas: ID do estudante não identificado');
     }
+    
+    console.log('[FALTAS] ✓ ID do estudante confirmado:', idEstudanteReal);
     
     // Obter filtros selecionados
     const ano = document.getElementById('anoSelect')?.value || '2026';
@@ -241,8 +238,9 @@ async function loadFaltas() {
 
     console.log('[FALTAS] Filtros selecionados:', { ano, disciplina });
 
-    // Carregar faltas da API
-    console.log('[FALTAS] Chamando api.getFaltas com estudanteId:', idEstudanteReal);
+    // Carregar faltas da API com o ID real do estudante
+    console.log('%c[FALTAS] Fazendo requisição à API...', 'color: #3b82f6; font-weight: bold');
+    console.log('[FALTAS] GET /faltas?estudanteId=' + idEstudanteReal);
     faltasData = await api.getFaltas(idEstudanteReal);
     
     console.log('[FALTAS] ✓ Resposta recebida de api.getFaltas');
