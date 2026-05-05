@@ -50,17 +50,35 @@ class AuthHelper {
   static fillUserInfo() {
     const userName = api.getUserName();
     const userRole = api.getUserRole();
-    
+    const translatedRole = this.translateRole(userRole);
+
     // Atualizar nome do usuário na sidebar ou header
-    const userNameElements = document.querySelectorAll('[data-user-name]');
-    userNameElements.forEach(el => {
-      el.textContent = userName || 'Utilizador';
+    const userNameSelectors = ['[data-user-name]', '.header-user-name'];
+    userNameSelectors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(el => {
+        el.textContent = userName || 'Utilizador';
+      });
     });
 
     // Atualizar role do usuário
-    const userRoleElements = document.querySelectorAll('[data-user-role]');
-    userRoleElements.forEach(el => {
-      el.textContent = this.translateRole(userRole);
+    const userRoleSelectors = ['[data-user-role]', '.header-user-role'];
+    userRoleSelectors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(el => {
+        el.textContent = translatedRole || 'Utilizador';
+      });
+    });
+
+    // Atualizar avatar com as iniciais do usuário
+    const initials = (userName || 'Utilizador')
+      .split(' ')
+      .filter(Boolean)
+      .map(word => word[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase();
+
+    document.querySelectorAll('.header-user-avatar').forEach(el => {
+      el.textContent = initials || 'U';
     });
 
     // Adicionar event listener ao botão de logout

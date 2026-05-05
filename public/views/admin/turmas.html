@@ -217,8 +217,8 @@
         <div class="header-right">
           <div class="header-user">
             <div class="header-user-avatar">AD</div>
-            <div class="header-user-info"><span class="header-user-name">Administrador</span><span
-                class="header-user-role">Administração</span></div>
+            <div class="header-user-info"><span class="header-user-name" data-user-name>Administrador</span><span
+                class="header-user-role" data-user-role>Administração</span></div>
           </div>
           <a href="#" data-logout class="btn btn-sm btn-outline-danger ms-3">Sair</a>
         </div>
@@ -246,6 +246,15 @@
                 <label class="form-label">Classe</label>
                 <select id="filterTurmaCiclo" class="form-control form-select">
                   <option value="">Todos</option>
+                  <option>1ª</option>
+                  <option>2ª</option>
+                  <option>3ª</option>
+                  <option>4ª</option>
+                  <option>5ª</option>
+                  <option>6ª</option>
+                  <option>7ª</option>
+                  <option>8ª</option>
+                  <option>9ª</option>
                   <option>10ª</option>
                   <option>11ª</option>
                   <option>12ª</option>
@@ -402,17 +411,26 @@
                       <label class="form-label">Classe</label>
                       <select id="turmaClasse" class="form-select">
                         <option value="">Selecione...</option>
+                        <option value="1ª">1ª Classe</option>
+                        <option value="2ª">2ª Classe</option>
+                        <option value="3ª">3ª Classe</option>
+                        <option value="4ª">4ª Classe</option>
+                        <option value="5ª">5ª Classe</option>
+                        <option value="6ª">6ª Classe</option>
+                        <option value="7ª">7ª Classe</option>
+                        <option value="8ª">8ª Classe</option>
+                        <option value="9ª">9ª Classe</option>
                         <option value="10ª">10ª Classe</option>
                         <option value="11ª">11ª Classe</option>
                         <option value="12ª">12ª Classe</option>
+                        <option value="13ª">13ª Classe</option>
                       </select>
                     </div>
 
                     <div class="col-md-4 mb-3">
-                      <label class="form-label">Curso (para 10ª, 11ª e 12ª Classes )</label>
+                      <label class="form-label">Curso (para II Ciclo)</label>
                       <select id="turmaCurso" class="form-select">
                         <option value="">Selecione...</option>
-
                       </select>
                     </div>
 
