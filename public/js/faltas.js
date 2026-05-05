@@ -15,31 +15,60 @@ let estudanteId = null;
 let estudante = null;
 
 document.addEventListener('DOMContentLoaded', function () {
-  console.log('[FALTAS] Script carregado');
+  console.log('%c[FALTAS] ===== INICIANDO SCRIPT =====', 'color: blue; font-weight: bold; font-size: 12px');
+
+  // DEBUG: Mostrar todo o localStorage
+  console.log('[FALTAS] localStorage completo:', {
+    userId: localStorage.getItem('userId'),
+    userRole: localStorage.getItem('userRole'),
+    userName: localStorage.getItem('userName'),
+    userEmail: localStorage.getItem('userEmail'),
+    todas_chaves: Object.keys(localStorage).map(k => `${k}: ${localStorage.getItem(k)}`)
+  });
 
   // Obter ID do estudante do localStorage
   estudanteId = localStorage.getItem('userId');
-  console.log('[FALTAS] Estudante ID:', estudanteId);
+  console.log('[FALTAS] userId do localStorage:', estudanteId);
 
   if (!estudanteId) {
-    console.error('[FALTAS] ID do estudante não encontrado');
-    DataLoader.showError('Erro: Usuário não identificado');
+    console.error('[FALTAS] ✗ userId não encontrado no localStorage');
+    DataLoader.showError('Erro: Usuário não identificado. Faça login novamente.');
     return;
   }
+
+  console.log('[FALTAS] ✓ userId carregado:', estudanteId);
 
   // Atualizar informações do usuário no header
   updateUserInfo();
 
   // Carregar turma e disciplinas primeiro
+  console.log('[FALTAS] Chamando loadTurmaComDisciplinas()...');
   loadTurmaComDisciplinas().then(() => {
+    console.log('[FALTAS] ✓ loadTurmaComDisciplinas concluído');
+    console.log('[FALTAS] Objeto estudante agora:', estudante);
+    console.log('[FALTAS] ID do estudante (id_estudante):', estudante?.id_estudante);
+    
     // Depois carregar faltas
+    console.log('[FALTAS] Chamando loadFaltas()...');
     loadFaltas();
+  }).catch(erro => {
+    console.error('[FALTAS] ✗ Erro em loadTurmaComDisciplinas:', erro);
+    console.error('[FALTAS] Stack:', erro.stack);
   });
 
   // Event listener para botão de carregar faltas
   const btnCarregarFaltas = document.getElementById('btnCarregarFaltas');
   if (btnCarregarFaltas) {
     btnCarregarFaltas.addEventListener('click', loadFaltas);
+  }
+
+  // Event listener para filtro de disciplina
+  const disciplinaSelect = document.getElementById('disciplinaSelect');
+  if (disciplinaSelect) {
+    disciplinaSelect.addEventListener('change', function() {
+      console.log('[FALTAS] Disciplina selecionada:', this.value);
+      renderFaltasDetalhes(faltasData, this.value);
+    });
   }
 });
 
@@ -67,57 +96,109 @@ function updateUserInfo() {
  */
 async function loadTurmaComDisciplinas() {
   try {
-    console.log('[FALTAS] Carregando turma e disciplinas do estudante...');
+    console.log('%c[FALTAS] === loadTurmaComDisciplinas INICIADO ===', 'color: purple; font-weight: bold');
+    console.log('[FALTAS] Chamando api.getEstudanteByUsuario com userId:', estudanteId);
+    console.log('[FALTAS] Tipo de estudanteId:', typeof estudanteId);
+    console.log('[FALTAS] estudanteId vazio?', !estudanteId || estudanteId === '');
 
     // 1. Obter dados do estudante via API
-    estudante = await api.getEstudanteByUsuario(estudanteId);
-    console.log('[FALTAS] Estudante carregado:', estudante.nome_estudante);
+    console.log('[FALTAS] Fazendo chamada à API...');
+    const resposta = await api.getEstudanteByUsuario(estudanteId);
+    console.log('[FALTAS] Resposta bruta da API:', resposta);
+    console.log('[FALTAS] Tipo da resposta:', typeof resposta);
+    console.log('[FALTAS] Resposta é null?', resposta === null);
+    console.log('[FALTAS] Resposta é undefined?', resposta === undefined);
+    
+    estudante = resposta;
+    console.log('[FALTAS] ✓ Resposta atribuída a estudante:', estudante);
+    
+    if (!estudante) {
+      console.warn('[FALTAS] ⚠️ api.getEstudanteByUsuario retornou null/undefined');
+      console.log('[FALTAS] Carregando fallback de disciplinas (getDisciplinas)');
+      disciplinasDisponíveis = await api.getDisciplinas();
+      console.log('[FALTAS] Total de disciplinas (fallback):', disciplinasDisponíveis?.length || 0);
+      return; // Continua com faltas, vai carregar dados com userId
+    }
+
+    console.log('[FALTAS] Estudante completo:', JSON.stringify(estudante, null, 2));
+    console.log('[FALTAS] Estudante.nome_estudante:', estudante.nome_estudante);
+    console.log('[FALTAS] Estudante.id_estudante:', estudante.id_estudante);
+    console.log('[FALTAS] Estudante.turma:', estudante.turma);
 
     if (!estudante.turma || !estudante.turma.id_turma) {
-      console.warn('[FALTAS] Estudante sem turma. Carregando todas as disciplinas.');
+      console.warn('[FALTAS] ⚠️ Estudante sem turma. Carregando todas as disciplinas.');
       disciplinasDisponíveis = await api.getDisciplinas();
-      console.log('[FALTAS] Total de disciplinas (todas):', disciplinasDisponíveis.length);
+      console.log('[FALTAS] Total de disciplinas (fallback):', disciplinasDisponíveis.length);
       return;
     }
 
     const turmaId = estudante.turma.id_turma;
-    console.log('[FALTAS] Turma ID:', turmaId);
+    console.log('[FALTAS] Turma ID encontrado:', turmaId);
 
-    // 2. Carregar turma
-    const turma = await api.getTurma(turmaId);
-    console.log('[FALTAS] Turma carregada:', turma.sigla_turma);
+    // 2. Carregar turma completa com disciplinas
+    console.log('[FALTAS] Chamando api.getTurmaComDisciplinas...');
+    const turma = await api.getTurmaComDisciplinas(turmaId);
+    console.log('[FALTAS] ✓ Turma recebida:', turma);
+    console.log('[FALTAS] Turma.disciplinas:', turma?.disciplinas);
 
-    // 3. Se turma tem curso, carregar disciplinas do curso
-    if (turma && turma.curso_id) {
-      console.log('[FALTAS] Carregando disciplinas do curso:', turma.curso_id);
-      try {
-        const disciplinas = await api.getDisciplinasCurso(turma.curso_id);
-        console.log('[FALTAS] Disciplinas do curso carregadas:', disciplinas.length);
-        
-        if (disciplinas && disciplinas.length > 0) {
-          disciplinasDisponíveis = disciplinas;
+    // 3. Extrair disciplinas da turma
+    let disciplinas = [];
+    
+    if (turma && turma.disciplinas && Array.isArray(turma.disciplinas)) {
+      console.log('[FALTAS] Encontradas', turma.disciplinas.length, 'disciplinas na turma');
+      console.log('[FALTAS] Primeira disciplina:', turma.disciplinas[0]);
+      
+      // Se as disciplinas vêm como CursoDisciplina com nested disciplina
+      if (turma.disciplinas[0] && turma.disciplinas[0].disciplina) {
+        console.log('[FALTAS] Mapeando disciplinas de CursoDisciplina');
+        disciplinas = turma.disciplinas
+          .filter(cd => cd.disciplina)
+          .map(cd => cd.disciplina);
+      } else {
+        // Caso contrário, usar como estão
+        console.log('[FALTAS] Usando disciplinas diretamente');
+        disciplinas = turma.disciplinas;
+      }
+    } else if (turma && turma.curso_id) {
+      // Se turma não tem disciplinas mas tem curso_id, tentar carregar pelo curso
+      console.log('[FALTAS] Turma sem disciplinas diretas, carregando pelo curso...');
+      const disciplinasDoCurso = await api.getDisciplinasCurso(turma.curso_id);
+      console.log('[FALTAS] Disciplinas do curso:', disciplinasDoCurso);
+      
+      if (disciplinasDoCurso && disciplinasDoCurso.length > 0) {
+        if (disciplinasDoCurso[0] && disciplinasDoCurso[0].disciplina) {
+          console.log('[FALTAS] Mapeando disciplinas de CursoDisciplina do curso');
+          disciplinas = disciplinasDoCurso
+            .filter(cd => cd.disciplina)
+            .map(cd => cd.disciplina);
         } else {
-          console.warn('[FALTAS] Nenhuma disciplina do curso. Usando fallback.');
-          disciplinasDisponíveis = await api.getDisciplinas();
+          disciplinas = disciplinasDoCurso;
         }
-      } catch (error) {
-        console.error('[FALTAS] Erro ao carregar disciplinas do curso:', error.message);
-        console.log('[FALTAS] Usando fallback: todas as disciplinas');
-        disciplinasDisponíveis = await api.getDisciplinas();
       }
     } else {
-      console.warn('[FALTAS] Turma sem curso. Carregando todas as disciplinas.');
-      disciplinasDisponíveis = await api.getDisciplinas();
+      console.warn('[FALTAS] ⚠️ Turma sem disciplinas nem curso_id');
     }
 
-    console.log('[FALTAS] Total de disciplinas carregadas:', disciplinasDisponíveis.length);
+    if (disciplinas && disciplinas.length > 0) {
+      disciplinasDisponíveis = disciplinas;
+      console.log('[FALTAS] ✓ Disciplinas carregadas:', disciplinasDisponíveis.length);
+    } else {
+      console.warn('[FALTAS] Nenhuma disciplina encontrada. Usando fallback...');
+      disciplinasDisponíveis = await api.getDisciplinas();
+      console.log('[FALTAS] Disciplinas fallback:', disciplinasDisponíveis.length);
+    }
+
+    console.log('%c[FALTAS] ✓ === loadTurmaComDisciplinas CONCLUÍDO ===', 'color: green; font-weight: bold');
   } catch (error) {
-    console.error('[FALTAS] Erro ao carregar turma e disciplinas:', error);
-    console.log('[FALTAS] Fallback: carregando todas as disciplinas');
+    console.error('%c[FALTAS] ✗ Erro em loadTurmaComDisciplinas:', 'color: red; font-weight: bold', error);
+    console.error('[FALTAS] Stack:', error.stack);
+    console.log('[FALTAS] Tentando fallback: carregar todas as disciplinas');
     try {
       disciplinasDisponíveis = await api.getDisciplinas();
+      console.log('[FALTAS] ✓ Fallback sucesso:', disciplinasDisponíveis?.length || 0, 'disciplinas');
     } catch (fallbackError) {
-      console.error('[FALTAS] Erro no fallback:', fallbackError);
+      console.error('[FALTAS] ✗ Erro no fallback:', fallbackError);
+      console.log('[FALTAS] Continuando sem disciplinas...');
       disciplinasDisponíveis = [];
     }
   }
@@ -128,35 +209,79 @@ async function loadTurmaComDisciplinas() {
  */
 async function loadFaltas() {
   try {
-    console.log('[FALTAS] Carregando faltas para estudante:', estudanteId);
+    console.log('%c[FALTAS] === loadFaltas INICIADO ===', 'color: teal; font-weight: bold; font-size: 12px');
+    
+    // Dados do estudante
+    console.log('[FALTAS] userId (do localStorage):', estudanteId);
+    console.log('[FALTAS] Objeto estudante:', estudante);
+    console.log('[FALTAS] Estudante.id_estudante:', estudante?.id_estudante);
+    console.log('[FALTAS] Estudante.nome_estudante:', estudante?.nome_estudante);
+    
+    // Usar o ID real do estudante
+    let idEstudanteReal = estudante?.id_estudante;
+    
+    if (!idEstudanteReal) {
+      console.warn('[FALTAS] ⚠️ ID do estudante (id_estudante) não encontrado. Tentando fallback com userId');
+      console.warn('[FALTAS] Usando userId como fallback:', estudanteId);
+      idEstudanteReal = estudanteId;
+      
+      if (!idEstudanteReal) {
+        throw new Error('Nenhum ID de estudante disponível (nem id_estudante nem userId)');
+      }
+    } else {
+      console.log('[FALTAS] ✓ Usando ID real do estudante:', idEstudanteReal);
+    }
     
     // Obter filtros selecionados
     const trimestre = document.getElementById('trimestreSelect')?.value || '1';
     const ano = document.getElementById('anoSelect')?.value || '2026';
     const disciplina = document.getElementById('disciplinaSelect')?.value || 'todas';
 
-    // Carregar faltas da API para o estudante atual
-    faltasData = await api.getFaltas(estudanteId);
+    console.log('[FALTAS] Filtros selecionados:', { trimestre, ano, disciplina });
+
+    // Carregar faltas da API
+    console.log('[FALTAS] Chamando api.getFaltas com estudanteId:', idEstudanteReal);
+    faltasData = await api.getFaltas(idEstudanteReal);
     
-    console.log('[FALTAS] Faltas carregadas:', faltasData);
+    console.log('[FALTAS] ✓ Resposta recebida de api.getFaltas');
+    console.log('[FALTAS] faltasData:', faltasData);
+    console.log('[FALTAS] faltasData type:', typeof faltasData);
+    console.log('[FALTAS] faltasData é array?', Array.isArray(faltasData));
+    console.log('[FALTAS] Total de faltas:', faltasData ? faltasData.length : 0);
+
+    if (faltasData && faltasData.length > 0) {
+      console.log('[FALTAS] Estrutura da primeira falta:', faltasData[0]);
+    }
 
     // Atualizar select de disciplinas com disciplinas da turma
+    console.log('[FALTAS] Chamando updateDisciplinaSelect()');
     updateDisciplinaSelect();
 
+    // Renderizar lista detalhada de faltas
+    console.log('[FALTAS] Chamando renderFaltasDetalhes()');
+    renderFaltasDetalhes(faltasData, disciplina);
+
     // Renderizar tabela com filtros
+    console.log('[FALTAS] Chamando renderFaltasTable()');
     renderFaltasTable(trimestre, ano, disciplina);
 
     // Atualizar cards de resumo
+    console.log('[FALTAS] Chamando updateFaltasStatistics()');
     updateFaltasStatistics();
 
+    console.log('%c[FALTAS] ✓ === loadFaltas CONCLUÍDO COM SUCESSO ===', 'color: green; font-weight: bold; font-size: 12px');
+
   } catch (error) {
-    console.error('[FALTAS] Erro ao carregar faltas:', error);
+    console.error('%c[FALTAS] ✗ ERRO CRÍTICO em loadFaltas:', 'color: red; font-weight: bold; font-size: 12px', error);
+    console.error('[FALTAS] Message:', error.message);
+    console.error('[FALTAS] Stack:', error.stack);
+    
     DataLoader.showError('Erro ao carregar faltas: ' + error.message);
     
     // Mostrar mensagem de erro na tabela
     const tbody = document.getElementById('faltasTableBody');
     if (tbody) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Erro ao carregar faltas</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Erro ao carregar faltas: ' + error.message + '</td></tr>';
     }
   }
 }
@@ -166,31 +291,121 @@ async function loadFaltas() {
  */
 function updateDisciplinaSelect() {
   const select = document.getElementById('disciplinaSelect');
-  if (!select) return;
+  if (!select) {
+    console.warn('[FALTAS] Select disciplina não encontrado');
+    return;
+  }
 
   // Manter a opção "Todas"
   const currentValue = select.value;
   select.innerHTML = '<option value="todas">Todas</option>';
 
+  console.log('%c[FALTAS] === updateDisciplinaSelect INICIADO ===', 'color: orange; font-weight: bold');
+  console.log('[FALTAS] disciplinasDisponíveis:', disciplinasDisponíveis);
+  console.log('[FALTAS] Quantidade:', disciplinasDisponíveis ? disciplinasDisponíveis.length : 0);
+  console.log('[FALTAS] É array?', Array.isArray(disciplinasDisponíveis));
+
   // Adicionar disciplinas carregadas da turma
   if (disciplinasDisponíveis && disciplinasDisponíveis.length > 0) {
-    console.log('[FALTAS] Preenchendo select com', disciplinasDisponíveis.length, 'disciplinas');
+    console.log('[FALTAS] ✓ Preenchendo select com', disciplinasDisponíveis.length, 'disciplinas');
     
-    disciplinasDisponíveis.forEach(disciplina => {
-      const option = document.createElement('option');
-      const nomeDisciplina = disciplina.descricao_disc || disciplina.descricao_disciplina || 'Disciplina';
-      option.value = nomeDisciplina;
-      option.textContent = nomeDisciplina;
-      select.appendChild(option);
+    disciplinasDisponíveis.forEach((disciplina, idx) => {
+      try {
+        console.log(`[FALTAS] Processando disciplina ${idx}:`, disciplina);
+        
+        const option = document.createElement('option');
+        
+        // Tentar diferentes propriedades para o nome
+        let nomeDisciplina = null;
+        if (disciplina.descricao_disc) {
+          nomeDisciplina = disciplina.descricao_disc;
+          console.log(`[FALTAS]   → Encontrada propriedade descricao_disc: ${nomeDisciplina}`);
+        } else if (disciplina.descricao_disciplina) {
+          nomeDisciplina = disciplina.descricao_disciplina;
+          console.log(`[FALTAS]   → Encontrada propriedade descricao_disciplina: ${nomeDisciplina}`);
+        } else if (disciplina.nome) {
+          nomeDisciplina = disciplina.nome;
+          console.log(`[FALTAS]   → Encontrada propriedade nome: ${nomeDisciplina}`);
+        } else if (disciplina.nome_disc) {
+          nomeDisciplina = disciplina.nome_disc;
+          console.log(`[FALTAS]   → Encontrada propriedade nome_disc: ${nomeDisciplina}`);
+        } else {
+          nomeDisciplina = 'Disciplina';
+          console.log(`[FALTAS]   → Nenhuma propriedade encontrada, usando padrão`);
+        }
+        
+        option.value = nomeDisciplina;
+        option.textContent = nomeDisciplina;
+        select.appendChild(option);
+        console.log(`[FALTAS]   ✓ Opção adicionada ao select`);
+      } catch (error) {
+        console.error(`[FALTAS] Erro ao processar disciplina ${idx}:`, error);
+      }
     });
+    
+    console.log('[FALTAS] ✓ Select preenchido com sucesso');
   } else {
-    console.warn('[FALTAS] Nenhuma disciplina carregada para o select');
+    console.warn('[FALTAS] ⚠️ Nenhuma disciplina em disciplinasDisponíveis. Tentando fallback...');
+    
+    // FALLBACK: Carregar todas as disciplinas da API
+    api.getDisciplinas()
+      .then(disciplinas => {
+        console.log('[FALTAS] Disciplinas do fallback (getDisciplinas):', disciplinas);
+        
+        if (disciplinas && disciplinas.length > 0) {
+          // Limpar select novamente
+          select.innerHTML = '<option value="todas">Todas</option>';
+          
+          disciplinas.forEach((disciplina, idx) => {
+            try {
+              const option = document.createElement('option');
+              
+              let nomeDisciplina = null;
+              if (disciplina.descricao_disc) {
+                nomeDisciplina = disciplina.descricao_disc;
+              } else if (disciplina.descricao_disciplina) {
+                nomeDisciplina = disciplina.descricao_disciplina;
+              } else if (disciplina.nome) {
+                nomeDisciplina = disciplina.nome;
+              } else if (disciplina.nome_disc) {
+                nomeDisciplina = disciplina.nome_disc;
+              } else {
+                nomeDisciplina = 'Disciplina';
+              }
+              
+              option.value = nomeDisciplina;
+              option.textContent = nomeDisciplina;
+              select.appendChild(option);
+              console.log(`[FALTAS] ✓ Disciplina do fallback adicionada: ${nomeDisciplina}`);
+            } catch (error) {
+              console.error('[FALTAS] Erro ao processar disciplina do fallback:', error);
+            }
+          });
+          
+          console.log('[FALTAS] ✓ Select preenchido com disciplinas do fallback');
+        } else {
+          console.warn('[FALTAS] Fallback também retornou vazio');
+          const disabledOption = document.createElement('option');
+          disabledOption.textContent = 'Nenhuma disciplina';
+          disabledOption.disabled = true;
+          select.appendChild(disabledOption);
+        }
+      })
+      .catch(error => {
+        console.error('[FALTAS] ✗ Erro no fallback de getDisciplinas:', error);
+        const disabledOption = document.createElement('option');
+        disabledOption.textContent = 'Erro ao carregar disciplinas';
+        disabledOption.disabled = true;
+        select.appendChild(disabledOption);
+      });
   }
-
+  
   // Manter valor selecionado se ainda existir
   if (Array.from(select.options).some(opt => opt.value === currentValue)) {
     select.value = currentValue;
   }
+  
+  console.log('%c[FALTAS] ✓ === updateDisciplinaSelect CONCLUÍDO ===', 'color: green; font-weight: bold');
 }
 
 /**
@@ -208,6 +423,7 @@ function renderFaltasTable(trimestre, ano, disciplina) {
   if (!faltasData || faltasData.length === 0) {
     tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma falta encontrada</td></tr>';
     console.log('[FALTAS] Nenhuma falta carregada');
+    renderFaltasDetalhes([], disciplina);
     return;
   }
 
@@ -252,6 +468,7 @@ function renderFaltasTable(trimestre, ano, disciplina) {
 
   if (filteredData.length === 0) {
     tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-4">Nenhuma falta encontrada para os filtros selecionados.</td></tr>';
+    renderFaltasDetalhes([], disciplina);
     return;
   }
 
@@ -297,39 +514,205 @@ function renderFaltasTable(trimestre, ano, disciplina) {
       console.error('[FALTAS] Erro ao renderizar linha:', error);
     }
   });
+
+  // Renderizar detalhes das faltas filtradas
+  renderFaltasDetalhes(filteredData, disciplina);
+}
+
+/**
+ * Renderizar lista detalhada de faltas com observações
+ */
+function renderFaltasDetalhes(faltas, disciplinaFiltro = 'todas') {
+  try {
+    const containerDetalhes = document.getElementById('faltasDetalhesContainer');
+    const listaDetalhes = document.getElementById('listaFaltasDetalhes');
+    const semFaltasMsg = document.getElementById('semFaltasMsg');
+
+    if (!containerDetalhes || !listaDetalhes) {
+      console.warn('[FALTAS] Elementos para renderizar detalhes não encontrados');
+      return;
+    }
+
+    // Filtrar faltas se houver filtro de disciplina
+    let faltasFiltradas = faltas;
+    if (disciplinaFiltro && disciplinaFiltro !== 'todas') {
+      faltasFiltradas = faltas.filter(f => 
+        (f.disciplina?.descricao_disc || f.disciplina?.descricao_disciplina) === disciplinaFiltro
+      );
+      console.log('[FALTAS] Faltas filtradas por disciplina:', faltasFiltradas.length);
+    }
+
+    if (!faltasFiltradas || faltasFiltradas.length === 0) {
+      console.log('[FALTAS] Nenhuma falta para exibir detalhes');
+      containerDetalhes.style.display = 'none';
+      semFaltasMsg.style.display = 'block';
+      return;
+    }
+
+    containerDetalhes.style.display = 'block';
+    semFaltasMsg.style.display = 'none';
+
+    // Ordenar por data descendente
+    faltasFiltradas.sort((a, b) => {
+      const dateA = new Date(a.data_falta || 0);
+      const dateB = new Date(b.data_falta || 0);
+      return dateB - dateA;
+    });
+
+    // Criar HTML da lista
+    let htmlLista = '<div class="list-group list-group-flush">';
+
+    faltasFiltradas.forEach((falta, idx) => {
+      const numero = idx + 1;
+      const marcador = falta.tipo_falta === 'JUSTIFICADA' ? '📋' : '❌';
+      const badgeClass = falta.tipo_falta === 'JUSTIFICADA' ? 'badge bg-warning text-dark' : 'badge bg-danger';
+      
+      const nomeDisciplina = falta.disciplina?.descricao_disc || 
+                            falta.disciplina?.descricao_disciplina || 
+                            'Disciplina desconhecida';
+      
+      const dataFormatada = new Date(falta.data_falta).toLocaleDateString('pt-AO', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+
+      htmlLista += `
+        <div class="list-group-item px-3 py-3">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="flex-grow-1">
+              <h6 class="mb-1">
+                <span style="font-size: 1.3em; margin-right: 8px;">${marcador}</span>
+                ${nomeDisciplina}
+                <span class="${badgeClass}" style="margin-left: 8px; font-size: 0.75rem;">
+                  ${falta.tipo_falta === 'JUSTIFICADA' ? 'Justificada' : 'Injustificada'}
+                </span>
+              </h6>
+              <p class="mb-2 text-muted">
+                <small>
+                  📅 ${dataFormatada}
+                </small>
+              </p>
+              ${falta.observacao ? `
+                <p class="mb-0">
+                  <small class="text-secondary">
+                    <strong>Observação:</strong> ${falta.observacao}
+                  </small>
+                </p>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    htmlLista += '</div>';
+    listaDetalhes.innerHTML = htmlLista;
+    console.log('[FALTAS] ✓ Lista detalhada renderizada com', faltasFiltradas.length, 'faltas');
+
+  } catch (error) {
+    console.error('[FALTAS] Erro ao renderizar detalhes de faltas:', error);
+  }
 }
 
 /**
  * Atualizar estatísticas de faltas
  */
 function updateFaltasStatistics() {
+  console.log('%c[FALTAS] === updateFaltasStatistics INICIADO ===', 'color: orange; font-weight: bold; font-size: 12px');
+  console.log('[FALTAS] faltasData:', faltasData);
+  console.log('[FALTAS] faltasData type:', typeof faltasData);
+  console.log('[FALTAS] faltasData length:', faltasData ? faltasData.length : 'null/undefined');
+  console.log('[FALTAS] Array.isArray(faltasData):', Array.isArray(faltasData));
+
+  // Verificar se elementos existem
+  const elTotalFaltas = document.getElementById('totalFaltas');
+  const elFaltasJustificadas = document.getElementById('faltasJustificadas');
+  const elFaltasNaoJustificadas = document.getElementById('faltasNaoJustificadas');
+  const elAssiduidade = document.getElementById('assiduidade');
+
+  console.log('[FALTAS] Elementos encontrados:', {
+    totalFaltas: !!elTotalFaltas,
+    faltasJustificadas: !!elFaltasJustificadas,
+    faltasNaoJustificadas: !!elFaltasNaoJustificadas,
+    assiduidade: !!elAssiduidade
+  });
+
   if (!faltasData || faltasData.length === 0) {
-    document.getElementById('totalFaltas').textContent = '0';
-    document.getElementById('faltasJustificadas').textContent = '0';
-    document.getElementById('faltasNaoJustificadas').textContent = '0';
-    document.getElementById('assiduidade').textContent = '100%';
+    console.log('[FALTAS] Nenhuma falta, resetando para 0');
+    if (elTotalFaltas) {
+      elTotalFaltas.textContent = '0';
+      console.log('[FALTAS] ✓ totalFaltas = 0');
+    }
+    if (elFaltasJustificadas) {
+      elFaltasJustificadas.textContent = '0';
+      console.log('[FALTAS] ✓ faltasJustificadas = 0');
+    }
+    if (elFaltasNaoJustificadas) {
+      elFaltasNaoJustificadas.textContent = '0';
+      console.log('[FALTAS] ✓ faltasNaoJustificadas = 0');
+    }
+    if (elAssiduidade) {
+      elAssiduidade.textContent = '100%';
+      console.log('[FALTAS] ✓ assiduidade = 100%');
+    }
     return;
   }
 
   // Calcular totais
   const total = faltasData.length;
-  const justificadas = faltasData.filter(f => f.tipo_falta === 'JUSTIFICADA').length;
+  console.log('[FALTAS] Total de faltas:', total);
+
+  const justificadas = faltasData.filter(f => {
+    console.log('[FALTAS] Analisando falta:', f);
+    console.log('[FALTAS] tipo_falta:', f.tipo_falta);
+    return f.tipo_falta === 'JUSTIFICADA';
+  }).length;
+  console.log('[FALTAS] Faltas justificadas:', justificadas);
+
   const naoJustificadas = total - justificadas;
+  console.log('[FALTAS] Faltas não justificadas:', naoJustificadas);
 
   // Assumir 200 aulas no ano (aproximadamente)
   const totalAulasEsperadas = 200;
   const assiduidade = Math.max(0, Math.round(((totalAulasEsperadas - total) / totalAulasEsperadas) * 100));
 
-  // Atualizar elementos
-  document.getElementById('totalFaltas').textContent = total;
-  document.getElementById('faltasJustificadas').textContent = justificadas;
-  document.getElementById('faltasNaoJustificadas').textContent = naoJustificadas;
-  document.getElementById('assiduidade').textContent = assiduidade + '%';
-
-  console.log('[FALTAS] Estatísticas atualizadas:', {
+  console.log('[FALTAS] Cálculos finalizados:', {
     total,
     justificadas,
     naoJustificadas,
-    assiduidade
+    assiduidade,
+    totalAulasEsperadas
   });
+
+  // Atualizar elementos
+  if (elTotalFaltas) {
+    console.log('[FALTAS] Atualizando totalFaltas para:', total);
+    elTotalFaltas.textContent = total;
+  } else {
+    console.warn('[FALTAS] ✗ Elemento totalFaltas não encontrado');
+  }
+  
+  if (elFaltasJustificadas) {
+    console.log('[FALTAS] Atualizando faltasJustificadas para:', justificadas);
+    elFaltasJustificadas.textContent = justificadas;
+  } else {
+    console.warn('[FALTAS] ✗ Elemento faltasJustificadas não encontrado');
+  }
+  
+  if (elFaltasNaoJustificadas) {
+    console.log('[FALTAS] Atualizando faltasNaoJustificadas para:', naoJustificadas);
+    elFaltasNaoJustificadas.textContent = naoJustificadas;
+  } else {
+    console.warn('[FALTAS] ✗ Elemento faltasNaoJustificadas não encontrado');
+  }
+  
+  if (elAssiduidade) {
+    console.log('[FALTAS] Atualizando assiduidade para:', assiduidade + '%');
+    elAssiduidade.textContent = assiduidade + '%';
+  } else {
+    console.warn('[FALTAS] ✗ Elemento assiduidade não encontrado');
+  }
+
+  console.log('%c[FALTAS] ✓ === updateFaltasStatistics CONCLUÍDO ===', 'color: green; font-weight: bold; font-size: 12px');
 }

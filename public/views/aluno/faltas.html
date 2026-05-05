@@ -226,7 +226,24 @@
           </div>
         </div>
         
-        <!-- Faltas List -->
+        <!-- Estudantes com Faltas Registadas - Lista Detalhada -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h6 class="card-title mb-0">📋 Detalhes das Minhas Faltas</h6>
+          </div>
+          <div class="card-body">
+            <div id="faltasDetalhesContainer" style="display: none;">
+              <div id="listaFaltasDetalhes" style="max-height: 500px; overflow-y: auto;">
+                <!-- Lista dinamicamente preenchida -->
+              </div>
+            </div>
+            <div id="semFaltasMsg" class="text-center text-muted py-4" style="display: none;">
+              <p>✓ Nenhuma falta registada</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Histórico de Faltas -->
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <h6 class="card-title mb-0">Histórico de Faltas</h6>

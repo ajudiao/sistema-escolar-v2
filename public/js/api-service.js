@@ -89,7 +89,17 @@ class APIService {
       }
 
       const responseData = await response.json();
-      console.log('[API-SERVICE] ✓ Sucesso:', responseData);
+      console.log('[API-SERVICE] ✓ Sucesso - Response data:', responseData);
+      console.log('[API-SERVICE] Tipo de responseData:', typeof responseData);
+      console.log('[API-SERVICE] responseData é null?', responseData === null);
+      console.log('[API-SERVICE] responseData é undefined?', responseData === undefined);
+      
+      // Se responseData for null ou undefined, retornar assim mesmo
+      if (!responseData) {
+        console.warn('[API-SERVICE] ⚠️ responseData é falsy');
+        return responseData;
+      }
+      
       return responseData;
     } catch (error) {
       console.error('[API-SERVICE] ✗ Erro geral na requisição:', error);
@@ -247,7 +257,33 @@ class APIService {
    * Obter estudante do usuário logado por usuário ID
    */
   async getEstudanteByUsuario(usuarioId) {
-    return this.get(`/estudantes/usuario/${usuarioId}`);
+    console.log('[API-SERVICE] getEstudanteByUsuario chamado com usuarioId:', usuarioId);
+    console.log('[API-SERVICE] Tipo de usuarioId:', typeof usuarioId);
+    
+    try {
+      const endpoint = `/estudantes/usuario/${usuarioId}`;
+      console.log('[API-SERVICE] Endpoint:', endpoint);
+      
+      const resposta = await this.get(endpoint);
+      console.log('[API-SERVICE] Resposta bruta de getEstudanteByUsuario:', resposta);
+      console.log('[API-SERVICE] Tipo da resposta:', typeof resposta);
+      console.log('[API-SERVICE] Resposta é null?', resposta === null);
+      console.log('[API-SERVICE] Resposta é undefined?', resposta === undefined);
+      
+      // Se a resposta vem como { data: {...} }, extrair o data
+      if (resposta && resposta.data) {
+        console.log('[API-SERVICE] Extraindo .data da resposta');
+        return resposta.data;
+      }
+      
+      console.log('[API-SERVICE] Retornando resposta como está');
+      return resposta;
+    } catch (error) {
+      console.error('[API-SERVICE] ✗ Erro em getEstudanteByUsuario:', error);
+      console.error('[API-SERVICE] Message:', error.message);
+      console.error('[API-SERVICE] Stack:', error.stack);
+      throw error;
+    }
   }
 
   /**
